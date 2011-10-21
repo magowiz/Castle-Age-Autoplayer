@@ -893,8 +893,9 @@
                     params = $u.isArray(params) ? params[0] : params;
                     session.setItem("signedRequest", params);
                     con.log(2, "Ajax signed request available");
-                    caap.showRequestForm = "showRequestForm = " + caap.showRequestForm.replace(/SIGNED_REQUEST/gm, params);
-                    $u.injectScript(caap.showRequestForm, true);
+// disabled this because it causes gifts to be already collected.
+//                    caap.showRequestForm = "showRequestForm = " + caap.showRequestForm.replace(/SIGNED_REQUEST/gm, params);
+//                    $u.injectScript(caap.showRequestForm, true);
                 } else {
                     con.warn("caap.signedRequest is empty");
                 }
@@ -2435,7 +2436,9 @@
             'Water II',
             'Mist II',
             'Mist III',
-            'Fire II'
+            'Fire II',
+            'Pangaea',
+            'Perdition'
         ],
 
         demiQuestList: [
@@ -7150,11 +7153,29 @@
             'Fire II' : {
                 clas : 'quests_stage_14',
                 base : 'tab_fire2',
-                next : 'DemiChange',
+                next : 'Pangaea',
                 area : '',
                 list : '',
                 boss : "Ambrosia",
                 orb  : 'Orb of Ambrosia'
+            },
+            'Pangaea' : {
+                clas : 'quests_stage_15',
+                base : 'tab_pangaea',
+                next : 'Perdition',
+                area : '',
+                list : '',
+                boss : "Malekus",
+                orb  : 'Orb of Malekus'
+            },
+            'Perdition' : {
+                clas : 'quests_stage_16',
+                base : 'tab_perdition',
+                next : 'DemiChange',
+                area : '',
+                list : '',
+                boss : "Azeron",
+                orb  : 'Orb of Azeron'
             },
             'DemiChange' : {
                 clas : 'symbolquests_stage_1',
