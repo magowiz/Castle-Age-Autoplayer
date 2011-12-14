@@ -10325,7 +10325,8 @@
                     KOBbiasedTF       = 0,
                     KOBPercentTimeRemaining = 0,
                     KOBtotalMonsterTime = 0,
-                    monsterDiv        = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), slice),
+//                    monsterDiv        = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), slice),
+                    monsterDiv        = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), slice),
                     actionDiv         = $j(),
                     damageDiv         = $j(),
                     monsterInfo       = {},
@@ -10335,6 +10336,7 @@
                     tBool             = false,
                     fMonstStyle       = '',
                     nMonstStyle       = '',
+                    nMonstStyle2      = '',
                     id                = 0,
                     userName          = '',
                     mName             = '',
@@ -10411,15 +10413,20 @@
                     con.log(2, "fMonstStyle", fMonstStyle);
                     if (!$u.hasContent(fMonstStyle)) {
                         nMonstStyle = monsterDiv.attr("style").regex(new RegExp(".+\\/(.+_header_\\S+\\.jpg)"));
+                        nMonstStyle2 = monsterDiv.attr("style").regex(new RegExp(".+\\/(.+_header.jpg)"));
                         con.log(2, "nMonstStyle", nMonstStyle);
                     }
 
-                    if ($u.hasContent(fMonstStyle) || $u.hasContent(nMonstStyle)) {
+                    if ($u.hasContent(fMonstStyle) || $u.hasContent(nMonstStyle) || $u.hasContent(nMonstStyle2)) {
                         tempDiv = monsterDiv.find(":contains('summoned'):last,:contains('Summoned'):last");
                         if ($u.hasContent(fMonstStyle)) {
                             tempText = $u.setContent(tempDiv.text(), '').trim().innerTrim().replace(/summoned/i, monster.getFestName(fMonstStyle));
                         } else {
+                            if ($u.hasContent(nMonstStyle)) {
                             tempText = $u.setContent(tempDiv.text(), '').trim().innerTrim().replace(/ summoned/i, "'s " + monster.getNewName(nMonstStyle));
+                            } else {
+                                tempText = $u.setContent(tempDiv.text(), '').trim().innerTrim().replace(/ summoned/i, "'s " + monster.getNewName(nMonstStyle2));
+                            }
                         }
                     } else {
                         // old pages - shouldn't exist any more
@@ -10592,9 +10599,11 @@
                             tStr = $j("input[name='mid']", ctaDiv).attr("value");
                             currentMonster['feedLink'] += $u.hasContent(tStr) ? '&mid=' + tStr : '';
                             con.log(2, "Set monster feedLink", currentMonster['feedLink']);
+/*
                             if (config.getItem("DebugLevel", 1) > 1) {
                                 $j().alert("Set monster feedLink<br />" + currentMonster['feedLink']);
                             }
+*/
                         }
                     }
                 }
@@ -11501,7 +11510,7 @@
                 }
 
                 // Check if on engage monster page
-                if ($u.hasContent($j("div[style*='dragon_title_owner'],div[style*='nm_top'],div[style*='monster_header_'],div[style*='festival_monsters_top_']", caap.appBodyDiv))) {
+                if ($u.hasContent($j("div[style*='dragon_title_owner'],div[style*='nm_top'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='festival_monsters_top_']", caap.appBodyDiv))) {
                     if (monster.confirmRightPage(monsterName)) {
                         return true;
                     }

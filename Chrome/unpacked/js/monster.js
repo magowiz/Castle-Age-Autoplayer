@@ -1054,6 +1054,34 @@
                 newbg_img    : ['boss_header_malekus.jpg'],
                 list_img     : ['boss_malekus_list.jpg'],
                 cta_img      : ['cta_malekus.gif']
+            },
+            "Vermilion" : {
+                alpha        : true,
+                duration     : 168,
+                hp           : 350000000,
+                ach          : 1000000,
+                siege        : 10,
+                siegeClicks  : [15, 30, 45, 60, 75, 100, 150, 200, 250, 300],
+                siegeDam     : [6400000, 7680000, 8920000, 10000000, 11200000, 14800000, 16000000, 18000000, 18200000, 18200000],
+                siege_img    : [
+                    '/graphics/earth_siege_small',
+                    '/graphics/castle_siege_small',
+                    '/graphics/skaar_siege_small',
+                    '/graphics/death_siege_small'
+                ],
+                fort         : true,
+                staUse       : 5,
+                staLvl       : [0, 100, 200, 500],
+                staMax       : [5, 10, 20, 50],
+                nrgMax       : [10, 20, 40, 100],
+                defense_img  : 'nm_green.jpg',
+                levels       : [1,  50, 100, 150],
+                join         : [30, 30, 35,  50],
+                mClass       : 'Epic World',
+                mpool        : 3,
+                newbg_img    : ['monster_vermilion_header.jpg'],
+                list_img     : ['monster_vermilion_list.jpg'],
+                cta_img      : ['cta_vermilion.gif']
             }
         },
 
@@ -1872,11 +1900,13 @@
         confirmRightPage: function (monsterName) {
             try {
                 // Confirm name and type of monster
-                var monsterDiv  = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), caap.appBodyDiv),
+//                var monsterDiv  = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), caap.appBodyDiv),
+                var monsterDiv  = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), caap.appBodyDiv),
                     tempDiv     = $j(),
                     tempText    = '',
                     fMonstStyle = '',
                     nMonstStyle = '',
+                    nMonstStyle2 = '',
                     feedMonster = '',
                     userName    = '',
                     mName       = '',
@@ -1892,8 +1922,9 @@
                         tempText = $u.setContent(monsterDiv.children(":eq(3)").text(), '').trim().innerTrim().replace(/summoned/i, monster.getFestName(fMonstStyle));
                     } else {
                         nMonstStyle = monsterDiv.attr("style").regex(/(monster_header_\S+\.jpg)/);
+                        nMonstStyle2 = monsterDiv.attr("style").regex(/(monster_\S+\_header.jpg)/);
                         con.log(2, "confirmRightPage nMonstStyle", nMonstStyle);
-                        if ($u.hasContent(nMonstStyle)) {
+                        if ($u.hasContent(nMonstStyle) || $u.hasContent(nMonstStyle2)) {
                             tempText = $u.setContent(monsterDiv.children(":eq(1)").children(":eq(1)").text(), '').trim().innerTrim().replace(/ summoned/i, "'s " + monster.getNewName(nMonstStyle));
                         } else {
                             tempText = $u.setContent(monsterDiv.children(":eq(2)").text(), '').trim().innerTrim();
