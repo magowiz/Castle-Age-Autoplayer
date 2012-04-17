@@ -426,13 +426,16 @@
                 var equipDiv    = $j("#" + caap.domain.id[caap.domain.which] + "main_bn", caap.globalContainer),
                     //nameObj = $u.setContent(equipDiv.text(), '').trim().stripTRN().replace(/\s+/g, '|'),  // not needed // 2011-09-27 CAGE
                     //generalName = nameObj.split("|")[1]; // not needed // 2011-09-27 CAGE
-					generalName = $j('div[style*="hot_container.gif"] > div:first > div:nth-child(2), #equippedGeneralContainer div.general_name_div3').text().trim(), // get current general name after CA update // 2011-09-27 CAGE
+                    generalName = $j('div[style*="hot_container.gif"] > div:first > div:nth-child(2), #equippedGeneralContainer div.general_name_div3').text().trim(), // get current general name after CA update // 2011-09-27 CAGE
                     record      = {};
-		if (!generalName) {
-			generalName = $j('div[style*="general_plate.gif"] > div:first, #equippedGeneralContainer div.general_name_div3').text().trim(), // web3 old layout workaround
-			record      = {};
-		}
-		
+
+                if (!generalName) {
+                    generalName = $j('div[id*="generalBox_caap"] > div:first > div:nth-child(2), #equippedGeneralContainer div.general_name_div3').text().trim(); // workaround for changing the general box
+                    if (!generalName) {
+                        generalName = $j('div[style*="general_plate.gif"] > div:first, #equippedGeneralContainer div.general_name_div3').text().trim(); // web3 old layout workaround
+                    }
+                }
+                
                 if (!generalName) {
                     con.warn("Couldn't get current 'General'. Using 'Use Current'");
                     return 'Use Current';
@@ -457,6 +460,7 @@
             var generalBox = $j('div[style*="hot_container.gif"]');
             generalBox[0].style.zIndex = 1;
             generalBox[0].style.backgroundImage = "url(data:image/gif;base64," + image64['generalBox'] + ")";
+            generalBox[0].id = "generalBox_caap";     // this is here to allow getCurrent to still see the box
             generalBox[0].style.width = "124px";
             generalBox[0].style.left = "57px";
             generalBox[0].children[0].style.width = "124px";
