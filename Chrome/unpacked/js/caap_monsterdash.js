@@ -947,6 +947,10 @@ caap.getArmyButtonListener = function(e) {
 	schedule.setItem("army_member", 0);
 	army.deleteTemp();
 };
+caap.getCollectConquestButtonListener = function(e) {
+	schedule.setItem('collectConquestTimer', 0);
+	caap.setDivContent('conquestbless_mess', schedule.check('collectConquestTimer') ? 'Conquest Collect = none' : 'Next Conquest: ' + $u.setContent(caap.displayTime('collectConquestTimer'), "Unknown"));
+};
 caap.addDBListener = function() {
 	try {
 		con.log(4, "Adding listeners for caap_top");

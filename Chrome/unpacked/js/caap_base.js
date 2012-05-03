@@ -2960,8 +2960,9 @@ caap = {
 		try {
 			// Other controls
 			var festivalBlessList = ['None', 'Energy', 'Attack', 'Defense', 'Health', 'Stamina', 'Army'], htmlCode = '';
-			htmlCode += caap.startToggle('ConquestOptions', 'CONQUEST OPTIONS!');
+			htmlCode += caap.startToggle('ConquestOptions', 'CONQUEST OPTIONS');
 			htmlCode += caap.makeCheckTR('Enable Conquest Collect', 'doConquestCollect', false, '');
+			htmlCode += caap.makeTD("<input type='button' id='caap_CollectConquestNow' value='Collect Now' style='padding: 0; font-size: 10px; height: 18px' />");
 			htmlCode += caap.endToggle;
 			return htmlCode;
 		} catch (err) {
@@ -4332,6 +4333,9 @@ caap = {
 				state.setItem("ArmyCount", 0);
 				state.setItem('FillArmyList', []);
 				caap.getArmyButtonListener();
+			});
+			$j('#caap_CollectConquestNow', caap.caapDivObject).click(function(e) {
+				caap.getCollectConquestButtonListener();
 			});
 
 			$j('#caap_ResetMenuLocation', caap.caapDivObject).click(caap.resetMenuLocationListener);
@@ -8067,7 +8071,7 @@ caap = {
 				return false;
 			}
 			caap.navigateTo('guildv2_conquest_command');
-			schedule.setItem('collectConquestTimer', 24 * 60 * 60);
+
 			return true;
 		} catch (err) {
 			con.error("ERROR in collectConquest: " + err);
