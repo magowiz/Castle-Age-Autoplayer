@@ -3314,11 +3314,13 @@ caap = {
 				throw "Bad idName!";
 			}
 
-			var areaDiv = caap[area];
+			var areaDiv = caap[area], areatest = area;
 			if(!$u.hasContent(areaDiv)) {
+				aeatest = "default";
 				areaDiv = $j(document.body);
 				con.warn("Unknown area. Using document.body", area);
 			}
+			con.log(2, "Change: display of 'caap_" + idName + "' to '" + (display === true ? 'block' : 'none') + "'", areatest);
 			areaDiv = $j('#caap_' + idName, areaDiv).css('display', display === true ? 'block' : 'none');
 			if(!$u.hasContent(areaDiv) && !quiet) {
 				con.warn("Unable to find idName in area!", idName, area);
@@ -3834,7 +3836,7 @@ caap = {
 						//if (!idName.hasIndexOf('Arena')) {
 						if(!idName.hasIndexOf('Festival')) {
 							caap.setDisplay("caapDivObject", idName + 'XStamina_hide', value === 'At X Stamina');
-							caap.setDisplay("caapDivObject", idName + 'StayHidden_hide', value === 'Stay Hidden', false);
+							caap.setDisplay("caapDivObject", idName + 'DelayStayHidden_hide', value === 'Stay Hidden', false);
 						}
 
 						caap.setDisplay("caapDivObject", 'WhenBattleStayHidden_hide', ((config.getItem('WhenBattle', 'Never') === 'Stay Hidden' && config.getItem('WhenMonster', 'Never') !== 'Stay Hidden')));
