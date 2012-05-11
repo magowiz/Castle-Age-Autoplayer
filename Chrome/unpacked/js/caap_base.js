@@ -5823,7 +5823,7 @@ caap = {
 						imageOnPage = landPic;
 						switch (landPic) {
 							case 'tab_earth3':
-							case 'tab_fire3':
+							case 'tab_fire4':
 							case 'tab_perdition':
 							case 'tab_pangaea':
 							case 'tab_fire2':
