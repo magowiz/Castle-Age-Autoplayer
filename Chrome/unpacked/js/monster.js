@@ -1217,10 +1217,10 @@
                     '/graphics/death_siege_small'
                 ],
                 fort         : true,
-                staUse       : 5,
+                staUse       : 10,
                 staLvl       : [0, 100, 200, 500],
-                staMax       : [5, 10, 20, 50],
-                nrgMax       : [10, 20, 40, 100],
+                staMax       : [10, 20, 50, 100, 200],
+                nrgMax       : [20, 40, 100, 200, 200],
                 defense_img  : 'nm_green.jpg',
                 levels       : [1,  50, 100, 150],
                 join         : [30, 30, 35,  50],
@@ -1228,7 +1228,9 @@
                 mpool        : 1,
                 newbg_img    : ['boss_fenix_header.jpg'],
                 list_img     : ['boss_fenix_list.jpg'],
-                cta_img      : ['cta_fenix.gif']
+                cta_img      : ['cta_fenix.gif'],
+                bodyparts    : 3,
+                partOrder    : [3,2,1]
             },
             "Azeron" : {
                alpha        : true,
@@ -2079,8 +2081,7 @@
         confirmRightPage: function (monsterName) {
             try {
                 // Confirm name and type of monster
-//                var monsterDiv  = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), caap.appBodyDiv),
-                var monsterDiv  = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), caap.appBodyDiv),
+                var monsterDiv  = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='boss_'][style*='_header'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), caap.appBodyDiv),
                     tempDiv     = $j(),
                     tempText    = '',
                     fMonstStyle = '',
@@ -2102,8 +2103,11 @@
                     } else {
                         nMonstStyle = monsterDiv.attr("style").regex(/(monster_header_\S+\.jpg)/);
                         nMonstStyle2 = monsterDiv.attr("style").regex(/(monster_\S+\_header.jpg)/);
+                        nMonstStyle3 = monsterDiv.attr("style").regex(/(boss_\S+\_header.jpg)/);
                         con.log(2, "confirmRightPage nMonstStyle", nMonstStyle);
-                        if ($u.hasContent(nMonstStyle) || $u.hasContent(nMonstStyle2)) {
+                        con.log(2, "confirmRightPage nMonstStyle2", nMonstStyle2);
+                        con.log(2, "confirmRightPage nMonstStyle2", nMonstStyle3);
+                        if ($u.hasContent(nMonstStyle) || $u.hasContent(nMonstStyle2)|| $u.hasContent(nMonstStyle3)) {
                             tempText = $u.setContent(monsterDiv.children(":eq(1)").children(":eq(1)").text(), '').trim().innerTrim().replace(/ summoned/i, "'s " + monster.getNewName(nMonstStyle));
                         } else {
                             tempText = $u.setContent(monsterDiv.children(":eq(2)").text(), '').trim().innerTrim();

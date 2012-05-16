@@ -552,11 +552,22 @@ caap.monsters = function() {
 		}
 
 		// Check if on engage monster page
-		if($u.hasContent($j("div[style*='dragon_title_owner'],div[style*='nm_top'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='festival_monsters_top_']", caap.appBodyDiv))) {
+		if($u.hasContent($j("div[style*='dragon_title_owner'],div[style*='nm_top'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='boss_'][style*='_header'],div[style*='festival_monsters_top_']", caap.appBodyDiv))) {
 			if(monster.confirmRightPage(monsterName)) {
 				return true;
 			}
 			singleButtonList = ['button_nm_p_attack.gif', 'attack_monster_button.jpg', 'event_attack1.gif', 'seamonster_attack.gif', 'event_attack2.gif', 'attack_monster_button2.jpg'];
+
+				// if the monster has parts, run through them in reverse order until we find one with health and hit it.
+			var partsTargets = $j("div[id^='monster_target_']");
+			if (partsTargets.length > 0) {
+				for (var ii=2; ii > 0; ii--) {
+					if (partsTargets[ii].children[0].children[1].children[0].children[0].style.width.replace ('%', '') * 1 > 0) {
+						caap.click(partsTargets[ii].children[0].children[1].children[1].children[0]);
+						break;
+					}
+				}
+			}
 
 			// Find the attack or fortify button
 			if(fightMode === 'Fortify') {
@@ -943,8 +954,7 @@ caap.monsterReview = function() {
 caap.checkResults_viewFight = function(ajax) {
 	try {
 		var slice = ajax ? caap.tempAjax : caap.appBodyDiv, currentMonster = {}, time = [], tempDiv = $j(), tempText = '', tempArr = [], counter = 0, monstHealthImg = '', totalCount = 0, ind = 0, len = 0, searchStr = '', searchRes = $j(), achLevel = 0, maxDamage = 0, maxToFortify = 0, isTarget = false, KOBenable = false, KOBbiasHours = 0, KOBach = false, KOBmax = false, KOBminFort = false, KOBtmp = 0, KOBtimeLeft = 0, KOBbiasedTF = 0, KOBPercentTimeRemaining = 0, KOBtotalMonsterTime = 0,
-		//                    monsterDiv        = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), slice),
-		monsterDiv = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), slice), actionDiv = $j(), damageDiv = $j(), monsterInfo = {}, targetFromfortify = {}, tStr = '', tNum = 0, tBool = false, fMonstStyle = '', nMonstStyle = '', nMonstStyle2 = '', id = 0, userName = '', mName = '', feedMonster = '', md5 = '',
+		monsterDiv = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='boss_'][style*='_header'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), slice), actionDiv = $j(), damageDiv = $j(), monsterInfo = {}, targetFromfortify = {}, tStr = '', tNum = 0, tBool = false, fMonstStyle = '', nMonstStyle = '', nMonstStyle2 = '', id = 0, userName = '', mName = '', feedMonster = '', md5 = '',
 		//page              = session.getItem('page', 'battle_monster'),
 		page = $j(".game", ajax ? slice : caap.globalContainer).eq(0).attr("id").replace(caap.domain.id[caap.domain.which], ''), matches = true, ctaDiv = $j(), dragonDiv = $j(".dragonContainer", slice), dleadersDiv = $j("td:eq(1) div[style*='bold']:eq(0) div:last", dragonDiv), maxJoin = dleadersDiv.text().regex(/(\d+)/), countJoin = 0, it = 0, jt = 0, groups = {}, groupMatch = false, found = false;
 
@@ -1060,6 +1070,8 @@ caap.checkResults_viewFight = function(ajax) {
 			id = $u.setContent(id, $u.setContent($j(".fb_link[href*='profile.php']", monsterDiv).attr("href"), '').regex(/id=(\d+)/));
 			id = $u.setContent(id, $u.setContent($j("img[src*='graph.facebook.com']", monsterDiv).attr("src"), '').regex(/\/(\d+)\//));
 			id = $u.setContent(id, $u.setContent($j("button[onclick*='ajaxSectionUpdate']", slice).attr("onclick") + "", '').regex(/user=(\d+)/));
+			if ($j("input[name*='guild_creator_id']").length > 0)
+				id = $u.setContent(id, $j("input[name*='guild_creator_id']")[0].value);
 			id = $u.setContent(id, (feed.isScan || ajax) ? feed.scanRecord['id'] : 0);
 			con.log(3, "USER ID", id);
 			if(id === 0 || !$u.hasContent(id)) {
@@ -1349,6 +1361,8 @@ caap.checkResults_viewFight = function(ajax) {
 		// Get damage done to monster
 		actionDiv = $j("#" + caap.domain.id[caap.domain.which] + "action_logs", slice);
 		damageDiv = $j("td[class='dragonContainer']:first td[valign='top']:first a[href*='user=" + caap.stats['FBID'] + "']:first", actionDiv);
+		con.log (4, "actionDiv", actionDiv);		// these 2 outputs are here for debugging the kraken problems
+		con.log (4, "damageDiv", damageDiv);
 		if($u.hasContent(damageDiv)) {
 			if(monsterInfo && monsterInfo.defense) {
 				tempArr = $u.setContent(damageDiv.parent().parent().siblings(":last").text(), '').trim().innerTrim().regex(/([\d,]+ dmg) \/ ([\d,]+ def)/);

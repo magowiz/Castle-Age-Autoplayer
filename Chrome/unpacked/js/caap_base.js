@@ -4078,6 +4078,10 @@ caap = {
 			signaturePic : 'tab_monster_active.gif',
 			CheckResultsFunction : 'checkResults_viewFight'
 		},
+		'guildv2_battle_monster' : {
+			signaturePic : 'tab_monster_active.gif',
+			CheckResultsFunction : 'checkResults_viewFight'
+		},
 		'raid' : {
 			signaturePic : 'tab_raid_on.gif',
 			CheckResultsFunction : 'checkResults_fightList',
