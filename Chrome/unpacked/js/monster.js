@@ -1797,6 +1797,7 @@
                     }
 
                     monsterInfo = monster.getInfo(monster.records[it]);
+
                     if (monsterInfo && monsterInfo.alpha) {
                         if (monster.records[it]['damage'] !== -1 && monster.records[it]['color'] !== 'grey' && schedule.since(monster.records[it]['stunTime'], 0)) {
                             con.log(2, "Review monster due to class timer", monster.records[it]['name']);

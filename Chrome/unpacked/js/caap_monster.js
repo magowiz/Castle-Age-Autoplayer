@@ -751,7 +751,7 @@ caap.monsterReview = function() {
 */
         // festival tower 2
         if(config.getItem("festivalTower", false) && counter <= -4) {
-            counter = -4;           // the flag is set to -10 to trigger, this will get the value back to a resonable level
+            state.setItem('monsterReviewCounter', counter = -4);       // because it could be lower than -4, this is the first monster area (for now)
             if(caap.stats['level'] > 6) {
                 if(caap.navigateTo('soldiers,festival_home,festival_tower2', 'festival_monster2_towerlist_button.jpg')) {
                     state.setItem('reviewDone', false);
@@ -786,7 +786,6 @@ caap.monsterReview = function() {
                 return true;
             }
         }
-
         if(counter === -2) {
             if(caap.stats['level'] > 6) {
                 if(caap.navigateTo('keep,battle_monster', 'tab_monster_list_on.gif')) {
@@ -969,7 +968,7 @@ caap.monsterReview = function() {
 caap.checkResults_viewFight = function(ajax) {
     try {
         var slice = ajax ? caap.tempAjax : caap.appBodyDiv, currentMonster = {}, time = [], tempDiv = $j(), tempText = '', tempArr = [], counter = 0, monstHealthImg = '', totalCount = 0, ind = 0, len = 0, searchStr = '', searchRes = $j(), achLevel = 0, maxDamage = 0, maxToFortify = 0, isTarget = false, KOBenable = false, KOBbiasHours = 0, KOBach = false, KOBmax = false, KOBminFort = false, KOBtmp = 0, KOBtimeLeft = 0, KOBbiasedTF = 0, KOBPercentTimeRemaining = 0, KOBtotalMonsterTime = 0,
-        monsterDiv = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='boss_'][style*='_header'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), slice), actionDiv = $j(), damageDiv = $j(), monsterInfo = {}, targetFromfortify = {}, tStr = '', tNum = 0, tBool = false, fMonstStyle = '', nMonstStyle = '', nMonstStyle2 = '', id = 0, userName = '', mName = '', feedMonster = '', md5 = '',
+        monsterDiv = $j("div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='boss_'][style*='_header'],div[style*='boss_header_']" + (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : ""), slice), actionDiv = $j(), damageDiv = $j(), damageDivNew = false, monsterInfo = {}, targetFromfortify = {}, tStr = '', tNum = 0, tBool = false, fMonstStyle = '', nMonstStyle = '', nMonstStyle2 = '', id = 0, userName = '', mName = '', feedMonster = '', md5 = '',
         //page              = session.getItem('page', 'battle_monster'),
         page = $j(".game", ajax ? slice : caap.globalContainer).eq(0).attr("id").replace(caap.domain.id[caap.domain.which], ''), matches = true, ctaDiv = $j(), dragonDiv = $j(".dragonContainer", slice), dleadersDiv = $j("td:eq(1) div[style*='bold']:eq(0) div:last", dragonDiv), maxJoin = dleadersDiv.text().regex(/(\d+)/), countJoin = 0, it = 0, jt = 0, groups = {}, groupMatch = false, found = false;
             // new monster layout logic
@@ -1415,6 +1414,7 @@ caap.checkResults_viewFight = function(ajax) {
                 currentMonster['hide'] = !$u.hasContent($j("input[name='Attack Dragon'],input[name='raid_btn']", slice));
                 con.log(2, "Player hasn't done damage yet");
             } else {
+                damageDivNew = true;
                 dleadersDiv2 = $j("a[href*='user=" + caap.stats['FBID'] + "']", dleadersDiv2[0].children);
                 if (dleadersDiv2.length == 0) {		// yinzanat - this is repeated to prevent errors
                     currentMonster['hide'] = !$u.hasContent($j("input[name='Attack Dragon'],input[name='raid_btn']", slice));
@@ -1484,8 +1484,7 @@ caap.checkResults_viewFight = function(ajax) {
                 con.warn('Unknown monster', currentMonster);
                 return;
             }
-
-            if($u.hasContent(damageDiv) && monsterInfo && monsterInfo.alpha) {
+            if(($u.hasContent(damageDiv) || damageDivNew) && monsterInfo && monsterInfo.alpha) {
                 // Character type stuff
                 monsterDiv = $j("div[style*='nm_bottom']", slice);
                 if($u.hasContent(monsterDiv)) {
@@ -1612,7 +1611,7 @@ caap.checkResults_viewFight = function(ajax) {
             return;
         }
 
-        if($u.hasContent(damageDiv)) {
+        if($u.hasContent(damageDiv) || damageDivNew) {
             achLevel = monster.parseCondition('ach', currentMonster['conditions']);
             if(monsterInfo && achLevel === false) {
                 achLevel = monsterInfo.ach;
