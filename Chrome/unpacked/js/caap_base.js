@@ -4225,6 +4225,10 @@ caap = {
 			signaturePic : 'festival_monster_towerlist_button.jpg',
 			CheckResultsFunction : 'checkResults_fightList'
 		},
+		'festival_tower2' : {
+			signaturePic : 'festival_monster2_towerlist_button.jpg',
+			CheckResultsFunction : 'checkResults_fightList'
+		},
 		'festival_battle_monster' : {
 			signaturePic : 'festival_achievement_monster_',
 			CheckResultsFunction : 'checkResults_viewFight'

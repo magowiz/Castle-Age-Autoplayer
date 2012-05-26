@@ -20,7 +20,7 @@ var caapjQuery = "1.7.1";
 //////////////////////////////////
 
 var	caapVersion = "141.0.0",
-		devVersion = "51",
+		devVersion = "52",
 		hiddenVar = true,
 		caap_timeout = 0,
 		image64 = {},

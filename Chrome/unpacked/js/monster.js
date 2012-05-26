@@ -1698,7 +1698,8 @@
         flagReview: function (force) {
             try {
                 schedule.setItem("monsterReview", 0);
-                state.setItem('monsterReviewCounter', config.getItem("festivalTower", false) ? -4 : -3);
+//                state.setItem('monsterReviewCounter', config.getItem("festivalTower", false) ? -4 : -3);
+                state.setItem('monsterReviewCounter', -10);     // set this high so we have room for more monsters
                 return true;
             } catch (err) {
                 con.error("ERROR in monster.flagReview: " + err);
@@ -1713,10 +1714,10 @@
                 schedule.setItem('NotargetFrombattle_monster', 0);
                 session.setItem('ReleaseControl', true);
                 caap.updateDashboard(true);
-		if (monster.records.length == 0) 
-			localStorage.AFrecentAction = false;
-		else 
-			localStorage.AFrecentAction = true;
+        if (monster.records.length == 0) 
+            localStorage.AFrecentAction = false;
+        else 
+            localStorage.AFrecentAction = true;
                 return true;
             } catch (err) {
                 con.error("ERROR in monster.flagFullReview: " + err);
@@ -2106,7 +2107,7 @@
                         nMonstStyle3 = monsterDiv.attr("style").regex(/(boss_\S+\_header.jpg)/);
                         con.log(2, "confirmRightPage nMonstStyle", nMonstStyle);
                         con.log(2, "confirmRightPage nMonstStyle2", nMonstStyle2);
-                        con.log(2, "confirmRightPage nMonstStyle2", nMonstStyle3);
+                        con.log(2, "confirmRightPage nMonstStyle3", nMonstStyle3);
                         if ($u.hasContent(nMonstStyle) || $u.hasContent(nMonstStyle2)|| $u.hasContent(nMonstStyle3)) {
                             tempText = $u.setContent(monsterDiv.children(":eq(1)").children(":eq(1)").text(), '').trim().innerTrim().replace(/ summoned/i, "'s " + monster.getNewName(nMonstStyle));
                         } else {
@@ -2228,9 +2229,9 @@
                         'Stay Hidden uses stamina to try to keep you under 10 health so you cannot be attacked, while also attempting to maximize your stamina use for Monster attacks. YOU MUST SET BATTLE WHEN TO "STAY HIDDEN" TO USE THIS FEATURE.',
                         'Never - disables attacking monsters'
                     ],
-		    delayStayHiddenInstructions = "Delay staying hidden if \"safe\" to wait for enough stamina to attack monster.",	
+                    delayStayHiddenInstructions = "Delay staying hidden if \"safe\" to wait for enough stamina to attack monster.",	
                     monsterDelayInstructions = "Max random delay (in seconds) to battle monsters",
-		    demiPtItem = 0,
+                    demiPtItem = 0,
                     subCode = '',
                     htmlCode = '';
 
@@ -2245,9 +2246,9 @@
                 htmlCode += caap.makeNumberFormTR("Start At Or Above", 'XMonsterStamina', XMonsterInstructions, 1, '', '', true, false);
                 htmlCode += caap.makeNumberFormTR("Stop At Or Below", 'XMinMonsterStamina', XMinMonsterInstructions, 0, '', '', true, false);
                 htmlCode += caap.endDropHide('WhenMonster', 'XStamina', 'At X Stamina', false);
-		htmlCode += caap.startDropHide('WhenMonster', 'DelayStayHidden', 'Stay Hidden', false);
-		htmlCode += caap.makeCheckTR("Delay hide if \"safe\"", 'delayStayHidden', true, delayStayHiddenInstructions, true);
-		htmlCode += caap.endDropHide('WhenMonster', 'DelayStayHidden', 'Stay Hidden', false);
+                htmlCode += caap.startDropHide('WhenMonster', 'DelayStayHidden', 'Stay Hidden', false);
+                htmlCode += caap.makeCheckTR("Delay hide if \"safe\"", 'delayStayHidden', true, delayStayHiddenInstructions, true);
+                htmlCode += caap.endDropHide('WhenMonster', 'DelayStayHidden', 'Stay Hidden', false);
                 htmlCode += caap.makeNumberFormTR("Monster delay secs", 'seedTime', monsterDelayInstructions, 300, '', '');
                 htmlCode += caap.makeCheckTR("Use Tactics", 'UseTactics', false, useTacticsInstructions);
                 htmlCode += caap.startCheckHide('UseTactics');
