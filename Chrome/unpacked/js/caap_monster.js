@@ -153,8 +153,8 @@ caap.checkResults_fightList = function() {
                 mName = userName + ' ' + monsterText;
                 con.log(2, "Monster Name", mName);
                 userId = $u.setContent(url.regex(/user=(\d+)/), 0);
-                con.log(3, "checkResults_fightList page", page.replace(/festival_tower/, "festival_battle_monster"), url);
-                md5 = (userId + ' ' + monsterText + ' ' + page.replace(/festival_tower/, "festival_battle_monster")).toLowerCase().MD5();
+                con.log(3, "checkResults_fightList page", page.replace(/festival_tower\d*/, "festival_battle_monster"), url);
+                md5 = (userId + ' ' + monsterText + ' ' + page.replace(/festival_tower\d*/, "festival_battle_monster")).toLowerCase().MD5();
                 monsterReviewed = monster.getItem(md5);
                 monsterReviewed['name'] = mName;
                 monsterReviewed['userName'] = userName;
@@ -162,8 +162,9 @@ caap.checkResults_fightList = function() {
                 monsterReviewed['userId'] = userId;
                 monsterReviewed['md5'] = md5;
                 monsterReviewed['type'] = $u.setContent(monsterReviewed['type'], '');
-                monsterReviewed['page'] = page.replace(/festival_tower/, "festival_battle_monster");
-                engageButtonName = page === 'festival_tower' ? $u.setContent(buttonsDiv.eq(it).attr("src"), '').regex(/festival_monster_(\S+)\.gif/i) : $u.setContent(buttonsDiv.eq(it).attr("src"), '').regex(/(dragon_list_btn_\d)/i);
+                monsterReviewed['page'] = page.replace(/festival_tower\d*/, "festival_battle_monster");
+                engageButtonName = (page === 'festival_tower' || page === 'festival_tower2') ? $u.setContent(buttonsDiv.eq(it).attr("src"), '').regex(/festival_monster_(\S+)\.gif/i) : $u.setContent(buttonsDiv.eq(it).attr("src"), '').regex(/(dragon_list_btn_\d)/i);
+
                 switch (engageButtonName) {
                     case 'collectbtn' :
                     case 'dragon_list_btn_2' :
@@ -181,10 +182,10 @@ caap.checkResults_fightList = function() {
                             break;
                         }
 
-                        if(page !== "festival_tower" && !$u.hasContent(monster.completeButton[page.replace("festival_tower", "battle_monster")]['button']) || !$u.hasContent(monster.completeButton[page.replace("festival_tower", "battle_monster")]['md5'])) {
-                            monster.completeButton[page.replace("festival_tower", "battle_monster")]['md5'] = $u.setContent(monsterReviewed['md5'], '');
-                            monster.completeButton[page.replace("festival_tower", "battle_monster")]['name'] = $u.setContent(monsterReviewed['name'], '');
-                            monster.completeButton[page.replace("festival_tower", "battle_monster")]['button'] = $u.setContent($j("img[src*='cancelButton.gif']", monsterRow), null);
+                        if(page !== "festival_tower" && page !== "festival_tower2" && !$u.hasContent(monster.completeButton[page.replace(/festival_tower\d*/, "battle_monster")]['button']) || !$u.hasContent(monster.completeButton[page.replace(/festival_tower\d*/, "battle_monster")]['md5'])) {
+                            monster.completeButton[page.replace(/festival_tower\d*/, "battle_monster")]['md5'] = $u.setContent(monsterReviewed['md5'], '');
+                            monster.completeButton[page.replace(/festival_tower\d*/, "battle_monster")]['name'] = $u.setContent(monsterReviewed['name'], '');
+                            monster.completeButton[page.replace(/festival_tower\d*/, "battle_monster")]['button'] = $u.setContent($j("img[src*='cancelButton.gif']", monsterRow), null);
                         }
 
                         monsterReviewed['status'] = 'Complete';
@@ -340,7 +341,6 @@ caap.checkStamina = function(battleOrMonster, attackMinStamina) {
             } else {
                 state.setItem('BurnMode_' + staminaMF, false);
             }
-
             caap.setDivContent(messDiv, 'Waiting for stamina: ' + caap.stats['stamina']['num'] + "/" + config.getItem('X' + staminaMF, 1));
             return false;
         }
@@ -738,7 +738,9 @@ caap.monsterReview = function() {
          monsterReviewCounter is now set to -10 so there is room for more monsters later
          \-------------------------------------------------------------------------------------*/
         var fCounter = config.getItem("festivalTower", false) ? -4 : -3,
-            counter = state.getItem('monsterReviewCounter', fCounter),
+//            counter = state.getItem('monsterReviewCounter', fCounter),
+            firstMonster = -4,
+            counter = state.getItem('monsterReviewCounter', firstMonster),
             link = '',
             tempTime = 0,
             isSiege = false,
@@ -750,40 +752,48 @@ caap.monsterReview = function() {
         }
 */
         // festival tower 2
-        if(config.getItem("festivalTower", false) && counter <= -4) {
-            state.setItem('monsterReviewCounter', counter = -4);       // because it could be lower than -4, this is the first monster area (for now)
-            if(caap.stats['level'] > 6) {
-                if(caap.navigateTo('soldiers,festival_home,festival_tower2', 'festival_monster2_towerlist_button.jpg')) {
-                    state.setItem('reviewDone', false);
+        if(counter <= -4) {
+            state.setItem('monsterReviewCounter', counter = firstMonster);
+            if(config.getItem("festivalTower", false)) {
+                if(caap.stats['level'] > 6) {
+                    if(caap.navigateTo('soldiers,festival_home,festival_tower2', 'festival_monster2_towerlist_button.jpg')) {
+                        state.setItem('reviewDone', false);
+                        return true;
+                    }
+                } else {
+                    con.log(1, "Monsters: Unlock at level 7");
+                    state.setItem('reviewDone', true);
+                }
+                if(state.getItem('reviewDone', true)) {
+                    state.setItem('monsterReviewCounter', counter += 1);
+                } else {
                     return true;
                 }
             } else {
-                con.log(1, "Monsters: Unlock at level 7");
-                state.setItem('reviewDone', true);
-            }
-            if(state.getItem('reviewDone', true)) {
                 state.setItem('monsterReviewCounter', counter += 1);
-            } else {
-                return true;
             }
         }
         // festival tower
-        if(config.getItem("festivalTower", false) && counter === -3) {
-            state.setItem('monsterReviewCounter', counter += 1);
-            if(caap.stats['level'] > 6) {
-                if(caap.navigateTo('soldiers,festival_home,festival_tower', 'festival_monster_towerlist_button.jpg')) {
-                    state.setItem('reviewDone', false);
+        if(counter === -3) {
+            if(config.getItem("festivalTower", false)) {
+                state.setItem('monsterReviewCounter', counter += 1);
+                if(caap.stats['level'] > 6) {
+                    if(caap.navigateTo('soldiers,festival_home,festival_tower', 'festival_monster_towerlist_button.jpg')) {
+                        state.setItem('reviewDone', false);
+                        return true;
+                    }
+                } else {
+                    con.log(1, "Monsters: Unlock at level 7");
+                    state.setItem('reviewDone', true);
+                }
+
+                if(state.getItem('reviewDone', true)) {
+                    state.setItem('monsterReviewCounter', counter += 1);
+                } else {
                     return true;
                 }
             } else {
-                con.log(1, "Monsters: Unlock at level 7");
-                state.setItem('reviewDone', true);
-            }
-
-            if(state.getItem('reviewDone', true)) {
-                state.setItem('monsterReviewCounter', counter += 1);
-            } else {
-                return true;
+                    state.setItem('monsterReviewCounter', counter += 1);
             }
         }
         if(counter === -2) {

@@ -587,6 +587,9 @@
                 join         : [30, 30, 30,  60],
                 mClass       : 'Epic World',
                 mpool        : 3,
+                festival_img : ['festival_monsters_top_alphabahamut.jpg'],
+                festival_dur : 192,
+                festival_ach : 2500000,
                 newbg_img    : ['monster_header_alphabahamut.jpg'],
                 list_img     : ['nm_volcanic_list_2.jpg'],
                 cta_img      : ['ntwitter_volcanic5.gif']
@@ -738,6 +741,9 @@
                 join         : [30, 30, 30,  45],
                 mClass       : 'Epic Boss',
                 mpool        : 1,
+                festival_img : ['festival_monsters_top_corvintheus.jpg'],
+                festival_dur : 192,
+                festival_ach : 2500000,
                 newbg_img    : ['monster_header_corvintheus.jpg'],
                 list_img     : ['corv_list.jpg'],
                 cta_img      : ['cta_corv1.gif']
@@ -798,6 +804,9 @@
                 join         : [30, 30, 35,  50],
                 mClass       : 'Epic Boss',
                 mpool        : 1,
+                festival_img : ['festival_monsters_top_jahanna.jpg'],
+                festival_dur : 192,
+                festival_ach : 2500000,
                 newbg_img    : ['monster_header_jahanna.jpg'],
                 list_img     : ['boss_jahanna_list.jpg'],
                 cta_img      : ['cta_jahanna.gif']
@@ -855,6 +864,9 @@
                 join         : [30, 30, 35,  50],
                 mClass       : 'Epic Boss',
                 mpool        : 1,
+                festival_img : ['festival_monsters_top_aurora.jpg'],
+                festival_dur : 192,
+                festival_ach : 2500000,
                 newbg_img    : ['monster_header_aurora.jpg'],
                 list_img     : ['boss_aurora_list.jpg'],
                 cta_img      : ['cta_aurora.gif']
@@ -883,6 +895,9 @@
                 join         : [30, 30, 35,  50],
                 mClass       : 'Epic Boss',
                 mpool        : 1,
+                festival_img : ['festival_monsters_top_ambrosia.jpg'],
+                festival_dur : 192,
+                festival_ach : 2500000,
                 newbg_img    : ['boss_header_ambrosia.jpg'],
                 list_img     : ['boss_ambrosia_list.jpg'],
                 cta_img      : ['cta_ambrosia.gif']
@@ -911,6 +926,9 @@
                 join         : [30, 30, 35,  50],
                 mClass       : 'Epic Boss',
                 mpool        : 1,
+                festival_img : ['festival_monsters_top_kromash.jpg'],
+                festival_dur : 192,
+                festival_ach : 2500000,
                 newbg_img    : ['monster_header_kromash.jpg'],
                 list_img     : ['monster_kromash_list.jpg'],
                 cta_img      : ['cta_kromash.gif']
@@ -1001,6 +1019,9 @@
                 join         : [30, 30, 35,  50],
                 mClass       : 'Epic Boss',
                 mpool        : 1,
+                festival_img : ['festival_monsters_top_magmos.jpg'],
+                festival_dur : 192,
+                festival_ach : 2500000,
                 newbg_img    : ['monster_header_magmos.jpg'],
                 list_img     : ['monster_magmos_list.jpg'],
                 cta_img      : ['cta_magmos.gif']
@@ -1029,6 +1050,9 @@
                 join         : [30, 30, 35,  50],
                 mClass       : 'Epic Boss',
                 mpool        : 1,
+                festival_img : ['festival_monsters_top_chimera.jpg'],
+                festival_dur : 192,
+                festival_ach : 2500000,
                 newbg_img    : ['monster_header_chimera.jpg'],
                 list_img     : ['monster_chimera_list.jpg'],
                 cta_img      : ['cta_typhonus.gif']
@@ -1057,6 +1081,9 @@
                 join         : [30, 30, 35,  50],
                 mClass       : 'Epic Boss',
                 mpool        : 1,
+                festival_img : ['festival_monsters_top_malekus.jpg'],
+                festival_dur : 192,
+                festival_ach : 2500000,
                 newbg_img    : ['boss_header_malekus.jpg'],
                 list_img     : ['boss_malekus_list.jpg'],
                 cta_img      : ['cta_malekus.gif']
