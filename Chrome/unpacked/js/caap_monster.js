@@ -667,6 +667,10 @@ caap.monsters = function() {
             if(caap.navigateTo('keep,battle_monster', 'tab_monster_list_on.gif')) {
                 return true;
             }
+        } else if(currentMonster['page'] === 'festival_battle_monster' && currentMonster['feedLink'].indexOf("tower=2") >= 0) {
+            if(caap.navigateTo('soldiers,festival_home,festival_tower2', 'festival_monster2_towerlist_button.jpg')) {
+                return true;
+            }
         } else if(currentMonster['page'] === 'festival_battle_monster') {
             if(caap.navigateTo('soldiers,festival_home,festival_tower', 'festival_monster_towerlist_button.jpg')) {
                 return true;
