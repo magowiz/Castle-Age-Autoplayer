@@ -951,6 +951,14 @@ caap.getCollectConquestButtonListener = function(e) {
 	schedule.setItem('collectConquestTimer', 0);
 	caap.setDivContent('conquestbless_mess', schedule.check('collectConquestTimer') ? 'Conquest Collect = none' : 'Next Conquest: ' + $u.setContent(caap.displayTime('collectConquestTimer'), "Unknown"));
 };
+caap.getCollectConquestCrystal1ButtonListener = function(e) {
+	schedule.setItem('collectConquestCrystal1Timer', 0);
+	caap.setDivContent('conquestcrystal1bless_mess', schedule.check('collectConquestCrystal1Timer') ? 'Crystal 1 Collect = none' : 'Next Crystal 1: ' + $u.setContent(caap.displayTime('collectConquestCrystal1Timer'), "Unknown"));
+};
+caap.getCollectConquestCrystal2ButtonListener = function(e) {
+	schedule.setItem('collectConquestCrystal2Timer', 0);
+	caap.setDivContent('conquestcrystal2bless_mess', schedule.check('collectConquestCrystal2Timer') ? 'Crystal 2 Collect = none' : 'Next Crystal 2: ' + $u.setContent(caap.displayTime('collectConquestCrystal2Timer'), "Unknown"));
+};
 caap.addDBListener = function() {
 	try {
 		con.log(4, "Adding listeners for caap_top");

@@ -48,7 +48,9 @@ caap.actionDescTable = {
 	'checkMagic' : 'Getting Magic',
 	'checkCharacterClasses' : 'Character Classes',
 	'festivalBless' : 'Festival Feats',
-	'collectConquest' : 'Collect Conquest Resources'
+	'collectConquest' : 'Collect Conquest Resources',
+	'collectConquestCrystal1' : 'Collect Conquest Crystals',
+	'collectConquestCrystal2' : 'Collect Conquest Crystals'
 };
 /*jslint sub: false */
 caap.checkLastAction = function(thisAction) {
@@ -113,7 +115,9 @@ caap.masterActionList = {
 	0x2A : 'ajaxCheckPublic3',
 	0x2B : 'feedScan',
 	0x2C : 'collectConquest',
-	0x2D : 'idle'
+	0x2D : 'collectConquestCrystal1',
+	0x2E : 'collectConquestCrystal2',
+	0x2F : 'idle'
 };
 caap.actionsList = [];
 caap.makeActionsList = function() {
