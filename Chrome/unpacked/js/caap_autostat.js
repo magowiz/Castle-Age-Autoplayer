@@ -48,7 +48,7 @@ caap.increaseStat = function(attribute, attrAdjust, atributeSlice) {
 		logTxt = attrAdjust;
 		level = caap.stats['level'];
 		function getValue(div) {
-			return $u.setContent($j("div[class='attribute_stat_container']", div.parent().parent()).text(), '').regex(/(\d+)/);
+			return $u.setContent($j("div[onmouseout*='hideItemPopup']", div.parent().parent().parent()).text(), '').regex(/(\d+)/);
 		}
 
 		attrCurrent = getValue(button);

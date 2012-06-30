@@ -21,6 +21,11 @@
             caap.domain.which = -1;
             caap_log('Unknown domain! ' + window.location.href);
         }
+        
+        //Needclickers fix
+        if (window.location.href.indexOf('needclickers=1') >= 0) {
+			return;
+		}
 
         if (window.location.href.indexOf('http://') >= 0) {
             caap.domain.ptype = 0;
