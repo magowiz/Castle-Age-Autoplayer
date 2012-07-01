@@ -27,7 +27,7 @@ caap.heal = function() {
 		if((config.getItem('WhenBattle', 'Never') !== 'Never') || (config.getItem('WhenMonster', 'Never') !== 'Never')) {
 			if((caap.inLevelUpMode() || caap.stats['stamina']['num'] >= caap.stats['staminaT']['max']) && caap.stats['health']['num'] < (config.getItem('WhenBattle', 'Never') !== 'Never' && config.getItem('waitSafeHealth', false) ? 13 : 10)) {
 				con.log(1, 'Heal');
-				return caap.navigateTo('keep,heal_button.gif');
+				return caap.navigateTo('keep,keep_healbtn.gif');
 			}
 		}
 

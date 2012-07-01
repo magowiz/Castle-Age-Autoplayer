@@ -55,7 +55,7 @@ caap.retrieveFromBank = function(num) {
 		}
 
 		var retrieveButton = null, numberInput = null, minInStore = 0;
-		retrieveButton = $j("input[src*='btn_retrieve.gif']");
+		retrieveButton = $j("input[src*='keep_btn_retireve.gif']");
 		if(!retrieveButton || !retrieveButton.length) {
 			// Cannot find the link
 			return caap.navigateTo('keep');
