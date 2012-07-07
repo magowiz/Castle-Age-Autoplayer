@@ -4750,7 +4750,7 @@ caap = {
                 // PlayerName
                 tempDiv = $j("div[style*='keep_top.jpg'] div", caap.appBodyDiv).first();
                 if($u.hasContent(tempDiv)) {
-                    caap.stats['PlayerName'] = $u.setContent($u.setContent(tempDiv.text(), '').regex(new RegExp("(.+)")), '');
+                    caap.stats['PlayerName'] = tempDiv.text().trim();
                     con.log(1, caap.stats['PlayerName']);
                 } else {
                     con.warn('Using stored PlayerName.');
@@ -4851,7 +4851,7 @@ caap = {
                 caap.stats['gold']['flow'] = caap.stats['gold']['income'] - caap.stats['gold']['upkeep'];
 
                 // Energy potions
-                tempDiv = $j("img[title='Energy Potion']", caap.appBodyDiv).parent().next();
+                tempDiv = $j("div[title='Energy Potion']").children().eq(1);
                 if($u.hasContent(tempDiv)) {
                     caap.stats['potions']['energy'] = $u.setContent($u.setContent(tempDiv.text(), '').numberOnly(), 0);
                 } else {
@@ -4859,7 +4859,7 @@ caap = {
                 }
 
                 // Stamina potions
-                tempDiv = $j("img[title='Stamina Potion']", caap.appBodyDiv).parent().next();
+                tempDiv = $j("div[title='Stamina Potion']").children().eq(1);
                 if($u.hasContent(tempDiv)) {
                     caap.stats['potions']['stamina'] = $u.setContent($u.setContent(tempDiv.text(), '').numberOnly(), 0);
                 } else {
@@ -4963,15 +4963,18 @@ caap = {
                 schedule.setItem("keep", ( gm ? gm.getItem("checkKeep", 1, hiddenVar) : 1) * 3600, 300);
                 caap.saveStats();
                 if(!caap.caTools && config.getItem("displayKStats", true)) {
-                    tempDiv = $j(".keep_healer_section", caap.appBodyDiv).children().eq(0);
-                    temp = "<div style='border:1px solid #701919;margin:-238px 0pt 0pt 21px;padding: 5px 5px;width:200px;height:223px;float:left;background-color:#d0b682;background-image: url(\"" + $j("input[src*='btn_retrieve.gif']", caap.appBodyDiv).attr("src").replace("btn_retrieve.gif", "bg_main_middle.jpg") + "\");'>";
+                    tempDiv = $j("div[style*='keep_top']");
+                    backgroundDiv = $j("div[style*='keep_tabheader']");
+
+                    temp = "<div style='background-image:url(\"http://image4.castleagegame.com/12124/graphics/keep_tabheader.jpg\");border:none;padding: 5px 5px 20px 20px;width:715px;height:100px;z-index:10;position:relative;top:0px;'>";
+                    temp += "<div style='border:1px solid #701919;padding: 5px 5px;width:688px;height:100px;background-color:#d0b682;'>";
                     row = caap.makeTh({
                         text : '&nbsp;',
                         color : '',
                         bgcolor : '',
                         id : '',
                         title : '',
-                        width : '40%'
+                        width : '5%'
                     });
                     row += caap.makeTh({
                         text : '&nbsp;',
@@ -4979,10 +4982,64 @@ caap = {
                         bgcolor : '',
                         id : '',
                         title : '',
-                        width : '60%'
+                        width : '10%'
+                    });
+                    row += caap.makeTh({
+                        text : '&nbsp;',
+                        color : '',
+                        bgcolor : '',
+                        id : '',
+                        title : '',
+                        width : '20%'
+                    });
+                    row += caap.makeTh({
+                        text : '&nbsp;',
+                        color : '',
+                        bgcolor : '',
+                        id : '',
+                        title : '',
+                        width : '10%'
+                    });
+                    row += caap.makeTh({
+                        text : '&nbsp;',
+                        color : '',
+                        bgcolor : '',
+                        id : '',
+                        title : '',
+                        width : '20%'
+                    });
+                    row += caap.makeTh({
+                        text : '&nbsp;',
+                        color : '',
+                        bgcolor : '',
+                        id : '',
+                        title : '',
+                        width : '10%'
+                    });
+                    row += caap.makeTh({
+                        text : '&nbsp;',
+                        color : '',
+                        bgcolor : '',
+                        id : '',
+                        title : '',
+                        width : '20%'
+                    });
+                    row += caap.makeTh({
+                        text : '&nbsp;',
+                        color : '',
+                        bgcolor : '',
+                        id : '',
+                        title : '',
+                        width : '5%'
                     });
                     head = caap.makeTr(row);
                     row = caap.makeTd({
+                        text : '',
+                        color : '',
+                        id : '',
+                        title : ''
+                    });
+                    row += caap.makeTd({
                         text : 'BSI',
                         color : '',
                         id : '',
@@ -4994,8 +5051,7 @@ caap = {
                         id : '',
                         title : ''
                     }, "font-size:14px;");
-                    body = caap.makeTr(row);
-                    row = caap.makeTd({
+                    row += caap.makeTd({
                         text : 'LSI',
                         color : '',
                         id : '',
@@ -5007,8 +5063,7 @@ caap = {
                         id : '',
                         title : ''
                     }, "font-size:14px;");
-                    body += caap.makeTr(row);
-                    row = caap.makeTd({
+                    row += caap.makeTd({
                         text : 'SPPL',
                         color : '',
                         id : '',
@@ -5020,8 +5075,14 @@ caap = {
                         id : '',
                         title : ''
                     }, "font-size:14px;");
-                    body += caap.makeTr(row);
+                    body = caap.makeTr(row);
                     row = caap.makeTd({
+                        text : '',
+                        color : '',
+                        id : '',
+                        title : ''
+                    });
+                    row += caap.makeTd({
                         text : 'API',
                         color : '',
                         id : '',
@@ -5033,8 +5094,7 @@ caap = {
                         id : '',
                         title : ''
                     }, "font-size:14px;");
-                    body += caap.makeTr(row);
-                    row = caap.makeTd({
+                    row += caap.makeTd({
                         text : 'DPI',
                         color : '',
                         id : '',
@@ -5046,8 +5106,7 @@ caap = {
                         id : '',
                         title : ''
                     }, "font-size:14px;");
-                    body += caap.makeTr(row);
-                    row = caap.makeTd({
+                    row += caap.makeTd({
                         text : 'MPI',
                         color : '',
                         id : '',
@@ -5061,6 +5120,12 @@ caap = {
                     }, "font-size:14px;");
                     body += caap.makeTr(row);
                     row = caap.makeTd({
+                        text : '',
+                        color : '',
+                        id : '',
+                        title : ''
+                    });
+                    row += caap.makeTd({
                         text : 'MHBEQ',
                         color : '',
                         id : '',
@@ -5072,8 +5137,7 @@ caap = {
                         id : '',
                         title : ''
                     }, "font-size:14px;");
-                    body += caap.makeTr(row);
-                    row = caap.makeTd({
+                    row += caap.makeTd({
                         text : 'Build',
                         color : '',
                         id : '',
@@ -5085,8 +5149,7 @@ caap = {
                         id : '',
                         title : ''
                     }, "font-size:14px;");
-                    body += caap.makeTr(row);
-                    row = caap.makeTd({
+                    row += caap.makeTd({
                         text : 'PvP Class',
                         color : '',
                         id : '',
@@ -5100,8 +5163,8 @@ caap = {
                     }, "font-size:14px;");
                     body += caap.makeTr(row);
                     temp += caap.makeTable("keepstats", head, body, "Statistics", "font-size:16px;");
-                    temp += "</div>";
-                    tempDiv.before(temp);
+                    temp += "</div></div>";
+                    tempDiv.after(temp);
                 } else {
                     tempDiv = $j(".keep_stat_title_inc", attrDiv);
                     tempDiv = $u.hasContent(tempDiv) ? tempDiv.html($u.setContent(tempDiv.html(), '').trim() + ", <span style='white-space: nowrap;'>BSI: " + caap.stats['indicators']['bsi'] + " LSI: " + caap.stats['indicators']['lsi'] + "</span>") : tempDiv;
