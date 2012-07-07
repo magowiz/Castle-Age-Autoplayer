@@ -1105,7 +1105,8 @@ caap.checkResults_viewFight = function(ajax) {
         }
 
         if($u.hasContent(monsterDiv)) {
-            id = $u.setContent($j("input[name*='casuser']", $j("form[onsubmit*='newsFeed']"))[0].value, '');
+//            id = $u.setContent($j("input[name*='casuser']", $j("form[onsubmit*='newsFeed']"))[0].value, '');
+            id = $u.setContent($j("input[name*='casuser']").eq(0).attr("value"), '');
             id = $u.setContent(id, $j("img[src*='profile.ak.fbcdn.net']", monsterDiv).attr("uid"), '').regex(/(\d+)/);
             id = $u.setContent(id, $u.setContent($j(".fb_link[href*='profile.php']", monsterDiv).attr("href"), '').regex(/id=(\d+)/));
             id = $u.setContent(id, $u.setContent($j("img[src*='graph.facebook.com']", monsterDiv).attr("src"), '').regex(/\/(\d+)\//));
