@@ -1286,6 +1286,36 @@
                 newbg_img    : ['boss_azeron_header.jpg'],
                 list_img     : ['boss_azeron_list.jpg'],
                 cta_img      : ['cta_azeron.gif']
+            },
+            "Kessaran" : {
+               alpha        : true,
+                duration     : 168,
+                hp           : 750000000,
+                ach          : 1000000,
+                siege        : 10,
+                siegeClicks  : [15, 30, 45, 60, 75, 100, 150, 200],
+                siegeDam     : [16000000, 19000000, 22300000, 29000000, 33000000, 37000000, 40000000],
+                siege_img    : [
+                    '/graphics/earth_siege_small',
+                    '/graphics/castle_siege_small',
+                    '/graphics/skaar_siege_small',
+                    '/graphics/death_siege_small'
+                ],
+                fort         : true,
+                staUse       : 10,
+                staLvl       : [0, 100, 200, 500],
+                staMax       : [10, 20, 50, 100, 200],
+                nrgMax       : [20, 40, 100, 200, 200],
+                defense_img  : 'nm_green.jpg',
+                levels       : [1,  50, 100, 150],
+                join         : [30, 30, 35,  50],
+                mClass       : 'Epic World',
+                mpool        : 101,
+                newbg_img    : ['monster_header_kessaran.jpg'],
+                list_img     : ['monster_kessaran_list.jpg'],
+                cta_img      : ['cta_kessaran.gif'],
+                bodyparts    : 3,
+                partOrder    : [3,2,1]
             }
         },
 

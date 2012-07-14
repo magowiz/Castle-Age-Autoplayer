@@ -628,7 +628,9 @@
                 htmlCode += caap.startToggle('Army', 'ARMY OPTIONS');
                 htmlCode += caap.makeCheckTR('Enable Army Functions', 'EnableArmy', true, armyInstructions);
                 htmlCode += caap.startCheckHide('EnableArmy');
-                htmlCode += caap.makeCheckTR('Do In Background', 'useAjaxArmy', true, "Check Army using AJAX rather than page navigation.");
+// yinzanat - this is disabled because it doesn't work right now
+config.setItem('useAjaxArmy', false);
+//                htmlCode += caap.makeCheckTR('Do In Background', 'useAjaxArmy', true, "Check Army using AJAX rather than page navigation.");
                 htmlCode += caap.makeNumberFormTR("Scan Every (days)", 'ArmyScanDays', armyScanInstructions, 7, '', '');
                 htmlCode += caap.makeCheckTR('Change Indicators', 'ArmyIndicators', false, '');
                 htmlCode += caap.startCheckHide('ArmyIndicators');

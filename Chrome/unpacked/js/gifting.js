@@ -768,7 +768,9 @@
                 htmlCode += caap.startToggle('Gifting', 'GIFTING OPTIONS');
                 htmlCode += caap.makeCheckTR('Auto Gifting', 'AutoGift', false, giftInstructions);
                 htmlCode += caap.startCheckHide('AutoGift');
-                htmlCode += caap.makeCheckTR('Do In Background', 'useAjaxGiftCheck', true, "Check for gifts using AJAX rather than page navigation.");
+// yinzanat this is disabled because it doesn't work right now
+config.setItem('useAjaxGiftCheck', false);
+//                htmlCode += caap.makeCheckTR('Do In Background', 'useAjaxGiftCheck', true, "Check for gifts using AJAX rather than page navigation.");
                 htmlCode += caap.makeCheckTR('Watch FB Beeper', 'watchBeeper', true, "Watch the FB Beeper for new gifts.");
                 htmlCode += caap.makeCheckTR('Queue unique users only', 'UniqueGiftQueue', true, giftQueueUniqueInstructions);
                 htmlCode += caap.makeCheckTR('Collect Only', 'CollectOnly', false, giftCollectOnlyInstructions);
