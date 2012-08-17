@@ -1749,6 +1749,12 @@ caap.checkResults_viewFight = function(ajax) {
             isTarget = (currentMonster['name'] === state.getItem('targetFromraid', '') || currentMonster['name'] === state.getItem('targetFrombattle_monster', '') || currentMonster['name'] === targetFromfortify['name']);
 
             if(maxDamage && currentMonster['damage'] >= maxDamage) {
+    			if(currentMonster['color'] !== 'red') {
+					// HACK: Goto 'keep'
+					// HACK: Forces caap to check before dumping stamina into a monster that doesn't need it
+					// Not elegant, but it works
+					caap.navigateTo('keep');
+				}			
                 currentMonster['color'] = 'red';
                 currentMonster['over'] = 'max';
                 //used with KOB code
