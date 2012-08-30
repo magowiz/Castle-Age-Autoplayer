@@ -516,12 +516,12 @@ caap.monsters = function() {
         theGeneral = theGeneral === "Under Level" ? (config.getItem('ReverseLevelUpGenerals') ? general.GetLevelUpNames().reverse().pop() : general.GetLevelUpNames().pop()) : theGeneral;
         switch (theGeneral) {
             case 'Orc King':
-                energyRequire = energyRequire * (general.GetLevel('Orc King') + 1);
+                energyRequire = energyRequire * (Math.min (4, general.GetLevel('Orc King')) + 1);
                 con.log(3, 'Monsters Fortify:Orc King', energyRequire);
                 break;
             case 'Barbarus':
                 //energyRequire = energyRequire * (general.GetLevel('Barbarus') === 4 ? 3 : 2);
-		energyRequire = energyRequire * (general.GetLevel('Barbarus') >= 4 ? 3 : 2);
+                energyRequire = energyRequire * (general.GetLevel('Barbarus') >= 4 ? 3 : 2);
                 con.log(3, 'Monsters Fortify:Barbarus', energyRequire);
                 break;
             case 'Maalvus':

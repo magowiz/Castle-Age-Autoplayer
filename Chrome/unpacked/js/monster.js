@@ -2100,11 +2100,11 @@
 
                             switch (theGeneral) {
                             case 'Orc King':
-                                state.setItem('MonsterStaminaReq', state.getItem('MonsterStaminaReq', 1) * (general.GetLevel('Orc King') + 1));
+                                state.setItem('MonsterStaminaReq', state.getItem('MonsterStaminaReq', 1) * (Math.min (4, general.GetLevel('Orc King')) + 1));
                                 con.log(3, 'MonsterStaminaReq:Orc King', state.getItem('MonsterStaminaReq', 1));
                                 break;
                             case 'Barbarus':
-                                state.setItem('MonsterStaminaReq', state.getItem('MonsterStaminaReq', 1) * (general.GetLevel('Barbarus') === 4 ? 3 : 2));
+                                state.setItem('MonsterStaminaReq', state.getItem('MonsterStaminaReq', 1) * (general.GetLevel('Barbarus') >= 4 ? 3 : 2));
                                 con.log(3, 'MonsterStaminaReq:Barbarus', state.getItem('MonsterStaminaReq', 1));
                                 break;
                             case 'Maalvus':

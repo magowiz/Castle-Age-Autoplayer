@@ -10,8 +10,8 @@
                     return false;
                 }
 
-                var button = caap.checkForImage("powercollect.gif");
-                var button2 = caap.checkForImage("war_keep_btn_collect.gif");
+                var button = caap.checkForImage("conq2_btn_collectpower.gif");
+                var button2 = caap.checkForImage("conq2_btn_collect.gif");
 
                 if ($u.hasContent(button)) {
                     caap.click(button);

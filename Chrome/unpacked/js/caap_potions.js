@@ -18,7 +18,7 @@ caap.autoPotions = function() {
 
 		function consumePotion(potion) {
 			try {
-				if(!$j(".statsTTitle").length) {
+				if(!$j("div[style*='keep_cont_top']")) {
 					con.log(2, "Going to keep for potions");
 					if(caap.navigateTo('keep')) {
 						return true;
