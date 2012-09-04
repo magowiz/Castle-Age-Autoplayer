@@ -29,7 +29,7 @@
                 if((!config.getItem('doConquestCrystalCollect1', false) || !schedule.check('collectConquestCrystal1Timer')) && (!config.getItem('doConquestCrystalCollect2', false) || !schedule.check('collectConquestCrystal2Timer'))) {
                     return false;
                 }
-                var button = caap.checkForImage("war_fort_btnexplore_on.jpg");
+                var button = caap.checkForImage("conq2_btn_interiorcass.jpg");
                 if ($u.hasContent(button)) {
                     caap.click(button);
                 } else {
