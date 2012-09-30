@@ -1887,7 +1887,7 @@ caap = {
     },
     /*jslint sub: false */
 
-    landQuestList : ['Land of Fire', 'Land of Earth', 'Land of Mist', 'Land of Water', 'Demon Realm', 'Undead Realm', 'Underworld', 'Kingdom of Heaven', 'Ivory City', 'Earth II', 'Water II', 'Mist II', 'Mist III', 'Fire II', 'Pangaea', 'Perdition', 'Land of Fire III', 'Land of Earth III'],
+    landQuestList : ['Land of Fire', 'Land of Earth', 'Land of Mist', 'Land of Water', 'Demon Realm', 'Undead Realm', 'Underworld', 'Kingdom of Heaven', 'Ivory City', 'Earth II', 'Water II', 'Mist II', 'Mist III', 'Fire II', 'Pangaea', 'Perdition', 'Land of Fire III', 'Land of Earth III', 'Land of Mist IV'],
 
     demiQuestList : ['Ambrosia', 'Malekus', 'Corvintheus', 'Aurora', 'Azeron'],
 
@@ -5730,14 +5730,24 @@ caap = {
         'Land of Earth III' : {
             clas : 'quests_stage_18',
             base : 'tab_earth3',
-            next : 'DemiChange',
+            next : 'Land of Mist IV',
             area : '',
             list : '',
             boss : "Urmek",
             orb : 'Orb of Urmek'
         },
 
-        'DemiChange' : {
+        'Land of Mist IV' : {
+            clas : 'quests_stage_19',
+            base : 'tab_mist4',
+            next : 'DemiChange',
+            area : '',
+            list : '',
+            boss : "Vorak",
+            orb : 'Orb of Vorak'
+        },
+
+'DemiChange' : {
             clas : 'symbolquests_stage_1',
             next : 'Ambrosia',
             area : 'Demi Quests',
@@ -5919,6 +5929,7 @@ caap = {
                         pathToPage = 'quests,jobs_tab_more.gif,' + landPic;
                         imageOnPage = landPic;
                         switch (landPic) {
+                            case 'tab_mist4':
                             case 'tab_earth3':
                             case 'tab_fire4':
                             case 'tab_perdition':
