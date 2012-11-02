@@ -2405,7 +2405,7 @@ caap = {
     addConquestOptionsMenu : function() {
         try {
             // Other controls
-            var festivalBlessList = ['None', 'Energy', 'Attack', 'Defense', 'Health', 'Stamina', 'Army'], htmlCode = '';
+            var festivalBlessList = ['None', 'Energy', 'Attack', 'Defense', 'Health', 'Stamina', 'Army','All'], htmlCode = '';
             htmlCode += caap.startToggle('ConquestOptions', 'CONQUEST OPTIONS');
             htmlCode += caap.makeCheckTR('Enable Conquest Collect', 'doConquestCollect', false, '');
             htmlCode += caap.makeTD("<input type='button' id='caap_CollectConquestNow' value='Collect Now' style='padding: 0; font-size: 10px; height: 18px' />");
