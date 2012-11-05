@@ -7065,17 +7065,17 @@ caap = {
                    }
                 }
                 if (caap.stats['achievements']['feats']['health']<8) {
-                   if (caap.stats['health']['num']>= heaFeat[caap.stats['achievements']['feats']['health']]) {
+                   if (caap.stats['health']['max']>= heaFeat[caap.stats['achievements']['feats']['health']]) {
                       autoBless = 'Health';
                    }
                 }
                 if (caap.stats['achievements']['feats']['energy']<8) {
-                   if (caap.stats['energy']['num']>= eneFeat[caap.stats['achievements']['feats']['energy']]) {
+                   if (caap.stats['energy']['max']>= eneFeat[caap.stats['achievements']['feats']['energy']]) {
                       autoBless = 'Energy';
                    }
                 }
                 if (caap.stats['achievements']['feats']['stamina']<8) {
-                   if (caap.stats['stamina']['num']>= staFeat[caap.stats['achievements']['feats']['stamina']]) {
+                   if (caap.stats['stamina']['max']>= staFeat[caap.stats['achievements']['feats']['stamina']]) {
                       autoBless = 'Stamina';
                    }
                 }
