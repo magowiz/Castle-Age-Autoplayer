@@ -7053,40 +7053,47 @@ caap = {
                    heaFeat = [125,150,200,250,300,375,440,500],
                    eneFeat = [50,100,150,200,280,375,510,725],
                    staFeat = [25,50,75,100,140,180,255,360],
-                   armFeat = [50,100,200,400,600,800,1000,1200];
+                   armFeat = [50,100,200,400,600,800,1000,1200],
+                   default_bless = 'All';
                 if (caap.stats['achievements']['feats']['attack']<8) {
                    if (caap.stats['attack']>= atkFeat[caap.stats['achievements']['feats']['attack']]) {
                       autoBless = 'Attack';
                    }
+				   default_bless = 'Attack';
                 }
                 if (caap.stats['achievements']['feats']['defense']<8) {
                    if (caap.stats['defense']>= defFeat[caap.stats['achievements']['feats']['defense']]) {
                       autoBless = 'Defense';
                    }
+				   default_bless = default_bless === 'All' ? 'Defense' : default_bless;
                 }
                 if (caap.stats['achievements']['feats']['health']<8) {
                    if (caap.stats['health']['max']>= heaFeat[caap.stats['achievements']['feats']['health']]) {
                       autoBless = 'Health';
                    }
+				   default_bless = default_bless === 'All' ? 'Health' : default_bless;
                 }
                 if (caap.stats['achievements']['feats']['energy']<8) {
                    if (caap.stats['energy']['max']>= eneFeat[caap.stats['achievements']['feats']['energy']]) {
                       autoBless = 'Energy';
                    }
+				   default_bless = default_bless === 'All' ? 'Energy' : default_bless;
                 }
                 if (caap.stats['achievements']['feats']['stamina']<8) {
                    if (caap.stats['stamina']['max']>= staFeat[caap.stats['achievements']['feats']['stamina']]) {
                       autoBless = 'Stamina';
                    }
+				   default_bless = default_bless === 'All' ? 'Stamina' : default_bless;
                 }
                 if (caap.stats['achievements']['feats']['army']<8) {
                    if (caap.stats['army']['actual']>= armFeat[caap.stats['achievements']['feats']['army']]) {
                       autoBless = 'Army';
                    }
+				   default_bless = default_bless === 'All' ? 'Army' : default_bless;
                 }
                 
                 if(autoBless === 'All') {
-                   return false;
+				   autoBless = default_bless !== 'All' ? default_bless : 'Attack' ;
                 }
              }
              
