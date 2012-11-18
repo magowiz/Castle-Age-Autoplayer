@@ -37,7 +37,7 @@ caap.start = function() {
 			FBID = $u.setContent(caap.fbEnv.user, 0).parseInt();
 			aName = $j('#navAccountName').text();
 		} else {
-			FBID = $u.setContent(caap.fbData.me.uid, '0').parseInt();
+			FBID = $u.setContent(caap.fbData.me.id, '0').parseInt();
 			aName = $u.setContent(caap.fbData.me.name, '');
 		}
 

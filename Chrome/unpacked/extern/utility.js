@@ -22,6 +22,8 @@
         is_chrome = false,
         is_firefox = false,
         is_opera = false,
+        chrome_major_version = 0,
+        firefox_major_version = 0,
         utility_ref = window['utility'],
         $u_ref = window['$u'],
         owl,
@@ -2882,7 +2884,11 @@
             name = name ? name : "defaultDB";
             description = description ? description : "Default Database";
             version = version ? version : "1";
-            request = window['indexedDB']['open'](name, description);
+            if ((is_chrome && chrome_major_version < 23) || (is_firefox && firefox_major_version < 10)) {
+                request = window['indexedDB']['open'](name, description);
+            } else {
+                request = window['indexedDB']['open'](name, version);
+            }
             request['onsuccess'] = function (event) {
                 that['db'] = event['target']['result'];
                 that['db']['onversionchange'] = function (evt) {
@@ -2893,31 +2899,39 @@
                     }
                 };
 
-                if (that['db']['version'] !== version) {
-                    // User's first visit, initialize database.
-                    request = that['db']['setVersion'](version);
-                    request['onsuccess'] = function (evt) {
+                // old open/setVersion handling - deprecated
+                if ((is_chrome && chrome_major_version < 23) || (is_firefox && firefox_major_version < 10)) {
+                    if (that['db']['version'] !== version) {
+                        // User's first visit, initialize database.
+                        request = that['db']['setVersion'](version);
+                        request['onsuccess'] = function (evt) {
+                            that['ready'] = true;
+                            if (isFunction(onsuccess) === "function") {
+                                onsuccess(evt);
+                            }
+                        };
+
+                        request['onabort'] = function (evt) {
+                            internal['error']("Abort: init");
+                            if (isFunction(onabort)) {
+                                onabort(evt);
+                            }
+                        };
+
+                        request['onerror'] = function (evt) {
+                            internal['error']("Error: init");
+                            if (isFunction(onerror)) {
+                                onerror(evt);
+                            }
+                        };
+                    } else {
+                        // User has been here before, no initialization required.
                         that['ready'] = true;
-                        if (isFunction(onsuccess) === "function") {
-                            onsuccess(evt);
+                        if (isFunction(onsuccess)) {
+                            onsuccess(event);
                         }
-                    };
-
-                    request['onabort'] = function (evt) {
-                        internal['error']("Abort: init");
-                        if (isFunction(onabort)) {
-                            onabort(evt);
-                        }
-                    };
-
-                    request['onerror'] = function (evt) {
-                        internal['error']("Error: init");
-                        if (isFunction(onerror)) {
-                            onerror(evt);
-                        }
-                    };
+                    }
                 } else {
-                    // User has been here before, no initialization required.
                     that['ready'] = true;
                     if (isFunction(onsuccess)) {
                         onsuccess(event);
@@ -7286,8 +7300,22 @@
     //   set some variables
     ///////////////////////////
 
-    is_chrome = 'chrome' in window && window.navigator.userAgent.toLowerCase()['hasIndexOf']('chrome');
-    is_firefox = window.navigator.userAgent.toLowerCase()['hasIndexOf']('firefox');
+    if (window.hasOwnProperty('chrome')) {
+        (function(){
+            var agent = window.navigator.userAgent, ver;
+            if ((ver = agent.match(/\bchrome\/(\d+)\b/i))) {
+                is_chrome = true;
+                chrome_major_version = parseInt(ver[1], 10);
+            }
+        })();
+    }
+    (function(){
+        var agent = window.navigator.userAgent, ver;
+        if ((ver = agent.match(/\bfirefox\/(\d+)\b/i))) {
+            is_firefox = true;
+            firefox_major_version = parseInt(ver[1], 10);
+        }
+    })();
     is_opera = 'opera' in window;
     internal = new LogHelper({'log_version': uversion, 'log_level': 1});
 
@@ -7319,6 +7347,11 @@
      * @type {boolean}
      */
     utility['is_opera'] = is_opera;
+
+    /**
+     * @type {boolean}
+     */
+    utility['chrome_major_version'] = chrome_major_version;
 
     /**
      * @type {Function}
