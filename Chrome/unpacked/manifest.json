@@ -122,6 +122,6 @@
         "http://www.facebook.com/dialog/apprequests*",
         "https://www.facebook.com/dialog/apprequests*"
     ],
-    "update_url": "https://raw.github.com/magowiz/Castle-Age-Autoplayer/master/Chrome/packed/updates.xml",
+    "update_url": "https://raw.github.com/magowiz/Castle-Age-Autoplayer/manifest-v2/Chrome/packed/updates.xml",
     "version": "141.0.0.93"
 }
