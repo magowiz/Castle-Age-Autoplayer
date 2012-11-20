@@ -2885,22 +2885,43 @@
             description = description ? description : "Default Database";
             version = version ? version : "1";
             if ((is_chrome && chrome_major_version < 23) || (is_firefox && firefox_major_version < 10)) {
+		console.log('# old db open v' + version
+		  + (is_chrome ? ', chrome ' + chrome_major_version : '')
+		  + (is_firefox ? ', firefox ' + firefox_major_version : '')
+		);
                 request = window['indexedDB']['open'](name, description);
             } else {
+		console.log('# new db open v' + version
+		  + (is_chrome ? ', chrome ' + chrome_major_version : '')
+		  + (is_firefox ? ', firefox ' + firefox_major_version : '')
+		);
                 request = window['indexedDB']['open'](name, version);
-            }
-            request['onsuccess'] = function (event) {
-                that['db'] = event['target']['result'];
-                that['db']['onversionchange'] = function (evt) {
+
+                request['onupgradeneeded'] = function(evt) {
                     internal['warn']("Version changed", evt);
-                    that['close']();
                     if (isFunction(onversionchange)) {
                         onversionchange(evt);
                     }
-                };
+                }
+            }
+
+            request['onsuccess'] = function (event) {
+		console.log('# open succeeded v' + version
+		  + (is_chrome ? ', chrome ' + chrome_major_version : '')
+		  + (is_firefox ? ', firefox ' + firefox_major_version : '')
+		);
+                that['db'] = event['target']['result'];
 
                 // old open/setVersion handling - deprecated
                 if ((is_chrome && chrome_major_version < 23) || (is_firefox && firefox_major_version < 10)) {
+                    that['db']['onversionchange'] = function (evt) {
+                        internal['warn']("Version changed", evt);
+                        that['close']();
+                        if (isFunction(onversionchange)) {
+                            onversionchange(evt);
+                        }
+                    };
+
                     if (that['db']['version'] !== version) {
                         // User's first visit, initialize database.
                         request = that['db']['setVersion'](version);
