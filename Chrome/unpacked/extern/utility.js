@@ -1972,7 +1972,7 @@
 
         settings = isPlainObject(settings) && hasContent(settings) ? settings : {};
         this['log_version'] = setContent(settings['log_version'], "");
-        this['log_level'] = setContent(settings['log_version'], 1);
+        this['log_level'] = setContent(settings['log_version'], 3); // FIXME:1
     }
 
     LogHelper.prototype['log_common'] = function (type, level, text) {
@@ -2885,20 +2885,23 @@
             description = description ? description : "Default Database";
             version = version ? version : "1";
             if ((is_chrome && chrome_major_version < 23) || (is_firefox && firefox_major_version < 10)) {
-		console.log('# old db open v' + version
+		internal['log']('# old db open v' + version
 		  + (is_chrome ? ', chrome ' + chrome_major_version : '')
 		  + (is_firefox ? ', firefox ' + firefox_major_version : '')
 		);
                 request = window['indexedDB']['open'](name, description);
             } else {
-		console.log('# new db open v' + version
+		internal['log']('# new db open v' + version
 		  + (is_chrome ? ', chrome ' + chrome_major_version : '')
 		  + (is_firefox ? ', firefox ' + firefox_major_version : '')
 		);
                 request = window['indexedDB']['open'](name, version);
 
                 request['onupgradeneeded'] = function(evt) {
-                    internal['warn']("Version changed", evt);
+		    internal['warn']('Upgrade needed on open v' + version
+		      + (is_chrome ? ', chrome ' + chrome_major_version : '')
+		      + (is_firefox ? ', firefox ' + firefox_major_version : '')
+		    );
                     if (isFunction(onversionchange)) {
                         onversionchange(evt);
                     }
@@ -2906,7 +2909,7 @@
             }
 
             request['onsuccess'] = function (event) {
-		console.log('# open succeeded v' + version
+		internal['log']('Success on open v' + version
 		  + (is_chrome ? ', chrome ' + chrome_major_version : '')
 		  + (is_firefox ? ', firefox ' + firefox_major_version : '')
 		);
@@ -2964,14 +2967,16 @@
                 internal['error']("Blocked: open", event);
                 if (isFunction(onblocked)) {
                     onblocked(event);
-                }
+                } else {
+		    alert('Please close all other tabs with this site open!');
+		}
             };
 
             request['onabort'] = function (event) {
-                internal['error']("Abort: open", event);
+                internal['error']("Abort: on open", event);
                 if (isFunction(onabort)) {
                     onabort(event);
-                }
+		}
             };
 
             request['onerror'] = function (event) {
