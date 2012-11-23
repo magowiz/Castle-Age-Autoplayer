@@ -2885,12 +2885,14 @@
             description = description ? description : "Default Database";
             version = version ? version : "1";
             if ((is_chrome && chrome_major_version < 23) || (is_firefox && firefox_major_version < 10)) {
+                internal['log'](1, 'Old idb open v' + version);
                 request = window['indexedDB']['open'](name, description);
             } else {
+                internal['log'](1, 'New idb open v' + version);
                 request = window['indexedDB']['open'](name, version);
 
                 request['onupgradeneeded'] = function(evt) {
-                    internal['warn']("Version changed", evt);
+                    internal['warn']('Upgrade needed on open v' + version);
                     if (isFunction(onversionchange)) {
                         onversionchange(evt);
                     }
@@ -2898,6 +2900,7 @@
             }
 
             request['onsuccess'] = function (event) {
+                internal['log'](2, 'Success: open');
                 that['db'] = event['target']['result'];
 
                 // old open/setVersion handling - deprecated
@@ -2952,6 +2955,8 @@
                 internal['error']("Blocked: open", event);
                 if (isFunction(onblocked)) {
                     onblocked(event);
+                } else {
+                    alert('Please close all other tabs with this site open!');
                 }
             };
 
@@ -7361,6 +7366,11 @@
      * @type {boolean}
      */
     utility['chrome_major_version'] = chrome_major_version;
+
+    /**
+     * @type {boolean}
+     */
+    utility['firefox_major_version'] = firefox_major_version;
 
     /**
      * @type {Function}
