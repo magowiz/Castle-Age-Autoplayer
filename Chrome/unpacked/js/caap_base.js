@@ -2366,7 +2366,7 @@ caap = {
     addAutoOptionsMenu : function() {
         try {
             // Other controls
-            var autoAlchemyInstructions1 = "AutoAlchemy will combine all recipes " + "that do not have missing ingredients. By default, it will not " + "combine Battle Hearts recipes.", autoAlchemyInstructions2 = "If for some reason you do not want " + "to skip Battle Hearts", autoPotionsInstructions0 = "Enable or disable the auto consumption " + "of energy and stamina potions.", autoPotionsInstructions1 = "Number of stamina potions at which to " + "begin consuming.", autoPotionsInstructions2 = "Number of stamina potions to keep.", autoPotionsInstructions3 = "Number of energy potions at which to " + "begin consuming.", autoPotionsInstructions4 = "Number of energy potions to keep.", autoPotionsInstructions5 = "Do not consume potions if the " + "experience points to the next level are within this value.", autoBlessList = ['None', 'Energy', 'Attack', 'Defense', 'Health', 'Stamina'], autoBlessListInstructions = ['None disables the auto bless feature.', 'Energy performs an automatic daily blessing with Ambrosia.', 'Attack performs an automatic daily blessing with Malekus.', 'Defense performs an automatic daily blessing with Corvintheus.', 'Health performs an automatic daily blessing with Aurora.', 'Stamina performs an automatic daily blessing with Azeron.'], htmlCode = '';
+            var autoAlchemyInstructions1 = "AutoAlchemy will combine all recipes " + "that do not have missing ingredients. By default, it will not " + "combine Battle Hearts recipes.", autoAlchemyInstructions2 = "If for some reason you do not want " + "to skip Battle Hearts", autoPotionsInstructions0 = "Enable or disable the auto consumption " + "of energy and stamina potions.", autoPotionsInstructions1 = "Number of stamina potions at which to " + "begin consuming.", autoPotionsInstructions2 = "Number of stamina potions to keep.", autoPotionsInstructions3 = "Number of energy potions at which to " + "begin consuming.", autoPotionsInstructions4 = "Number of energy potions to keep.", autoPotionsInstructions5 = "Do not consume potions if the " + "experience points to the next level are within this value.", autoBlessList = ['None', 'Auto Upgrade','Energy', 'Attack', 'Defense', 'Health', 'Stamina'], autoBlessListInstructions = ['None disables the auto bless feature.', 'Auto Upgrade bless feature according to auto upgrade skill setting.', 'Energy performs an automatic daily blessing with Ambrosia.', 'Attack performs an automatic daily blessing with Malekus.', 'Defense performs an automatic daily blessing with Corvintheus.', 'Health performs an automatic daily blessing with Aurora.', 'Stamina performs an automatic daily blessing with Azeron.'], htmlCode = '';
             htmlCode += caap.startToggle('Auto', 'AUTO OPTIONS');
             htmlCode += caap.makeDropDownTR("Auto Bless", 'AutoBless', autoBlessList, autoBlessListInstructions, '', '', false, false, 62);
             htmlCode += caap.makeCheckTR('Auto Potions', 'AutoPotions', false, autoPotionsInstructions0);
@@ -6944,14 +6944,92 @@ caap = {
             con.error("ERROR in blessingResults: " + err);
         }
     },
+    autoBlessSelection : function() {
+		var autoBless = config.getItem('AutoBless', 'none');
+		if (autoBless.match('Auto Upgrade')) {
+			try {
+				var startAtt = 0, stopAtt = 4, attribute = '', attrName = '', attrValue = 0, attrAdjustNew = 0, attrCurrent = 0,
+					level = 0, energy = 0, stamina = 0, attack = 0, defense = 0, health = 0;
+
+				if(config.getItem("AutoStatAdv", false)) {
+					startAtt = 5;
+					stopAtt = 9;
+				}
+				energy = caap.stats['energy']['max'];
+				stamina = caap.stats['stamina']['max'];
+				attack = caap.stats['attack'];
+				defense = caap.stats['defense'];
+				health = caap.stats['health']['max'];
+				level = caap.stats['level'];
+
+				for( n = startAtt; n <= stopAtt; n += 1) {
+					attrName = 'Attribute' + n;
+					attribute = config.getItem(attrName, '');
+					if(attribute === '') {
+						con.log(4, attrName + " is blank: continue");
+						continue;
+					}
+					
+
+					if(caap.stats['level'] < 10) {
+						if(attribute === 'Attack' || attribute === 'Defense' || attribute === 'Health') {
+							con.log(1, "Characters below level 10 can not increase Attack, Defense or Health: continue");
+							continue;
+						}
+					}
+					attrValue = config.getItem('AttrValue' + n, 0);
+					attribute = attribute.toLowerCase();
+					switch (attribute) {
+						case 'energy' :
+							attrCurrent = energy;
+							break;
+						case 'stamina' :
+							attrCurrent = stamina;
+							break;
+						case 'attack' :
+							attrCurrent = attack;
+							break;
+						case 'defense' :
+							attrCurrent = defense;
+							break;
+						case 'health' :
+							attrCurrent = health;
+							break;
+						default :
+							throw "Unable to match attribute: " + attribute;
+					}
+					
+					if(config.getItem('AutoStatAdv', false)) {
+						attrAdjustNew = eval(attrValue);
+					} else {
+						attrAdjustNew = attrValue;
+					}
+					if (attrAdjustNew > attrCurrent) {
+						return attribute;
+					}
+				}
+				return 'attack';
+			} catch (err) {
+				con.error("ERROR in autoBlessSelection: " + err);
+				return 'none';
+			}
+		} else {
+			return autoBless;
+		}
+    },
     autoBless : function() {
         try {
             if(caap.blessingPerformed) {
                 return true;
             }
 
-            var autoBless = config.getItem('AutoBless', 'none'), autoBlessN = caap.deityTable[autoBless.toLowerCase()], picSlice = $j(), descSlice = $j();
-
+            //var autoBless = config.getItem('AutoBless', 'none');
+			var autoBless = caap.autoBlessSelection(),			
+				autoBlessN = caap.deityTable[autoBless.toLowerCase()], 
+				picSlice = $j(), 
+				descSlice = $j();
+			
+			
             if(!$u.hasContent(autoBlessN) || !schedule.check('BlessingTimer')) {
                 return false;
             }
