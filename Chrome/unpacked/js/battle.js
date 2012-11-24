@@ -860,14 +860,14 @@
                     maxLevel = 99999;
                 }
 
-                minLevel = config.getItem("FreshMeatMinLevel", 00000);
+                minLevel = config.getItem("FreshMeatMinLevel", 99999);
                 con.log(3, "FreshMeatMinLevel", minLevel);
                 if (minLevel === '' || $u.isNaN(minLevel)) {
                     if (minLevel !== '') {
                         con.warn("FreshMeatMinLevel is NaN, using default", minLevel);
                     }
 
-                    minLevel = 00000;
+                    minLevel = 99999;
                 }
 
                 ARBase = config.getItem("FreshMeatARBase", 0.5);
