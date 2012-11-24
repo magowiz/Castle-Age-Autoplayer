@@ -811,6 +811,7 @@
                     txt             = '',
                     minRank         = 0,
                     maxLevel        = 0,
+                    minLevel		= 0,
                     ARBase          = 0,
                     ARMax           = 0,
                     ARMin           = 0,
@@ -857,6 +858,16 @@
                     }
 
                     maxLevel = 99999;
+                }
+
+                minLevel = config.getItem("FreshMeatMinLevel", 00000);
+                con.log(3, "FreshMeatMinLevel", minLevel);
+                if (minLevel === '' || $u.isNaN(minLevel)) {
+                    if (minLevel !== '') {
+                        con.warn("FreshMeatMinLevel is NaN, using default", minLevel);
+                    }
+
+                    minLevel = 00000;
                 }
 
                 ARBase = config.getItem("FreshMeatARBase", 0.5);
@@ -1029,7 +1040,12 @@
                     }
 
                     if (tempRecord.data['levelNum'] - caap.stats['level'] > maxLevel) {
-                        con.log(2, "Greater than maxLevel", {'levelDif': tempRecord.data['levelNum'] - caap.stats['level'], 'maxLevel': maxLevel});
+                        con.log(2, "Exceeds relative maxLevel", {'level': tempRecord.data['levelNum'], 'levelDif': tempRecord.data['levelNum'] - caap.stats['level'], 'maxLevel': maxLevel});
+                        return true;
+                    }
+
+                    if (caap.stats['level'] - tempRecord.data['levelNum'] > minLevel) {
+                        con.log(2, "Exceeds relative minLevel", {'level': tempRecord.data['levelNum'], 'levelDif': caap.stats['level'] - tempRecord.data['levelNum'], 'minLevel': minLevel});
                         return true;
                     }
 
@@ -1298,7 +1314,8 @@
                         "same size as you or less. Default .5",
                     FreshMeatARMaxInstructions = "This setting sets the highest value you will use for the Army Ratio [Math.min(Army Ratio, Army Ratio Max)] value. So, if you NEVER want to fight an army bigger than 80% your size, you can set the Max value to .8.",
                     FreshMeatARMinInstructions = "This setting sets the lowest value you will use for the Army Ratio [Math.max(Army Ratio, Army Ratio Min)] value. So, if you NEVER want to pass up an army that is less than 10% the size of yours, you can set MIN value to .1.",
-                    FreshMeatMaxLevelInstructions = "This setting sets the highest level above you that you are willing to attack. So if you are a level 100 and do not want to attack an opponent above level 120, you can code 20.",
+                    FreshMeatMaxLevelInstructions = "This sets the highest relative level, above yours, that you are willing to attack. So if you are a level 100 and do not want to attack an opponent above level 120, you would code 20.",
+                    FreshMeatMinLevelInstructions = "This sets the lowest relative level, below yours, that you are willing to attack. So if you are a level 100 and do not want to attack an opponent below level 60, you would code 40.",
                     plusonekillsInstructions = "Force +1 kill scenario if 80% or more" +
                         " of targets are withn freshmeat settings. Note: Since Castle Age" +
                         " choses the target, selecting this option could result in a " +
@@ -1390,6 +1407,7 @@
                 htmlCode += caap.makeCheckTR('Advanced', 'AdvancedFreshMeatOptions', false);
                 htmlCode += caap.startCheckHide('AdvancedFreshMeatOptions');
                 htmlCode += caap.makeNumberFormTR("Max Level", 'FreshMeatMaxLevel', FreshMeatMaxLevelInstructions, '', '', '', true);
+                htmlCode += caap.makeNumberFormTR("Min Level", 'FreshMeatMinLevel', FreshMeatMinLevelInstructions, '', '', '', true);
                 htmlCode += caap.makeNumberFormTR("Army Ratio Max", 'FreshMeatARMax', FreshMeatARMaxInstructions, '', '', '', true);
                 htmlCode += caap.makeNumberFormTR("Army Ratio Min", 'FreshMeatARMin', FreshMeatARMinInstructions, '', '', '', true);
                 htmlCode += caap.endCheckHide('AdvancedFreshMeatOptions');
