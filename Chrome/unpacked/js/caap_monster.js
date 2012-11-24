@@ -400,12 +400,13 @@ caap.needToHide = function() {
         if(!state.getItem('targetFrombattle_monster', '')) {
             con.log(1, 'Stay Hidden Mode: No monster to battle');
             return true;
-            if(config.getItem('delayStayHidden', true) === false) {
-                con.log(2, 'Stay Hidden Mode: Delay hide if "safe" not enabled');
-                return true;
-            }
-
         }
+
+        if(config.getItem('delayStayHidden', true) === false) {
+            con.log(2, 'Stay Hidden Mode: Delay hide if "safe" not enabled');
+            return true;
+        }
+
         /*-------------------------------------------------------------------------------------\
          The riskConstant helps us determine how much we stay in hiding and how much we are willing
          to risk coming out of hiding.  The lower the riskConstant, the more we spend stamina to
