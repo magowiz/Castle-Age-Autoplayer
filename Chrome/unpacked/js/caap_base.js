@@ -2312,6 +2312,7 @@ caap = {
             htmlCode += caap.makeDropDownTR("Quest For", 'WhyQuest', questForList, questForListInstructions, '', '', false, false, 62);
             htmlCode += caap.makeCheckTR("Switch Quest Area", 'switchQuestArea', true, 'Allows switching quest area after Advancement or Max Influence');
             htmlCode += caap.makeCheckTR("Use Only Subquest General", 'ForceSubGeneral', false, forceSubGen);
+            htmlCode += caap.makeCheckTR("Perform Excavation Quests", 'ExcavateMines', false, 'If quest is for a mine, go ahead and excavate it.');
             htmlCode += caap.makeCheckTR("Quest For Orbs", 'GetOrbs', false, 'Perform the Boss quest in the selected land for orbs you do not have.');
             htmlCode += "<a id='caap_stopAutoQuest' style='display: " + ( autoQuestName ? "block" : "none") + "' href='javascript:;' title='" + stopInstructions + "'>";
             htmlCode += ( autoQuestName ? "Stop auto quest: " + autoQuestName + " (energy: " + state.getItem('AutoQuest', caap.newAutoQuest())['energy'] + ")" : '');
@@ -5781,7 +5782,6 @@ caap = {
             boss : "Azeron",
             orb : 'Orb of Azeron'
         },
-
         'Land of Fire III' : {
             clas : 'quests_stage_17',
             base : 'tab_fire4',
@@ -5791,7 +5791,6 @@ caap = {
             boss : "Fenix",
             orb : 'Orb of Fenix'
         },
-
         'Land of Earth III' : {
             clas : 'quests_stage_18',
             base : 'tab_earth3',
@@ -5801,7 +5800,6 @@ caap = {
             boss : "Urmek",
             orb : 'Orb of Urmek'
         },
-
         'Land of Mist IV' : {
             clas : 'quests_stage_19',
             base : 'tab_mist4',
@@ -5811,7 +5809,7 @@ caap = {
             boss : "Vorak",
             orb : 'Orb of Vorak'
         },
-	'Land of Water III' : {
+        'Land of Water III' : {
             clas : 'quests_stage_20',
             base : 'tab_water3',
             next : 'DemiChange',
@@ -5821,7 +5819,7 @@ caap = {
             orb : 'Orb of Baal'
         },
 
-'DemiChange' : {
+        'DemiChange' : {
             clas : 'symbolquests_stage_1',
             next : 'Ambrosia',
             area : 'Demi Quests',
@@ -5857,6 +5855,7 @@ caap = {
             area : '',
             list : ''
         },
+
         'AtlantisChange' : {
             clas : 'monster_quests_stage_1',
             next : 'Atlantis',
@@ -5877,6 +5876,12 @@ caap = {
         'Corvintheus' : 'defense',
         'Aurora' : 'health',
         'Azeron' : 'stamina'
+    },
+
+    isExcavationQuest : {
+    	'Cave of Wonder' : true,
+    	'Rune Mines' : true,
+    	'Nether Vortex' : true
     },
 
     qtom : null,
@@ -6003,7 +6008,7 @@ caap = {
                         pathToPage = 'quests,jobs_tab_more.gif,' + landPic;
                         imageOnPage = landPic;
                         switch (landPic) {
-			    case 'tab_water3':
+                        	case 'tab_water3':
                             case 'tab_mist4':
                             case 'tab_earth3':
                             case 'tab_fire4':
@@ -6384,6 +6389,12 @@ caap = {
                 }
             }
 
+            /*
+             * This subroutine call added as a stop-gap measure to allow CAAP to perform auto-quests even
+             * when CA developers omit or duplicate the names for either main quests or sub-quests.
+             */
+            caap.updateQuestNames(ssDiv);
+
             var autoQuestDivs = {
                 name : '',
                 click : $j(),
@@ -6493,20 +6504,37 @@ caap = {
                     }
                 }
 
-                var questType = 'subquest';
-                if(div.attr("class") === 'quests_background') {
-                    questType = 'primary';
-                } else if(div.attr("class") === 'quests_background_special') {
-                    questType = 'boss';
+                switch (div.attr("class")) // determine quest type
+                {
+                	case 'quests_background_special' :
+                		var questType = 'boss';
+                		break;
+                	case 'quests_background' :
+                		if(caap.isExcavationQuest[caap.questName])
+                		{
+                			var questType = 'mine';
+                		}
+                		else
+                		{
+                			var questType = 'primary';
+                		}
+                		break;
+                    default :
+                    	var questType = 'subquest';
                 }
 
                 caap.labelQuests(div, energy, reward, experience, click);
                 con.log(9, "QuestSubArea", questSubArea);
                 if(isTheArea) {
-                    if(config.getItem('GetOrbs', false) && questType === 'boss' && whyQuest !== 'Manual' && !haveOrb) {
+                    if(questType === 'boss' && config.getItem('GetOrbs', false) && whyQuest !== 'Manual' && !haveOrb) {
                         caap.updateAutoQuest('name', caap.questName);
                         pickQuestTF = true;
                         autoQuestDivs.orbCheck = true;
+                    }
+
+                    if(questType === 'mine' && config.getItem('ExcavateMines', false) && whyQuest !== 'Manual' && influence < 100) {
+                        caap.updateAutoQuest('name', caap.questName);
+                        pickQuestTF = true;
                     }
 
                     switch (whyQuest) {
@@ -6523,7 +6551,7 @@ caap = {
                             break;
                         case 'Max Influence' :
                             if(influence >= 0) {
-                                if(!state.getItem('AutoQuest', caap.newAutoQuest())['name'] && influence < 100) {
+                                if(!state.getItem('AutoQuest', caap.newAutoQuest())['name'] && questType !== 'mine' && influence < 100) {
                                     caap.updateAutoQuest('name', caap.questName);
                                     pickQuestTF = true;
                                 }
@@ -6534,7 +6562,7 @@ caap = {
                             break;
                         case 'Max Experience' :
                             rewardRatio = (Math.floor(experience / energy * 100) / 100);
-                            if(bestReward < rewardRatio) {
+                            if(bestReward < rewardRatio && questType !== 'mine') {
                                 caap.updateAutoQuest('name', caap.questName);
                                 pickQuestTF = true;
                             }
@@ -6542,7 +6570,7 @@ caap = {
                             break;
                         case 'Max Gold' :
                             rewardRatio = (Math.floor(reward / energy * 10) / 10);
-                            if(bestReward < rewardRatio) {
+                            if(bestReward < rewardRatio && questType !== 'mine') {
                                 caap.updateAutoQuest('name', caap.questName);
                                 pickQuestTF = true;
                             }
@@ -6613,6 +6641,7 @@ caap = {
             return false;
         }
     },
+
     classToQuestArea : {
         'quests_stage_1' : 'Land of Fire',
         'quests_stage_2' : 'Land of Earth',
@@ -6628,6 +6657,12 @@ caap = {
         'quests_stage_12' : 'Mist II',
         'quests_stage_13' : 'Mist III',
         'quests_stage_14' : 'Fire II',
+        'quests_stage_15' : 'Pangaea',
+        'quests_stage_16' : 'Perdition',
+        'quests_stage_17' : 'Land of Fire III',
+        'quests_stage_18' : 'Land of Earth III',
+        'quests_stage_19' : 'Land of Mist IV',
+        'quests_stage_20' : 'Land of Water III',
         'symbolquests_stage_1' : 'Ambrosia',
         'symbolquests_stage_2' : 'Malekus',
         'symbolquests_stage_3' : 'Corvintheus',
@@ -6656,6 +6691,21 @@ caap = {
             return false;
         }
     },
+
+    getCurrentQuestArea : function()
+    {
+    	var mainDiv = $j('#main_bn');
+    	if($u.hasContent(mainDiv))
+    	{
+        	var className = mainDiv.attr("class");
+        	if($u.hasContent(className) && caap.classToQuestArea[className])
+        	{
+            	return caap.classToQuestArea[className];
+        	}
+    	}
+    	return false;
+	},
+
     /*jslint sub: false */
 
     getQuestName : function(questDiv) {
@@ -6689,6 +6739,123 @@ caap = {
             return false;
         }
     },
+
+    /*
+     * Below section of code added as a stop-gap measure to allow CAAP to perform auto-quests even
+     * when CA developers omit or duplicate the names for either main quests or sub quests.
+     */
+
+	// this table is only for quest name corrections; however, if a quest area requires any
+	// corrections at all, then all main/sub quest names must be listed here regardless;
+	// because, the array index must match the element index from the HTML container. 
+	questNameCorrections : { // note: indent subquests under main quests for readability
+		'Fire II' : // this quest area had a duplicate name on a main quest
+							['Unlikely Alliance',
+									'Counter Life Drain',
+									'Test Her Power',
+									'Defeat Sylvana',
+							 'Bridge of Fire',
+									'Destroy Fire Elementals',
+									'Cross Lava Pools',
+									'Avoid an Avalanche',
+							 'River of Light',
+									'Enchant Weapon',
+									'Kill River Hydras',
+									'Destroy Path',
+							 'Karth',
+									'Make Preparations',
+									'Scout Karth',
+									'Climb Wall',
+							 'Nighttime Infiltration',
+									'Find Shortcut',
+									'Find Supplies',
+									'Dispatch Patrol',
+							 'Burning of Karth',
+									'Defeat Paladin',
+									'Capture Army',
+									'Burn Barracks',
+							 'Crossing the White Plains',
+									'Avoid Patrols',
+									'Move Supplies',
+									'Make Camp',
+							 'Prepare for Siege',
+									'Plan Strategy',
+									'Setup Siege',
+									'Prepare for War',
+							 'Siege on the Capital',
+									'Don Armor',
+									'Ride Down',
+									'Confront Celesta',
+							 'Energy Rift',
+									'Cast Barrier',
+									'Brace Yourself',
+									'Confront Figure'
+							],
+		'Land of Mist IV' : // this quest area needed names for all subquests
+							['Recovery',
+		                     		'Give Army Leave',
+		                     		'Rest at Home',
+		                     		'Recall Army',
+		                     'Desolate Pass',
+		                     		'Mountain Ascent',
+		                     		'Mist-filled Pass',
+		                     		'Descent from the Pass',
+		                     'Canyons of Borati',
+		                     		'Explore Canyons',
+		                     		'No one Around',
+		                     		'Scout Ahead',
+		                     'Surrounded',
+		                     		'Cultists Approach',
+		                     		'Wait and See',
+		                     		'The Chant Begins',
+		                     'Cassandra',
+		                     		'The Chant Ceases',
+		                     		'Cassandra Appears',
+		                     		'Questions Asked',
+		                     'Contemplation',
+		                     		'No Harm Threatened',
+		                     		'Cassandra Disappears',
+		                     		'Cultists Leave',
+		                     'Elyraels Stepstones',
+		                     		'Secure the Area',
+		                     		'Bury the Dead',
+		                     		'Break Camp',
+		                     'The Floating City',
+		                     		'Enter the City',
+		                     		'Admire the Architecture',
+		                     		'Meet the Griffin Legions',
+		                     'Griffin Legions',
+		                     		'War Council Called',
+		                     		'Battle Planning',
+		                     		'Leaders Assigned',
+		                     'Taking Flight',
+		                     		'The Hunt Begins',
+		                     		'Wings in Formation',
+		                     		'Falcons Recon Ahead'
+		                    ],
+		'end-of-table' : []
+	},
+
+    updateQuestNames : function(qc)
+    {
+    	var qa = caap.getCurrentQuestArea();
+    	if(caap.questNameCorrections[qa])
+    	{
+    		var qnc = caap.questNameCorrections[qa];
+    		qc.each(function(idx, ele)
+    		{
+                var ttl = $j(".quest_desc,.quest_sub_title", ele), firstb = $j("b", ttl).eq(0);
+            	firstb[0].innerHTML = qnc[idx];
+    		});
+    	}
+    	return;
+    },
+
+    /*
+     * Above section of code added as a stop-gap measure to allow CAAP to perform auto-quests even
+     * when CA developers omit or duplicate the names for either main quests or sub quests.
+     */
+
     /*------------------------------------------------------------------------------------\
      checkEnergy gets passed the default energy requirement plus the condition text from
      the 'Whenxxxxx' setting and the message div name.
