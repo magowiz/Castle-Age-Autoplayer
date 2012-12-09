@@ -959,6 +959,9 @@ caap.getCollectConquestCrystal2ButtonListener = function(e) {
 	schedule.setItem('collectConquestCrystal2Timer', 0);
 	caap.setDivContent('conquestcrystal2bless_mess', schedule.check('collectConquestCrystal2Timer') ? 'Crystal 2 Collect = none' : 'Next Crystal 2: ' + $u.setContent(caap.displayTime('collectConquestCrystal2Timer'), "Unknown"));
 };
+caap.getArenaButtonListener = function(e) {
+	schedule.setItem('arenaTimer', 0);
+};
 caap.addDBListener = function() {
 	try {
 		con.log(4, "Adding listeners for caap_top");

@@ -2162,6 +2162,7 @@ caap = {
             htmlCode += caap.addAutoOptionsMenu();
             htmlCode += caap.addFestivalOptionsMenu();
             htmlCode += caap.addConquestOptionsMenu();
+            htmlCode += arena.menu();
             htmlCode += town.menu();
             htmlCode += caap.addOtherOptionsMenu();
             htmlCode += caap.addFooterMenu();
@@ -3369,6 +3370,8 @@ caap = {
                     schedule.setItem('collectConquestCrystal1Timer', 0);
                 } else if(idName === 'doConquestCrystalCollect2' && value === 'None') {
                     schedule.setItem('collectConquestCrystal2Timer', 0);
+                } else if(idName === 'doArenaBattle' && value === 'None') {
+                    schedule.setItem('arenaTimer', 0);
                 } else if(idName === 'festivalBless' && value === 'None') {
                     schedule.setItem('festivalBlessTimer', 0);
                 } else if(idName === 'TargetType') {
@@ -3799,6 +3802,9 @@ caap = {
             });
             $j('#caap_CollectConquestCrystal2Now', caap.caapDivObject).click(function(e) {
                 caap.getCollectConquestCrystal2ButtonListener();
+            });
+            $j('#caap_ArenaNow', caap.caapDivObject).click(function(e) {
+                caap.getArenaButtonListener();
             });
             $j('#caap_ResetMenuLocation', caap.caapDivObject).click(caap.resetMenuLocationListener);
             $j('#caap_resetElite', caap.caapDivObject).click(function(e) {
@@ -4296,6 +4302,14 @@ caap = {
         'guildv2_conquest_expansion_demi' : {
             signatureId : 'war_fort_topinfo.jpg',
             CheckResultsFunction : 'checkResults_conquestLand2'
+        },
+        'conquest_duel' : {
+            signatureId : 'war_conquest_header2.jpg',
+            CheckResultsFunction : 'checkResults_conquestBattle'
+        },
+        'arena' : {
+            signatureId : 'arena_homemid.jpg',
+            CheckResultsFunction : 'checkResults_arenaBattle'
         }
     },
 
@@ -5863,30 +5877,31 @@ caap = {
             list : 'atlantisQuestList'
         },
         'Atlantis' : {
-            clas : 'monster_quests_stage_1',
-            base : 'land_atlantis',
-            next : 'Atlantis II',
-            area : 'Atlantis',
-            list : ''
-        },
-	'Atlantis II' : {
-            clas : 'monster_quests_land_2',
-            base : 'land_atlantis_2',
-            next : 'Atlantis III',
-            area : 'Atlantis',
-            list : ''
-        },
-	'Atlantis III' : {
-            clas : 'monster_quests_land_3',
-            base : 'land_atlantis_3',
-            next : '',
-            area : 'Atlantis',
-            list : '',
-            boss : 'Poseidon',
-            orb : 'Orb of Poseidon'
-        }
-    },
-
+             clas : 'monster_quests_stage_1',
+             base : 'land_atlantis',
+             next : 'Atlantis II',
+             area : 'Atlantis',
+             list : ''
+         },
+         'Atlantis II' : {
+             clas : 'monster_quests_land_2',
+             base : 'land_atlantis_2',
+             next : 'Atlantis III',
+             area : 'Atlantis',
+             list : ''
+         },
+         'Atlantis III' : {
+             clas : 'monster_quests_land_3',
+             base : 'land_atlantis_3',
+             next : '',
+             area : 'Atlantis',
+             list : '',
+             boss : 'Poseidon',
+             orb : 'Orb of Poseidon'
+             area : '',
+             list : ''
+         }
+     },
     demiQuestTable : {
         'Ambrosia' : 'energy',
         'Malekus' : 'attack',
@@ -5898,13 +5913,7 @@ caap = {
     isExcavationQuest : {
     	'Cave of Wonder' : true,
     	'Rune Mines' : true,
-    	'Nether Vortex' : true,
-        // Atlantis II
-        'Entrance' : true,
-        'Fortress' : true,
-        'Path' : true,
-        'Town' : true,
-        'Underwater' : true
+    	'Nether Vortex' : true
     },
 
     qtom : null,
@@ -6085,45 +6094,8 @@ caap = {
 
                     break;
                 case 'Atlantis' :
-                    var pathToPage = 'quests', imageOnPage = 'quest_back_1.jpg', subQArea = 'Land of Fire', landPic = '';
-
-                    if(caap.stats['level'] > 7) {
-                        subQArea = config.getItem('QuestSubArea', 'Atlantis');
-                        landPic = caap.questAreaInfo[subQArea].base;
-                        if($u.hasContent($j("img[src*='" + landPic + "_lock']"))) {
-                            caap.checkResults_quests(true);
-                        }
-
-                        /* may be needed at some future point
-                        if(config.getItem('GetOrbs', false) && config.getItem('WhyQuest', 'Manual') !== 'Manual') {
-                            if(caap.checkMagic()) {
-                                return true;
-                            }
-                        }
-                        */
-                        pathToPage = 'quests,monster_quests,' + landPic;
-                        switch (subQArea) {
-                            case 'Atlantis':
-                                pathToPage += '.gif';
-                                imageOnPage = 'land_atlantis_realm_sel.gif';
-                                break;
-                            case 'Atlantis II':
-                                pathToPage += '_2.gif';
-                                imageOnPage = 'land_atlantis_realm_sel_2.gif';
-                                break;
-                            case 'Atlantis III':
-                                pathToPage += '_small.gif';
-                                imageOnPage = 'tab_atlantis3_big.gif';
-                                break;
-                            default:
-                                pathToPage = 'quests,quest_back_btn.gif,' + landPic + '_small.gif';
-                                imageOnPage += '_big.gif';
-                                break;
-                        }
-                    }
-
-                    if(caap.navigateTo(pathToPage, imageOnPage)) {
-                        return true;
+                    if(!caap.hasImage('tab_atlantis_on.gif')) {
+                        return caap.navigateTo('quests,monster_quests');
                     }
 
                     break;
@@ -6728,9 +6700,7 @@ caap = {
         'symbolquests_stage_3' : 'Corvintheus',
         'symbolquests_stage_4' : 'Aurora',
         'symbolquests_stage_5' : 'Azeron',
-        'monster_quests_stage_1' : 'Atlantis',
-	'monster_quests_land_2' : 'Atlantis II',
-	'monster_quests_land_3' : 'Atlantis III'
+        'monster_quests_stage_1' : 'Atlantis'
     },
 
     checkCurrentQuestArea : function(QuestSubArea) {
@@ -8188,6 +8158,19 @@ caap = {
     },
     checkResults_conquestLand2 : function() {
         conquest.crystal();
+    },
+    checkResults_conquestBattle : function() {
+        conquest.battle();
+    },
+    doArenaBattle : function() {
+        if (!schedule.check('arenaTimer')) {
+            return false;
+        }
+
+        arena.battle();
+    },
+    checkResults_arenaBattle : function() {
+        arena.checkResults();
     }
     /////////////////////////////////////////////////////////////////////
     //                          ARENA

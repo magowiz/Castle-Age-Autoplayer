@@ -117,7 +117,8 @@ caap.masterActionList = {
 	0x2C : 'collectConquest',
 	0x2D : 'collectConquestCrystal1',
 	0x2E : 'collectConquestCrystal2',
-	0x2F : 'idle'
+	0x2F : 'doArenaBattle',
+	0x30 : 'idle'
 };
 caap.actionsList = [];
 caap.makeActionsList = function() {
