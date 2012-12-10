@@ -94,6 +94,7 @@
             ]
 
             htmlCode = caap.startToggle('Arena', 'ARENA');
+            htmlCode += caap.makeCheckTR('Enable Arena Battles', 'enableArena', true, '');
             htmlCode += caap.makeDropDownTR("Battle Type", 'ArenaBattleType', typeList, typeInst, '', '', false, false, 62);
             htmlCode += caap.makeNumberFormTR("Start At Or Above", 'arenaTokenStart', '', 10, '', '', true, false);
             htmlCode += caap.makeNumberFormTR("Stop At Or Below", 'arenaTokenStop', '', 0, '', '', true, false);

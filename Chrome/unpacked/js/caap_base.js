@@ -8162,7 +8162,7 @@ caap = {
         conquest.battle();
     },
     doArenaBattle : function() {
-        if (!schedule.check('arenaTimer')) {
+        if (!config.getItem('enableArena', false) || !schedule.check('arenaTimer')) {
             return false;
         }
 
