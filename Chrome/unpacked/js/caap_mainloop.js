@@ -16,6 +16,7 @@ caap.actionDescTable = {
 	'immediateAutoStat' : 'Immediate Auto Stats',
 	'autoElite' : 'Fill Elite Guard',
 	'autoPotions' : 'Auto Potions',
+	'autoArchives' : 'Auto Archives',
 	'autoAlchemy' : 'Auto Alchemy',
 	'autoBless' : 'Auto Bless',
 	'autoGift' : 'Auto Gifting',
@@ -119,7 +120,8 @@ caap.masterActionList = {
 	0x2D : 'collectConquestCrystal1',
 	0x2E : 'collectConquestCrystal2',
 	0x2F : 'doArenaBattle',
-	0x30 : 'idle'
+	0x30 : 'autoArchives',
+	0x31 : 'idle'
 };
 caap.actionsList = [];
 caap.makeActionsList = function() {
