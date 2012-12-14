@@ -99,8 +99,8 @@ caap.updateDashboard = function(force) {
 		if(config.getItem('DBDisplay', '') === 'Target List' && session.getItem("ReconDashUpdate", true)) {
 			head = "";
 			body = "";
-			headers = ['UserId', 'Name', 'Deity', 'BR#', 'WR#', 'Level', 'Army', 'Last Alive'];
-			values = ['userId', 'nameStr', 'deityNum', 'rankNum', 'warRankNum', 'levelNum', 'armyNum', 'aliveTime'];
+			headers = ['UserId', 'Name', 'Deity', 'BR#', 'Arena#', 'WR#', 'Level', 'Army', 'Last Alive'];
+			values = ['userId', 'nameStr', 'deityNum', 'rankNum', 'arenaRankNum', 'warRankNum', 'levelNum', 'armyNum', 'aliveTime'];
 			for( pp = 0; pp < headers.length; pp += 1) {
 				switch (headers[pp]) {
 					case 'UserId':
@@ -112,7 +112,7 @@ caap.updateDashboard = function(force) {
 					case 'Name':
 						head += caap.makeTh({
 							text : headers[pp],
-							width : '30%'
+							width : '25%'
 						});
 						break;
 					case 'Deity':
@@ -127,6 +127,12 @@ caap.updateDashboard = function(force) {
 							width : '7%'
 						});
 						break;
+					case 'arena#':
+						head += caap.makeTh({
+							text : headers[pp],
+							width : '7%'
+						});
+						break;
 					case 'WR#':
 						head += caap.makeTh({
 							text : headers[pp],
@@ -136,13 +142,13 @@ caap.updateDashboard = function(force) {
 					case 'Level':
 						head += caap.makeTh({
 							text : headers[pp],
-							width : '8%'
+							width : '7%'
 						});
 						break;
 					case 'Army':
 						head += caap.makeTh({
 							text : headers[pp],
-							width : '8%'
+							width : '7%'
 						});
 						break;
 					case 'Last Alive':
@@ -175,6 +181,12 @@ caap.updateDashboard = function(force) {
 							});
 							break;
 						case 'rankNum':
+							row += caap.makeTd({
+								text : battle.reconRecords[i][values[pp]],
+								title : battle.battleRankTable[battle.reconRecords[i][values[pp]]]
+							});
+							break;
+						case 'arenaRankNum':
 							row += caap.makeTd({
 								text : battle.reconRecords[i][values[pp]],
 								title : battle.battleRankTable[battle.reconRecords[i][values[pp]]]

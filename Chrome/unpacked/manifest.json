@@ -2,7 +2,7 @@
     "manifest_version": 2,
     "minimum_chrome_version": "18.0",
     "background": {
-	"page": "background.html"
+    "page": "background.html"
     },
     "browser_action": {
         "default_icon": "icon.png",
@@ -55,9 +55,7 @@
                 "js/gifting.js",
                 "js/town.js",
                 "js/army.js",
-                
                 "js/caap_base.js",
-                
                 "js/caap_alchemy.js",
                 "js/caap_army.js",
                 "js/caap_autogift.js",
@@ -89,7 +87,8 @@
                 "js/caap_start.js",
                 "js/functions.js",
                 "js/begin.js",
-                "js/conquest.js"
+                "js/conquest.js",
+                "js/arena.js"
             ],
             "matches": [
                 "http://*/*",
@@ -123,8 +122,8 @@
         "https://web.castleagegame.com/castle/*",
         "http://www.facebook.com/dialog/apprequests*",
         "https://www.facebook.com/dialog/apprequests*",
-	"http://query.yahooapis.com/v1/public/yql*"
+        "http://query.yahooapis.com/v1/public/yql*"
     ],
     "update_url": "https://raw.github.com/magowiz/Castle-Age-Autoplayer/master/Chrome/packed/updates.xml",
-    "version": "141.0.0.110"
+    "version": "141.0.0.111"
 }

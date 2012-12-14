@@ -15,6 +15,8 @@
                 'nameStr'         : '',
                 'rankStr'         : '',
                 'rankNum'         : 0,
+                'arenaRankNum'    : 0,
+                'conquestRankNum' : 0,
                 'warRankStr'      : '',
                 'warRankNum'      : 0,
                 'levelNum'        : 0,

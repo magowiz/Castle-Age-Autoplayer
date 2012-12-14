@@ -50,7 +50,8 @@ caap.actionDescTable = {
 	'festivalBless' : 'Festival Feats',
 	'collectConquest' : 'Collect Conquest Resources',
 	'collectConquestCrystal1' : 'Collect Conquest Crystals',
-	'collectConquestCrystal2' : 'Collect Conquest Crystals'
+	'collectConquestCrystal2' : 'Collect Conquest Crystals',
+	'doArenaBattle' : 'Battling in Arena'
 };
 /*jslint sub: false */
 caap.checkLastAction = function(thisAction) {

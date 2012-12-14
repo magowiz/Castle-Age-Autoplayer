@@ -8172,7 +8172,7 @@ caap = {
             if(!config.getItem('doConquestCrystalCollect1', false) || !schedule.check('collectConquestCrystal1Timer')) {
                 return false;
             }
-            var link = "guildv2_conquest_expansion_fort.php?guild_id=" + caap.stats['guild']['id'] + "&slot=1001";
+            var link = "guildv2_conquest_expansion_fort.php?guild_id=" + caap.stats['guild']['id'] + "&slot=1";
             caap.clickAjaxLinkSend(link, 1000);
             return true;
         } catch (err) {
@@ -8185,7 +8185,7 @@ caap = {
             if(!config.getItem('doConquestCrystalCollect2', false) || !schedule.check('collectConquestCrystal2Timer')) {
                 return false;
             }
-            var link = "guildv2_conquest_expansion_fort.php?guild_id=" + caap.stats['guild']['id'] + "&slot=1002";
+            var link = "guildv2_conquest_expansion_fort.php?guild_id=" + caap.stats['guild']['id'] + "&slot=1";
             caap.clickAjaxLinkSend(link, 1000);
             return true;
         } catch (err) {
