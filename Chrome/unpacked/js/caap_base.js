@@ -2082,6 +2082,7 @@ caap = {
         'gifting_mess' : "",
         'feats_mess' : "",
         'demibless_mess' : "",
+        'archive_mess' : "",
         'conquestbless_mess' : "",
         'conquestcrystal1bless_mess' : "",
         'conquestcrystal2bless_mess' : "",
