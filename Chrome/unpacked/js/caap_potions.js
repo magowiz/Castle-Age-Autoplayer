@@ -70,11 +70,14 @@ caap.autoPotions = function() {
 /*jslint sub: false */
 
 
+/////////////////////////////////////////////////////////////////////
+//                          ARCHIVES
+/////////////////////////////////////////////////////////////////////
 caap.autoArchives = function() {
 	try {
-		var button,hours=24,minutes=0,archiveDIV;
+		var button,archiveDIV;
 		
-		if(!config.getItem('AutoArchives', true) || !schedule.check('AutoArchiveTimerDelay')) {
+		if((!config.getItem('AutoArchives', true))||(!schedule.check('AutoArchiveTimerDelay'))) {
 			caap.setDivContent('archive_mess', schedule.check('AutoArchiveTimerDelay') ? 'Archive = none' : 'Next Archive: ' + $u.setContent(caap.displayTime('AutoArchiveTimerDelay'), "Unknown"));
 			return false;
 		}
@@ -91,7 +94,27 @@ caap.autoArchives = function() {
 
 		button = caap.checkForImage('archive_btn_enable.gif');
 		if(button) {
+			var hours=24,minutes=0;
 			caap.click(button);
+			schedule.setItem('AutoArchiveTimerDelay', ((hours * 60) + minutes) * 60, 100);	
+			caap.setDivContent('archive_mess', schedule.check('AutoArchiveTimerDelay') ? 'Archive = none' : 'Next Archive: ' + $u.setContent(caap.displayTime('AutoArchiveTimerDelay'), "Unknown"));
+		}	
+		return false;
+		
+	} catch (err) {
+		con.error("ERROR in autoArchives: " + err);
+		return false;
+	}
+};
+
+caap.timerArchives = function() {
+	try {
+		var button,hours=24,minutes=0,delay=100,archiveDIV;
+		button = caap.checkForImage('archive_btn_enable.gif');
+		if(button) {
+			hours=0;
+			minutes=0;
+			delay=0;
 		} else {
 			var timespan;
 			timespan=$j("span[style='']");
@@ -107,21 +130,25 @@ caap.autoArchives = function() {
 					timestr=timespan.innerText;
 					timeresult=convert2.exec(timestr);
 					if (timeresult) {
-						hours=0
+						hours=0;
 						minutes=Math.max(timeresult[1],0);
 					} else {
 						con.warn("Could not find timer; so setting to default");
+						hours=0;
+						minutes=5;
 					}
 				}					
 			} else {
-				con.warn("Could not find timer; so setting to default");
+				con.warn("Could not find timer; so setting to default");		
+				hours=0;
+				minutes=5;		
 			}
 		}	
-		schedule.setItem('AutoArchiveTimerDelay', ((hours * 60) + minutes) * 60, 300);	
-		return false;
+		schedule.setItem('AutoArchiveTimerDelay', ((hours * 60) + minutes) * 60, delay);	
+		caap.setDivContent('archive_mess', schedule.check('AutoArchiveTimerDelay') ? 'Archive = none' : 'Next Archive: ' + $u.setContent(caap.displayTime('AutoArchiveTimerDelay'), "Unknown"));
 		
 	} catch (err) {
-		con.error("ERROR in autoArchives: " + err);
+		con.error("ERROR in timerArchives: " + err);
 		return false;
 	}
-};
+}
