@@ -4237,6 +4237,10 @@ caap = {
          signatureId: 'arena_battle_banner_section',
          CheckResultsFunction: 'checkResults_arena_battle'
          },*/
+        'item_archive_bonus' : {
+            signaturePic : 'archive_icon_ravager.jpg',
+            CheckResultsFunction : 'timerArchives'
+        },
         'army_member' : {
             signaturePic : 'view_army_on.gif',
             CheckResultsFunction : 'checkResults_army_member'
