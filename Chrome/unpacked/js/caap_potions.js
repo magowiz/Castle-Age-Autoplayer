@@ -76,6 +76,7 @@ caap.autoPotions = function() {
 caap.autoArchives = function() {
 	try {
 		var button,archiveDIV;
+		con.log(2, "autoArchives");
 		
 		if((!config.getItem('AutoArchives', true))||(!schedule.check('AutoArchiveTimerDelay'))) {
 			caap.setDivContent('archive_mess', schedule.check('AutoArchiveTimerDelay') ? 'Archive = none' : 'Next Archive: ' + $u.setContent(caap.displayTime('AutoArchiveTimerDelay'), "Unknown"));
@@ -93,11 +94,12 @@ caap.autoArchives = function() {
 		}
 
 		button = caap.checkForImage('archive_btn_enable.gif');
-		if(button) {
+		if(button && button.length>0) {
 			var hours=24,minutes=0;
-			caap.click(button);
+			con.log(2, "Click enable archives for bonuses");
 			schedule.setItem('AutoArchiveTimerDelay', ((hours * 60) + minutes) * 60, 100);	
 			caap.setDivContent('archive_mess', schedule.check('AutoArchiveTimerDelay') ? 'Archive = none' : 'Next Archive: ' + $u.setContent(caap.displayTime('AutoArchiveTimerDelay'), "Unknown"));
+			return caap.click(button);
 		}	
 		return false;
 		
@@ -109,26 +111,33 @@ caap.autoArchives = function() {
 
 caap.timerArchives = function() {
 	try {
-		var button,hours=24,minutes=0,delay=100,archiveDIV;
+		var button,hours=24,minutes=0,delay=100;
+		con.log(2, "timerArchives");
 		button = caap.checkForImage('archive_btn_enable.gif');
-		if(button) {
+		con.log(4, "button",button);
+		if(button && button.length>0) {
 			hours=0;
 			minutes=0;
 			delay=0;
 		} else {
 			var timespan;
-			timespan=$j("span[style='']");
+			timespan=$j('span[style="color:#6c2000;"]');
+			con.log(4, "timespan",timespan);
 			if (timespan) {
 				var timestr,convert1 = new RegExp('([0-9]+)hrs([0-9]+)m', 'i'),timeresult;
-				timestr=timespan.innerText;
+				timestr=timespan.text().substring(1).replace(/\s/g,"");
+				con.log(4, "convert1 timestr",timestr);
 				timeresult=convert1.exec(timestr);
+				con.log(4, "convert1 timeresult",timeresult);
 				if (timeresult) {
 					hours=Math.max(timeresult[1],0);
 					minutes=Math.max(timeresult[2],0);
 				} else {
 					var convert2 = new RegExp('([0-9]+)m', 'i');
-					timestr=timespan.innerText;
+					timestr=timespan.text().substring(1).replace(/\s/g,"");
+					con.log(4, "convert2 timestr",timestr);
 					timeresult=convert2.exec(timestr);
+					con.log(4, "convert2 timeresult",timeresult);
 					if (timeresult) {
 						hours=0;
 						minutes=Math.max(timeresult[1],0);
@@ -139,13 +148,15 @@ caap.timerArchives = function() {
 					}
 				}					
 			} else {
-				con.warn("Could not find timer; so setting to default");		
+				con.warn("Could not find timespan; so setting to default");		
 				hours=0;
 				minutes=5;		
 			}
 		}	
+		con.log(2, "timerArchives [hours minutes delay]",hours,minutes,delay);
 		schedule.setItem('AutoArchiveTimerDelay', ((hours * 60) + minutes) * 60, delay);	
 		caap.setDivContent('archive_mess', schedule.check('AutoArchiveTimerDelay') ? 'Archive = none' : 'Next Archive: ' + $u.setContent(caap.displayTime('AutoArchiveTimerDelay'), "Unknown"));
+		return false;
 		
 	} catch (err) {
 		con.error("ERROR in timerArchives: " + err);
