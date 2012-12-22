@@ -843,7 +843,7 @@ caap = {
             }
         },
 
-	     backgroundCA : function(bgcolor) {
+         backgroundCA : function(bgcolor) {
                 try {
                     if(caap.domain.which === 0 && caap.messaging.connected.hasIndexOf("caapif")) {
                         caap.postMessage({
@@ -1437,7 +1437,7 @@ caap = {
                     con.log(4, "iframe got styleChange", msg);
                     caap.colorUpdate();
                     break;
-		case "backgroundCA":
+        case "backgroundCA":
                     caap.messaging.ok(msg);
                     con.log(4, "iframe got backgroundCA", msg);
                     $j("body").css({
@@ -2136,8 +2136,7 @@ caap = {
         'demibless_mess' : "",
         'archive_mess' : "",
         'conquestbless_mess' : "",
-        'conquestcrystal1bless_mess' : "",
-        'conquestcrystal2bless_mess' : "",
+        'conquestcrystalbless_mess' : "",
         'level_mess' : "",
         'exp_mess' : "",
         'debug1_mess' : "",
@@ -2465,10 +2464,8 @@ caap = {
             htmlCode += caap.startToggle('ConquestOptions', 'CONQUEST OPTIONS');
             htmlCode += caap.makeCheckTR('Enable Conquest Collect', 'doConquestCollect', false, '');
             htmlCode += caap.makeTD("<input type='button' id='caap_CollectConquestNow' value='Collect Now' style='padding: 0; font-size: 10px; height: 18px' />");
-            htmlCode += caap.makeCheckTR('Enable Hero Crystal Collect on Land 1', 'doConquestCrystalCollect1', false, '');
-            htmlCode += caap.makeTD("<input type='button' id='caap_collectConquestCrystal1Now' value='Collect Now' style='padding: 0; font-size: 10px; height: 18px' />");
-     //       htmlCode += caap.makeCheckTR('Enable Hero Crystal Collect on Land 2', 'doConquestCrystalCollect2', false, '');
-       //     htmlCode += caap.makeTD("<input type='button' id='caap_collectConquestCrystal2Now' value='Collect Now' style='padding: 0; font-size: 10px; height: 18px' />");
+            htmlCode += caap.makeCheckTR('Enable Hero Crystal Collect', 'doConquestCrystalCollect', false, '');
+            htmlCode += caap.makeTD("<input type='button' id='caap_collectCrystalNow' value='Collect Now' style='padding: 0; font-size: 10px; height: 18px' />");
             htmlCode += caap.endToggle;
             return htmlCode;
         } catch (err) {
@@ -3458,10 +3455,8 @@ caap = {
                     schedule.setItem('BlessingTimer', 0);
                 } else if(idName === 'doConquestCollect' && value === 'None') {
                     schedule.setItem('collectConquestTimer', 0);
-                } else if(idName === 'doConquestCrystalCollect1' && value === 'None') {
-                    schedule.setItem('collectConquestCrystal1Timer', 0);
-                } else if(idName === 'doConquestCrystalCollect2' && value === 'None') {
-                    schedule.setItem('collectConquestCrystal2Timer', 0);
+                } else if(idName === 'doConquestCrystalCollect' && value === 'None') {
+                    schedule.setItem('collectConquestCrystalTimer', 0);
                 } else if(idName === 'doArenaBattle' && value === 'None') {
                     schedule.setItem('arenaTimer', 0);
                 } else if(idName === 'festivalBless' && value === 'None') {
@@ -3889,11 +3884,8 @@ caap = {
             $j('#caap_CollectConquestNow', caap.caapDivObject).click(function(e) {
                 caap.getCollectConquestButtonListener();
             });
-            $j('#caap_CollectConquestCrystal1Now', caap.caapDivObject).click(function(e) {
-                caap.getCollectConquestCrystal1ButtonListener();
-            });
-            $j('#caap_CollectConquestCrystal2Now', caap.caapDivObject).click(function(e) {
-                caap.getCollectConquestCrystal2ButtonListener();
+            $j('#caap_collectCrystalNow', caap.caapDivObject).click(function(e) {
+                caap.getCollectConquestCrystalButtonListener();
             });
             $j('#caap_ArenaNow', caap.caapDivObject).click(function(e) {
                 caap.getArenaButtonListener();
@@ -4391,15 +4383,15 @@ caap = {
             signaturePic : 'guild_tab6_on.jpg',
             CheckResultsFunction : 'checkResults_conquest'
         },
-	'onConquestEarth' : {
-   		 signatureId : 'conq2_earthnav_on3.',
-    			CheckResultsFunction : 'checkResults_conquestEarth'
-	},
+    'onConquestEarth' : {
+         signatureId : 'conq2_earthnav_on3.',
+                CheckResultsFunction : 'checkResults_conquestEarth'
+    },
 
-	'onConquestEarth' : {
-   		 signatureId : 'conq2_mistnav_on3.',
-    			CheckResultsFunction : 'checkResults_conquestEarth'
-	},
+    'onConquestEarth' : {
+         signatureId : 'conq2_mistnav_on3.',
+                CheckResultsFunction : 'checkResults_conquestEarth'
+    },
 
         'guildv2_conquest_expansion_fort' : {
             signatureId : 'war_fort_topinfo.jpg',
@@ -4509,8 +4501,7 @@ caap = {
             caap.setDivContent('demipoint_mess', (whenBattle !== 'Never' && demiPointsFirst && whenMonster !== 'Never') || whenBattle === 'Demi Points Only' ? (state.getItem('DemiPointsDone', true) ? 'Daily Demi Points: Done' : (whenBattle !== 'Never' && demiPointsFirst && whenMonster !== 'Never' ? 'Daily Demi Points: First' : 'Daily Demi Points: Only')) : '');
             caap.setDivContent('demibless_mess', schedule.check('BlessingTimer') ? 'Demi Blessing = none' : 'Next Demi Blessing: ' + $u.setContent(caap.displayTime('BlessingTimer'), "Unknown"));
             caap.setDivContent('conquestbless_mess', schedule.check('collectConquestTimer') ? 'Conquest Collect = none' : 'Next Conquest: ' + $u.setContent(caap.displayTime('collectConquestTimer'), "Unknown"));
-            caap.setDivContent('conquestcrystal1bless_mess', schedule.check('collectConquestCrystal1Timer') ? 'Crystal 1 Collect = none' : 'Next Crystal 1: ' + $u.setContent(caap.displayTime('collectConquestCrystal1Timer'), "Unknown"));
-            caap.setDivContent('conquestcrystal2bless_mess', schedule.check('collectConquestCrystal2Timer') ? 'Crystal 2 Collect = none' : 'Next Crystal 2: ' + $u.setContent(caap.displayTime('collectConquestCrystal2Timer'), "Unknown"));
+            caap.setDivContent('conquestcrystalbless_mess', schedule.check('collectConquestCrystalTimer') ? 'Crystal Collect = none' : 'Next Crystal: ' + $u.setContent(caap.displayTime('collectConquestCrystalTimer'), "Unknown"));
             caap.setDivContent('feats_mess', schedule.check('festivalBlessTimer') ? 'Feat = none' : 'Next Feat: ' + $u.setContent(caap.displayTime('festivalBlessTimer'), "Unknown"));
             if($u.hasContent(general.List) && general.List.length <= 2) {
                 schedule.setItem("generals", 0);
@@ -4683,7 +4674,7 @@ caap = {
             'other' : {
                 'alchemy' : 0
             },
-	    'feats' : {
+        'feats' : {
                 'attack' : 0,
                 'defense' : 0,
                 'health' : 0,
@@ -6016,9 +6007,9 @@ caap = {
     },
 
     isExcavationQuest : {
-    	'Cave of Wonder' : true,
-    	'Rune Mines' : true,
-    	'Nether Vortex' : true,
+        'Cave of Wonder' : true,
+        'Rune Mines' : true,
+        'Nether Vortex' : true,
         // Atlantis II
         'Entrance' : true,
         'Fortress' : true,
@@ -6151,7 +6142,7 @@ caap = {
                         pathToPage = 'quests,jobs_tab_more.gif,' + landPic;
                         imageOnPage = landPic;
                         switch (landPic) {
-                        	case 'tab_water3':
+                            case 'tab_water3':
                             case 'tab_mist4':
                             case 'tab_earth3':
                             case 'tab_fire4':
@@ -6685,21 +6676,21 @@ caap = {
 
                 switch (div.attr("class")) // determine quest type
                 {
-                	case 'quests_background_special' :
-                		var questType = 'boss';
-                		break;
-                	case 'quests_background' :
-                		if(caap.isExcavationQuest[caap.questName])
-                		{
-                			var questType = 'mine';
-                		}
-                		else
-                		{
-                			var questType = 'primary';
-                		}
-                		break;
+                    case 'quests_background_special' :
+                        var questType = 'boss';
+                        break;
+                    case 'quests_background' :
+                        if(caap.isExcavationQuest[caap.questName])
+                        {
+                            var questType = 'mine';
+                        }
+                        else
+                        {
+                            var questType = 'primary';
+                        }
+                        break;
                     default :
-                    	var questType = 'subquest';
+                        var questType = 'subquest';
                 }
 
                 caap.labelQuests(div, energy, reward, experience, click);
@@ -6875,17 +6866,17 @@ caap = {
 
     getCurrentQuestArea : function()
     {
-    	var mainDiv = $j('#main_bn');
-    	if($u.hasContent(mainDiv))
-    	{
-        	var className = mainDiv.attr("class");
-        	if($u.hasContent(className) && caap.classToQuestArea[className])
-        	{
-            	return caap.classToQuestArea[className];
-        	}
-    	}
-    	return false;
-	},
+        var mainDiv = $j('#main_bn');
+        if($u.hasContent(mainDiv))
+        {
+            var className = mainDiv.attr("class");
+            if($u.hasContent(className) && caap.classToQuestArea[className])
+            {
+                return caap.classToQuestArea[className];
+            }
+        }
+        return false;
+    },
 
     /*jslint sub: false */
 
@@ -6926,194 +6917,194 @@ caap = {
      * when CA developers omit or duplicate the names for either main quests or sub quests.
      */
 
-	// this table is only for quest name corrections; however, if a quest area requires any
-	// corrections at all, then all main/sub quest names must be listed here regardless;
-	// because, the array index must match the element index from the HTML container. 
-	questNameCorrections : { // note: indent subquests under main quests for readability
-		'Mist III' : // this quest area had a duplicate name on a subquest
-							['Tenvir Summit',
-									 'Defeat Wolverines',
-									 'Survey Area',
-									 'Gather Supplies',
-							 'Taubourne Falls',
-									 'Find A Way Across',
-									 'Repair Bridge',
-									 'Cross the Falls',
-							 'Hakkal Woods',
-									 'Gather Samples',
-									 'Hunt For Food',
-									 'Prepare for Dark',
-							 'Signs of the Scourge',
-									 'Kill Slimes',
-									 'Cast Poison Shield',
-									 'Make Camp',
-							 'The Green Haze',
-									 'Dispatch Corrupted Soldiers',
-									 'Kill Diseased Treants',
-									 'Find Shelter From Haze',
-							 'Sporeguard Revisited',
-									 'Destroy Mushrooms',
-									 'Eradicate Spores',
-									 'Clear Haze',
-							 'Death of a Forest',
-									 'Gather Nature Essence',
-									 'Gather Life Dust',
-									 'Cast Regrowth',
-							 'Calm Before the Storm',
-									 'Walking in the Woods', // renamed
-									 'Defeat Rock Elementals', // was duplicate
-									 'Gather Earth Essence',
-							 'The Life Temple',
-									 'Investigate Temple',
-									 'Collect Artifact Shards',
-									 'Create Artifact Relic',
-							 'The Life Altar',
-									 'Use Artifact Relic',
-									 'Unlock Altar',
-									 'Destroy Scourge'
-							],
-		'Fire II' : // this quest area had a duplicate name on a main quest
-							['Unlikely Alliance',
-									'Counter Life Drain',
-									'Test Her Power',
-									'Defeat Sylvana',
-							 'Bridge of Fire',
-									'Destroy Fire Elementals',
-									'Cross Lava Pools',
-									'Avoid an Avalanche',
-							 'River of Light',
-									'Enchant Weapon',
-									'Kill River Hydras',
-									'Destroy Path',
-							 'Karth',
-									'Make Preparations',
-									'Scout Karth',
-									'Climb Wall',
-							 'Nighttime Infiltration',
-									'Find Shortcut',
-									'Find Supplies',
-									'Dispatch Patrol',
-							 'Burning of Karth',
-									'Defeat Paladin',
-									'Capture Army',
-									'Burn Barracks',
-							 'Crossing the White Plains',
-									'Avoid Patrols',
-									'Move Supplies',
-									'Make Camp',
-							 'Prepare for Siege', // renamed
-									'Plan Strategy',
-									'Setup Siege',
-									'Prepare for War',
-							 'Siege on the Capital', // was duplicate
-									'Don Armor',
-									'Ride Down',
-									'Confront Celesta',
-							 'Energy Rift',
-									'Cast Barrier',
-									'Brace Yourself',
-									'Confront Figure'
-							],
-		'Land of Earth III' : // this quest area had a duplicate name on a subquest
-							['Battle Cultists',
-									 'Interrogate',
-									 'Gather Crystals',
-									 'Free Prisoners',
-							 'Dodge Wind Attacks!',
-									 'Cast Earth Shield',
-									 'Chase Assassin',
-									 'Catch Breath',
-							 'Cut A Path',
-									 'Traverse River',
-									 'Find Clues',
-									 'Cure Snake Bite',
-							 'Find Walkway',
-									 'Battle Lizardman',
-									 'Defeat Swamp Hags',
-									 'Fight Troll',
-							 'Calm Villagers',
-									 'Gather Information',
-									 'Heal Wounded Villagers', // renamed
-									 'Repair Buildings',
-							 'Follow Wreckage',
-									 'Traverse Lava',
-									 'Defeat Wild Apes',
-									 'Scout Ahead',
-							 'Stone Idols Attack',
-									 'Defensive Position',
-									 'Defeat Stone Guardians',
-									 'Enter the Cradle',
-							 'Research',
-									 'Gorilla Ambush',
-									 'Discover Artifacts',
-									 'Loot Artifacts',
-							 'Save Survivors',
-									 'Distract Urmek',
-									 'Retreat',
-									 'Find Cover',
-							 'Discover Empty Tomb',
-									 'Heal Our Wounded', // renamed
-									 'Build Morale',
-									 'Plan Attack'
-							],
-		'Land of Mist IV' : // this quest area needed names for all subquests
-							['Recovery',
-		                     		'Give Army Leave',
-		                     		'Rest at Home',
-		                     		'Recall Army',
-		                     'Desolate Pass',
-		                     		'Mountain Ascent',
-		                     		'Mist-filled Pass',
-		                     		'Descent from the Pass',
-		                     'Canyons of Borati',
-		                     		'Explore Canyons',
-		                     		'No one Around',
-		                     		'Scout Ahead',
-		                     'Surrounded',
-		                     		'Cultists Approach',
-		                     		'Wait and See',
-		                     		'The Chant Begins',
-		                     'Cassandra',
-		                     		'The Chant Ceases',
-		                     		'Cassandra Appears',
-		                     		'Questions Asked',
-		                     'Contemplation',
-		                     		'No Harm Threatened',
-		                     		'Cassandra Disappears',
-		                     		'Cultists Leave',
-		                     'Elyraels Stepstones',
-		                     		'Secure the Area',
-		                     		'Bury the Dead',
-		                     		'Break Camp',
-		                     'The Floating City',
-		                     		'Enter the City',
-		                     		'Admire the Architecture',
-		                     		'Meet the Griffin Legions',
-		                     'Griffin Legions',
-		                     		'War Council Called',
-		                     		'Battle Planning',
-		                     		'Leaders Assigned',
-		                     'Taking Flight',
-		                     		'The Hunt Begins',
-		                     		'Wings in Formation',
-		                     		'Falcons Recon Ahead'
-		                    ],
-		'end-of-table' : []
-	},
+    // this table is only for quest name corrections; however, if a quest area requires any
+    // corrections at all, then all main/sub quest names must be listed here regardless;
+    // because, the array index must match the element index from the HTML container. 
+    questNameCorrections : { // note: indent subquests under main quests for readability
+        'Mist III' : // this quest area had a duplicate name on a subquest
+                            ['Tenvir Summit',
+                                     'Defeat Wolverines',
+                                     'Survey Area',
+                                     'Gather Supplies',
+                             'Taubourne Falls',
+                                     'Find A Way Across',
+                                     'Repair Bridge',
+                                     'Cross the Falls',
+                             'Hakkal Woods',
+                                     'Gather Samples',
+                                     'Hunt For Food',
+                                     'Prepare for Dark',
+                             'Signs of the Scourge',
+                                     'Kill Slimes',
+                                     'Cast Poison Shield',
+                                     'Make Camp',
+                             'The Green Haze',
+                                     'Dispatch Corrupted Soldiers',
+                                     'Kill Diseased Treants',
+                                     'Find Shelter From Haze',
+                             'Sporeguard Revisited',
+                                     'Destroy Mushrooms',
+                                     'Eradicate Spores',
+                                     'Clear Haze',
+                             'Death of a Forest',
+                                     'Gather Nature Essence',
+                                     'Gather Life Dust',
+                                     'Cast Regrowth',
+                             'Calm Before the Storm',
+                                     'Walking in the Woods', // renamed
+                                     'Defeat Rock Elementals', // was duplicate
+                                     'Gather Earth Essence',
+                             'The Life Temple',
+                                     'Investigate Temple',
+                                     'Collect Artifact Shards',
+                                     'Create Artifact Relic',
+                             'The Life Altar',
+                                     'Use Artifact Relic',
+                                     'Unlock Altar',
+                                     'Destroy Scourge'
+                            ],
+        'Fire II' : // this quest area had a duplicate name on a main quest
+                            ['Unlikely Alliance',
+                                    'Counter Life Drain',
+                                    'Test Her Power',
+                                    'Defeat Sylvana',
+                             'Bridge of Fire',
+                                    'Destroy Fire Elementals',
+                                    'Cross Lava Pools',
+                                    'Avoid an Avalanche',
+                             'River of Light',
+                                    'Enchant Weapon',
+                                    'Kill River Hydras',
+                                    'Destroy Path',
+                             'Karth',
+                                    'Make Preparations',
+                                    'Scout Karth',
+                                    'Climb Wall',
+                             'Nighttime Infiltration',
+                                    'Find Shortcut',
+                                    'Find Supplies',
+                                    'Dispatch Patrol',
+                             'Burning of Karth',
+                                    'Defeat Paladin',
+                                    'Capture Army',
+                                    'Burn Barracks',
+                             'Crossing the White Plains',
+                                    'Avoid Patrols',
+                                    'Move Supplies',
+                                    'Make Camp',
+                             'Prepare for Siege', // renamed
+                                    'Plan Strategy',
+                                    'Setup Siege',
+                                    'Prepare for War',
+                             'Siege on the Capital', // was duplicate
+                                    'Don Armor',
+                                    'Ride Down',
+                                    'Confront Celesta',
+                             'Energy Rift',
+                                    'Cast Barrier',
+                                    'Brace Yourself',
+                                    'Confront Figure'
+                            ],
+        'Land of Earth III' : // this quest area had a duplicate name on a subquest
+                            ['Battle Cultists',
+                                     'Interrogate',
+                                     'Gather Crystals',
+                                     'Free Prisoners',
+                             'Dodge Wind Attacks!',
+                                     'Cast Earth Shield',
+                                     'Chase Assassin',
+                                     'Catch Breath',
+                             'Cut A Path',
+                                     'Traverse River',
+                                     'Find Clues',
+                                     'Cure Snake Bite',
+                             'Find Walkway',
+                                     'Battle Lizardman',
+                                     'Defeat Swamp Hags',
+                                     'Fight Troll',
+                             'Calm Villagers',
+                                     'Gather Information',
+                                     'Heal Wounded Villagers', // renamed
+                                     'Repair Buildings',
+                             'Follow Wreckage',
+                                     'Traverse Lava',
+                                     'Defeat Wild Apes',
+                                     'Scout Ahead',
+                             'Stone Idols Attack',
+                                     'Defensive Position',
+                                     'Defeat Stone Guardians',
+                                     'Enter the Cradle',
+                             'Research',
+                                     'Gorilla Ambush',
+                                     'Discover Artifacts',
+                                     'Loot Artifacts',
+                             'Save Survivors',
+                                     'Distract Urmek',
+                                     'Retreat',
+                                     'Find Cover',
+                             'Discover Empty Tomb',
+                                     'Heal Our Wounded', // renamed
+                                     'Build Morale',
+                                     'Plan Attack'
+                            ],
+        'Land of Mist IV' : // this quest area needed names for all subquests
+                            ['Recovery',
+                                    'Give Army Leave',
+                                    'Rest at Home',
+                                    'Recall Army',
+                             'Desolate Pass',
+                                    'Mountain Ascent',
+                                    'Mist-filled Pass',
+                                    'Descent from the Pass',
+                             'Canyons of Borati',
+                                    'Explore Canyons',
+                                    'No one Around',
+                                    'Scout Ahead',
+                             'Surrounded',
+                                    'Cultists Approach',
+                                    'Wait and See',
+                                    'The Chant Begins',
+                             'Cassandra',
+                                    'The Chant Ceases',
+                                    'Cassandra Appears',
+                                    'Questions Asked',
+                             'Contemplation',
+                                    'No Harm Threatened',
+                                    'Cassandra Disappears',
+                                    'Cultists Leave',
+                             'Elyraels Stepstones',
+                                    'Secure the Area',
+                                    'Bury the Dead',
+                                    'Break Camp',
+                             'The Floating City',
+                                    'Enter the City',
+                                    'Admire the Architecture',
+                                    'Meet the Griffin Legions',
+                             'Griffin Legions',
+                                    'War Council Called',
+                                    'Battle Planning',
+                                    'Leaders Assigned',
+                             'Taking Flight',
+                                    'The Hunt Begins',
+                                    'Wings in Formation',
+                                    'Falcons Recon Ahead'
+                            ],
+        'end-of-table' : []
+    },
 
     updateQuestNames : function(qc)
     {
-    	var qa = caap.getCurrentQuestArea();
-    	if(caap.questNameCorrections[qa])
-    	{
-    		var qnc = caap.questNameCorrections[qa];
-    		qc.each(function(idx, ele)
-    		{
+        var qa = caap.getCurrentQuestArea();
+        if(caap.questNameCorrections[qa])
+        {
+            var qnc = caap.questNameCorrections[qa];
+            qc.each(function(idx, ele)
+            {
                 var ttl = $j(".quest_desc,.quest_sub_title", ele), firstb = $j("b", ttl).eq(0);
-            	firstb[0].innerHTML = qnc[idx];
-    		});
-    	}
-    	return;
+                firstb[0].innerHTML = qnc[idx];
+            });
+        }
+        return;
     },
 
     /*
@@ -7377,77 +7368,77 @@ caap = {
         }
     },
     autoBlessSelection : function() {
-		var autoBless = config.getItem('AutoBless', 'none');
-		if (autoBless.match('Auto Upgrade')) {
-			try {
-				var startAtt = 0, stopAtt = 4, attribute = '', attrName = '', attrValue = 0, attrAdjustNew = 0, attrCurrent = 0,
-					level = 0, energy = 0, stamina = 0, attack = 0, defense = 0, health = 0;
+        var autoBless = config.getItem('AutoBless', 'none');
+        if (autoBless.match('Auto Upgrade')) {
+            try {
+                var startAtt = 0, stopAtt = 4, attribute = '', attrName = '', attrValue = 0, attrAdjustNew = 0, attrCurrent = 0,
+                    level = 0, energy = 0, stamina = 0, attack = 0, defense = 0, health = 0;
 
-				if(config.getItem("AutoStatAdv", false)) {
-					startAtt = 5;
-					stopAtt = 9;
-				}
-				energy = caap.stats['energy']['max'];
-				stamina = caap.stats['stamina']['max'];
-				attack = caap.stats['attack'];
-				defense = caap.stats['defense'];
-				health = caap.stats['health']['max'];
-				level = caap.stats['level'];
+                if(config.getItem("AutoStatAdv", false)) {
+                    startAtt = 5;
+                    stopAtt = 9;
+                }
+                energy = caap.stats['energy']['max'];
+                stamina = caap.stats['stamina']['max'];
+                attack = caap.stats['attack'];
+                defense = caap.stats['defense'];
+                health = caap.stats['health']['max'];
+                level = caap.stats['level'];
 
-				for( n = startAtt; n <= stopAtt; n += 1) {
-					attrName = 'Attribute' + n;
-					attribute = config.getItem(attrName, '');
-					if(attribute === '') {
-						con.log(4, attrName + " is blank: continue");
-						continue;
-					}
-					
+                for( n = startAtt; n <= stopAtt; n += 1) {
+                    attrName = 'Attribute' + n;
+                    attribute = config.getItem(attrName, '');
+                    if(attribute === '') {
+                        con.log(4, attrName + " is blank: continue");
+                        continue;
+                    }
+                    
 
-					if(caap.stats['level'] < 10) {
-						if(attribute === 'Attack' || attribute === 'Defense' || attribute === 'Health') {
-							con.log(1, "Characters below level 10 can not increase Attack, Defense or Health: continue");
-							continue;
-						}
-					}
-					attrValue = config.getItem('AttrValue' + n, 0);
-					attribute = attribute.toLowerCase();
-					switch (attribute) {
-						case 'energy' :
-							attrCurrent = energy;
-							break;
-						case 'stamina' :
-							attrCurrent = stamina;
-							break;
-						case 'attack' :
-							attrCurrent = attack;
-							break;
-						case 'defense' :
-							attrCurrent = defense;
-							break;
-						case 'health' :
-							attrCurrent = health;
-							break;
-						default :
-							throw "Unable to match attribute: " + attribute;
-					}
-					
-					if(config.getItem('AutoStatAdv', false)) {
-						attrAdjustNew = eval(attrValue);
-					} else {
-						attrAdjustNew = attrValue;
-					}
-					if (attrAdjustNew > attrCurrent) {
-						return attribute;
-					}
-				}
-				return 'attack';
-			} catch (err) {
-				con.error("ERROR in autoBlessSelection: " + err);
-				return 'none';
-			}
-		} else {
-			return autoBless;
-		}
+                    if(caap.stats['level'] < 10) {
+                        if(attribute === 'Attack' || attribute === 'Defense' || attribute === 'Health') {
+                            con.log(1, "Characters below level 10 can not increase Attack, Defense or Health: continue");
+                            continue;
+                        }
+                    }
+                    attrValue = config.getItem('AttrValue' + n, 0);
+                    attribute = attribute.toLowerCase();
+                    switch (attribute) {
+                        case 'energy' :
+                            attrCurrent = energy;
+                            break;
+                        case 'stamina' :
+                            attrCurrent = stamina;
+                            break;
+                        case 'attack' :
+                            attrCurrent = attack;
+                            break;
+                        case 'defense' :
+                            attrCurrent = defense;
+                            break;
+                        case 'health' :
+                            attrCurrent = health;
+                            break;
+                        default :
+                            throw "Unable to match attribute: " + attribute;
+                    }
+                    
+                    if(config.getItem('AutoStatAdv', false)) {
+                        attrAdjustNew = eval(attrValue);
+                    } else {
+                        attrAdjustNew = attrValue;
+                    }
+                    if (attrAdjustNew > attrCurrent) {
+                        return attribute;
+                    }
+                }
+                return 'attack';
+            } catch (err) {
+                con.error("ERROR in autoBlessSelection: " + err);
+                return 'none';
+            }
+        } else {
+            return autoBless;
+        }
     },
     autoBless : function() {
         try {
@@ -7456,12 +7447,12 @@ caap = {
             }
 
             //var autoBless = config.getItem('AutoBless', 'none');
-			var autoBless = caap.autoBlessSelection(),			
-				autoBlessN = caap.deityTable[autoBless.toLowerCase()], 
-				picSlice = $j(), 
-				descSlice = $j();
-			
-			
+            var autoBless = caap.autoBlessSelection(),			
+                autoBlessN = caap.deityTable[autoBless.toLowerCase()], 
+                picSlice = $j(), 
+                descSlice = $j();
+            
+            
             if(!$u.hasContent(autoBlessN) || !schedule.check('BlessingTimer')) {
                 return false;
             }
@@ -7579,41 +7570,41 @@ caap = {
                    if (caap.stats['attack']>= atkFeat[caap.stats['achievements']['feats']['attack']]) {
                       autoBless = 'Attack';
                    }
-				   default_bless = 'Attack';
+                   default_bless = 'Attack';
                 }
                 if (caap.stats['achievements']['feats']['defense']<8) {
                    if (caap.stats['defense']>= defFeat[caap.stats['achievements']['feats']['defense']]) {
                       autoBless = 'Defense';
                    }
-				   default_bless = default_bless === 'All' ? 'Defense' : default_bless;
+                   default_bless = default_bless === 'All' ? 'Defense' : default_bless;
                 }
                 if (caap.stats['achievements']['feats']['health']<8) {
                    if (caap.stats['health']['max']>= heaFeat[caap.stats['achievements']['feats']['health']]) {
                       autoBless = 'Health';
                    }
-				   default_bless = default_bless === 'All' ? 'Health' : default_bless;
+                   default_bless = default_bless === 'All' ? 'Health' : default_bless;
                 }
                 if (caap.stats['achievements']['feats']['energy']<8) {
                    if (caap.stats['energy']['max']>= eneFeat[caap.stats['achievements']['feats']['energy']]) {
                       autoBless = 'Energy';
                    }
-				   default_bless = default_bless === 'All' ? 'Energy' : default_bless;
+                   default_bless = default_bless === 'All' ? 'Energy' : default_bless;
                 }
                 if (caap.stats['achievements']['feats']['stamina']<8) {
                    if (caap.stats['stamina']['max']>= staFeat[caap.stats['achievements']['feats']['stamina']]) {
                       autoBless = 'Stamina';
                    }
-				   default_bless = default_bless === 'All' ? 'Stamina' : default_bless;
+                   default_bless = default_bless === 'All' ? 'Stamina' : default_bless;
                 }
                 if (caap.stats['achievements']['feats']['army']<8) {
                    if (caap.stats['army']['actual']>= armFeat[caap.stats['achievements']['feats']['army']]) {
                       autoBless = 'Army';
                    }
-				   default_bless = default_bless === 'All' ? 'Army' : default_bless;
+                   default_bless = default_bless === 'All' ? 'Army' : default_bless;
                 }
                 
                 if(autoBless === 'All') {
-				   autoBless = default_bless !== 'All' ? default_bless : 'Attack' ;
+                   autoBless = default_bless !== 'All' ? default_bless : 'Attack' ;
                 }
              }
              
@@ -8273,54 +8264,28 @@ caap = {
             return false;
         }
     },
-    collectConquestCrystal1 : function() {
+    collectConquestCrystal : function() {
         try {
-            if(!config.getItem('doConquestCrystalCollect1', false) || !schedule.check('collectConquestCrystal1Timer')) {
+            if(!config.getItem('doConquestCrystalCollect', false) || !schedule.check('collectConquestCrystalTimer')) {
                 return false;
             }
-            var link = "guildv2_conquest_command.php";
+            caap.clickAjaxLinkSend('guildv2_conquest_command.php?tier=3', 1000);
 
-//"guildv2_conquest_expansion_fort.php?guild_id=" + caap.stats['guild']['id'] + "&slot=1";
-           // caap.clickAjaxLinkSend(link, 10000);
-	caap.clickAjaxLinkSend('guildv2_conquest_command.php?tier=3', 1000)
-//			{con.log(3,"first navigate is ok");}
-		//var button = caap.checkForImage("conq3_btn_pray.gif");
-                  //  if ($u.hasContent(button)) {
-		//if(caap.navigateTo('guildv2_conquest_command', 'conq3_btn_pray.gif'))
-		//	{con.log(3,"second navigate is ok");}
-
-//}
             return true;
         } catch (err) {
             con.error("ERROR in collectConquest: " + err);
             return false;
         }
     },
-   /* collectConquestCrystal2 : function() {
-        try {
-            if(!config.getItem('doConquestCrystalCollect2', false) || !schedule.check('collectConquestCrystal2Timer')) {
-                return false;
-            }
-            var link = "guildv2_conquest_expansion_fort.php?guild_id=" + caap.stats['guild']['id'] + "&slot=1";
-            caap.clickAjaxLinkSend(link, 1000);
-            return true;
-        } catch (err) {
-            con.error("ERROR in collectConquestCrystal: " + err);
-            return false;
-        }
-    },*/
     checkResults_conquest : function() {
         conquest.collect();
     },
     checkResults_conquestLand : function() {
         conquest.land();
     },
-    checkResults_conquestLand2 : function() {
-        //conquest.crystal();
-    },
-	checkResults_conquestMist : function () {},
-	checkResults_conquestEarth : function () {},
-	
+    checkResults_conquestMist : function () {},
+    checkResults_conquestEarth : function () {},
+    
 
     checkResults_conquestBattle : function() {
         conquest.battle();

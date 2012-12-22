@@ -116,7 +116,7 @@ caap.masterActionList = {
 	0x2A : 'ajaxCheckPublic3',
 	0x2B : 'feedScan',
 	0x2C : 'collectConquest',
-	0x2D : 'collectConquestCrystal1',
+	0x2D : 'collectConquestCrystal',
 	0x2E : 'doArenaBattle',
 	0x2F : 'autoArchives',
 	0x30 : 'idle'
