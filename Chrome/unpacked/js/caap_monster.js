@@ -728,7 +728,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     for (ii = 0; ii < orderPartsArray.length; ii += 1) {
                         partsTarget = partsTargets[orderPartsArray[ii] - 1];
                         partsElem = partsTarget.children[0].children[partsTarget.children[0].children.length - 1].children[1].children[0];
-                        if ($u.hascontent(partsElem) && $u.setContent($j(partsElem).getPercent("width"), 0) > 0) {
+                        if ($u.hasContent(partsElem) && $u.setContent($j(partsElem).getPercent("width"), 0) > 0) {
                             caap.click(partsElem);
                             break;
                         }

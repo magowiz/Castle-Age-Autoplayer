@@ -1990,7 +1990,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 if (perc.total >= 90) {
                     con.warn("Total localStorage used: " + perc.total + "%");
                     msg = "<div style='text-align: center;'>";
-                    msg += "<span style='color: red, font-size: 14px, font-weight: bold;'>WARNING!</span><br />";
+                    msg += "<span style='color: red; font-size: 14px; font-weight: bold;'>WARNING!</span><br />";
                     msg += "localStorage usage for domain: " + perc.total + "%<br />";
                     msg += "CAAP is using: " + perc.total + "%";
                     msg += "</div>";
