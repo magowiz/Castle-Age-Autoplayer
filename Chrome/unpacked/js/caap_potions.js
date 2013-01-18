@@ -212,4 +212,115 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         }
     };
 
+	
+    /////////////////////////////////////////////////////////////////////
+    //                          KOBO
+    /////////////////////////////////////////////////////////////////////
+
+    caap.autoKobo = function () {
+        try {
+            var button = $j(),
+				koboDIV = $j(),
+				ginDIV = $j(),
+				gin_left = 10,
+				hours = 24,
+				minutes = 0,
+				rClick,
+				addClick = false;
+
+            con.log(3, "autoKobo");
+
+            if ((!config.getItem('autoKobo', true)) || (!schedule.check('AutoKoboTimerDelay'))) {
+                caap.setDivContent('kobo_mess', schedule.check('AutoKoboTimerDelay') ? 'Kobo = none' : 'Next Kobo: ' + $u.setContent(caap.displayTime('AutoKoboTimerDelay'), "Unknown"));
+				button = null;
+				koboDIV = null;
+				ginDIV = null;
+				return false;
+            }
+
+            koboDIV = $j("div[style*='emporium_top']");
+            if (!koboDIV || koboDIV.length === 0) {
+                con.log(2, "Going to emporium");
+                if (caap.navigateTo('goblin_emp')) {
+					button = null;
+					koboDIV = null;
+					ginDIV = null;
+                    return true;
+                }
+
+				button = null;
+				koboDIV = null;
+				ginDIV = null;
+                throw "Impossible to navigate to emporium page";
+            }
+			
+            
+            if ($u.hasContent($j("#app_body #results_main_wrapper"))) {
+                if (/You have exceeded the 10 emporium roll limit for the day. Come back tomorrow for another chance!/.test(caap.resultsText)) {
+					con.log(2, "You have exceeded the 10 emporium roll limit for the day.");
+					schedule.setItem('AutoKoboTimerDelay', ((hours * 60) + minutes) * 60, 100);
+					caap.setDivContent('kobo_mess', schedule.check('AutoKoboTimerDelay') ? 'Kobo = none' : 'Next Kobo: ' + $u.setContent(caap.displayTime('AutoKoboTimerDelay'), "Unknown"));
+					button = null;
+					koboDIV = null;
+					ginDIV = null;
+					return false;					
+				}
+			}
+			
+            gin_left = Math.min(($j("span[id='gin_left_amt']")).text(),10);
+            con.log(4, "gin_left = ",gin_left);
+			if (gin_left> 0) {
+				var ingredientDIV = $j("div[class='ingredientUnit']"+(config.getItem('autoKoboAle',false)?"":"[id!='gout_6_261']")+">div>span[id*='gout_value']"),countClick=0;
+				con.log(4, "ingredientDIV = ",ingredientDIV);
+				ingredientDIV.each(function(_i, _e) {
+					var count = $j(_e).text(),
+						name=$j(_e).parent().parent()[0].children[0].children[0].alt;
+					con.log(3, "ingredient "+_i+" '"+name+"' :count = "+count);
+					if (count>config.getItem('koboKeepUnder', 10)&&(gin_left>countClick)) { 
+						addClick=true;
+						countClick=countClick+1;
+						$j(_e).parent().parent().click();
+					}
+				});
+				if (!addClick) {
+					schedule.setItem('AutoKoboTimerDelay', ((hours * 60) + minutes) * 60);
+					caap.setDivContent('kobo_mess', schedule.check('AutoKoboTimerDelay') ? 'Kobo = none' : 'Next Kobo: ' + $u.setContent(caap.displayTime('AutoKoboTimerDelay'), "Unknown"));
+					button = null;
+					koboDIV = null;
+					ginDIV = null;
+					return false;
+				}
+				if (gin_left>countClick) {
+					button = null;
+					koboDIV = null;
+					ginDIV = null;
+					return true;
+				}
+			}
+
+            button = caap.checkForImage('emporium_button.gif');
+            if (button && button.length > 0) {
+                con.log(2, "Click Roll");
+				hours=0;
+				minutes=1;
+                schedule.setItem('AutoKoboTimerDelay', ((hours * 60) + minutes) * 60, 100);
+                caap.setDivContent('kobo_mess', schedule.check('AutoKoboTimerDelay') ? 'Archive = none' : 'Next Archive: ' + $u.setContent(caap.displayTime('AutoKoboTimerDelay'), "Unknown"));
+                rClick = caap.click(button);
+
+				button = null;
+				koboDIV = null;
+				ginDIV = null;
+				return rClick;
+            }
+			button = null;
+			koboDIV = null;
+			ginDIV = null;
+            return false;
+
+        } catch (err) {
+            con.error("ERROR in autoKobo: " + err);
+            return false;
+        }
+    };
+
 }());
