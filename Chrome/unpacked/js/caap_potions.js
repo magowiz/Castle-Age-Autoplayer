@@ -230,7 +230,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
             con.log(3, "autoKobo");
 
-            if ((!config.getItem('autoKobo', true)) || (!schedule.check('AutoKoboTimerDelay'))) {
+            if ((!config.getItem('AutoKobo', true)) || (!schedule.check('AutoKoboTimerDelay'))) {
                 caap.setDivContent('kobo_mess', schedule.check('AutoKoboTimerDelay') ? 'Kobo = none' : 'Next Kobo: ' + $u.setContent(caap.displayTime('AutoKoboTimerDelay'), "Unknown"));
 				button = null;
 				koboDIV = null;
