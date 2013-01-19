@@ -833,6 +833,7 @@
                 htmlCode += caap.makeNumberFormTR("Gift List Days", 'checkGift', "Check gift list every X days. Minimum 3.", 3, '', '', true);
                 htmlCode += caap.makeNumberFormTR("Ajax Gift Check", 'CheckGiftMins', "Check gifts waiting every X minutes. Minimum 15.", 15, '', '', true);
                 htmlCode += caap.endCheckHide('giftModifyTimers');
+                htmlCode += caap.endCheckHide('AutoGift');
 
                 htmlCode += caap.endToggle;
                 return htmlCode;
