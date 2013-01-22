@@ -103,8 +103,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				minutes = 0,
 				rClick;
 
-            con.log(2, "autoArchives");
-
             if ((!config.getItem('AutoArchives', true)) || (!schedule.check('AutoArchiveTimerDelay'))) {
                 caap.setDivContent('archive_mess', schedule.check('AutoArchiveTimerDelay') ? 'Archive = none' : 'Next Archive: ' + $u.setContent(caap.displayTime('AutoArchiveTimerDelay'), "Unknown"));
 
@@ -112,6 +110,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				archiveDIV = null;
 				return false;
             }
+
+            con.log(2, "autoArchives");
 
             archiveDIV = $j("div[style*='archive_top']");
             if (!archiveDIV || archiveDIV.length === 0) {
@@ -228,7 +228,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				rClick,
 				addClick = false;
 
-            con.log(3, "autoKobo");
 
             if ((!config.getItem('AutoKobo', true)) || (!schedule.check('AutoKoboTimerDelay'))) {
                 caap.setDivContent('kobo_mess', schedule.check('AutoKoboTimerDelay') ? 'Kobo = none' : 'Next Kobo: ' + $u.setContent(caap.displayTime('AutoKoboTimerDelay'), "Unknown"));
@@ -237,6 +236,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				ginDIV = null;
 				return false;
             }
+            con.log(2, "autoKobo");
 
             koboDIV = $j("div[style*='emporium_top']");
             if (!koboDIV || koboDIV.length === 0) {
@@ -304,7 +304,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				hours=0;
 				minutes=1;
                 schedule.setItem('AutoKoboTimerDelay', ((hours * 60) + minutes) * 60, 100);
-                caap.setDivContent('kobo_mess', schedule.check('AutoKoboTimerDelay') ? 'Archive = none' : 'Next Archive: ' + $u.setContent(caap.displayTime('AutoKoboTimerDelay'), "Unknown"));
+                caap.setDivContent('kobo_mess', schedule.check('AutoKoboTimerDelay') ? 'Kobo = none' : 'Next Kobo: ' + $u.setContent(caap.displayTime('AutoKoboTimerDelay'), "Unknown"));
                 rClick = caap.click(button);
 
 				button = null;
