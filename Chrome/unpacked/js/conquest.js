@@ -1206,6 +1206,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             var button = caap.checkForImage("conq3_btn_collectpower_small.gif"),
                 button2 = caap.checkForImage("conq3_btn_collect.gif"),
                 buttonCrystal = caap.checkForImage("conq3_btn_pray.gif"),
+                buttonPath = caap.checkForImage("conq2_btn_reportcoll.gif"),
                 timeLeft;
 
             if ($u.hasContent(button)) {
@@ -1217,18 +1218,26 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 caap.click(button2);
             }
 
-            con.log(1, "done with buttons", button, button2, buttonCrystal);
+            con.log(2, "done with buttons", button, button2, buttonCrystal);
             if ($u.hasContent(buttonCrystal)) {
                 caap.click(buttonCrystal);
+            }
+
+            con.log(2, "done with buttons", button, button2, buttonCrystal, buttonPath);
+            if ($u.hasContent(buttonPath)) {
+                caap.click(buttonPath);
             }
 
             timeLeft = $j("div[style*='conq3_mid_notop']")[0].children[0].children[0].children[2].children[0].innerHTML.match(/(\d+)/)[0];
             schedule.setItem('collectConquestTimer', timeLeft * 60 * 60);
             schedule.setItem('collectConquestCrystalTimer', timeLeft * 60 * 60);
+            timeLeft = $j("div[id='header_report_tab']")[0].children[2].children[0].children[0].innerHTML.match(/(\d+)/)[0];
+            schedule.setItem('collectConquestPathTimer', timeLeft * 60 * 60);
 
             button = null;
             button2 = null;
             buttonCrystal = null;
+            buttonPath = null;
         } catch (err) {
             con.error("ERROR in collect Conquest: " + err);
             return;
