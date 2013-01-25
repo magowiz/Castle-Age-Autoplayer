@@ -2809,6 +2809,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 autoKoboInstructions0 = "Enable or disable the auto kobo.",
                 autoKoboInstructions1 = "Number to keep of each item.",
                 autoKoboInstructions2 = "Enable to perform Ale for roll.",
+    			autoKoboBlackListInstructions = "List of item to not roll in Kobo. " + "It isn't case sensitive.",
                 autoPotionsInstructions0 = "Enable or disable the auto consumption " + "of energy and stamina potions.",
                 autoPotionsInstructions1 = "Number of stamina potions at which to " + "begin consuming.",
                 autoPotionsInstructions2 = "Number of stamina potions to keep.",
@@ -2843,8 +2844,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             htmlCode += caap.endCheckHide('AutoAlchemy');
             htmlCode += caap.makeCheckTR('Auto Kobo', 'AutoKobo', false, autoKoboInstructions0);
             htmlCode += caap.startCheckHide('AutoKobo');
-            htmlCode += caap.makeNumberFormTR("Keep", 'koboKeepUnder', autoKoboInstructions1, 10, '', '', true, false);
-            htmlCode += caap.makeCheckTR('Roll Ale', 'autoKoboAle', false, autoKoboInstructions2);
+            htmlCode += caap.makeNumberFormTR("Keep", 'koboKeepUnder', autoKoboInstructions1, 100, '', '', true, false);
+            htmlCode += caap.makeCheckTR('Roll Ale', 'autoKoboAle', false, autoKoboInstructions2,true);
+            htmlCode += caap.makeTD("Black list of item to not roll",true);
+            htmlCode += caap.makeTextBox('kobo_blacklist', autoKoboBlackListInstructions, '', '');
             htmlCode += caap.endCheckHide('AutoKobo');
             htmlCode += caap.endToggle;
             return htmlCode;
