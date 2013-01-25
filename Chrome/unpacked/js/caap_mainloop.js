@@ -66,7 +66,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         'checkCharacterClasses': 'Character Classes',
         'festivalBless': 'Festival Feats',
         'collectConquest': 'Collect Conquest Resources',
-        'collectConquestCrystal': 'Collect Conquest Crystals'
+        'collectConquestCrystal': 'Collect Conquest Crystals',
+        'collectConquestPath': 'Collect Conquest Path'
     };
 
     caap.checkLastAction = function (thisAction) {
@@ -137,9 +138,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         0x2E: 'feedScan',
         0x2F: 'collectConquest',
         0x30: 'collectConquestCrystal',
-        0x31: 'autoArchives',
-        0x32: 'autoKobo',
-        0x33: 'idle'
+        0x31: 'collectConquestPath',
+        0x32: 'autoArchives',
+        0x33: 'autoKobo',
+        0x34: 'idle'
     };
 
     caap.actionsList = [];
