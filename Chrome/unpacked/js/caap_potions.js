@@ -276,7 +276,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     con.log(3, "ingredient " + _i + " '" + name + "' :count = " + count);
                     if (count > config.getItem('koboKeepUnder', 10) && (gin_left > countClick) ) {
 						for (p = 0, len = blackList.length; p < len; p += 1) {
-							if (name.trim().toLowerCase()===blackList[p].trim().toLowerCase()) { 
+							if (name.trim().toLowerCase().match(new RegExp(blackList[p].trim().toLowerCase()))) { 
 								con.log(2, "ingredient " + _i + " '" + name + "' is black listed");
 								blackListed = true; 
 							}
