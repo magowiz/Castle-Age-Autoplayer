@@ -264,18 +264,28 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             con.log(4, "gin_left = ", gin_left);
             if (gin_left > 0) {
                 var ingredientDIV = $j("div[class='ingredientUnit']" + (config.getItem('autoKoboAle', false) ? "" : "[id!='gout_6_261']") + ">div>span[id*='gout_value']"),
-                    countClick = 0;
+                    countClick = 0,
+                    blackList = config.getList('kobo_blacklist', '');
 
                 con.log(4, "ingredientDIV = ", ingredientDIV);
                 ingredientDIV.each(function(_i, _e) {
                     var count = $j(_e).text(),
-                        name = $j(_e).parent().parent()[0].children[0].children[0].alt;
+                        name = $j(_e).parent().parent()[0].children[0].children[0].alt,
+    					blackListed=false, p=0, len=0;
 
                     con.log(3, "ingredient " + _i + " '" + name + "' :count = " + count);
-                    if (count > config.getItem('koboKeepUnder', 10) && (gin_left > countClick)) {
-                        addClick = true;
-                        countClick = countClick + 1;
-                        $j(_e).parent().parent().click();
+                    if (count > config.getItem('koboKeepUnder', 10) && (gin_left > countClick) ) {
+						for (p = 0, len = blackList.length; p < len; p += 1) {
+							if (name.trim().toLowerCase()===blackList[p].trim().toLowerCase()) { 
+								con.log(2, "ingredient " + _i + " '" + name + "' is black listed");
+								blackListed = true; 
+							}
+						}
+						if (!blackListed) {
+							addClick = true;
+							countClick = countClick + 1;
+							$j(_e).parent().parent().click();
+						}
                     }
                 });
 
