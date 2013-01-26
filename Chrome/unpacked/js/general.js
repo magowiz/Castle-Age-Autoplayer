@@ -833,7 +833,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 if ($u.hasContent(temptext)) {
                     general.records[it].eatk = $u.setContent(temptext.regex(/\s+(\d+)\s+\d+/i), 0);
                     general.records[it].edef = $u.setContent(temptext.regex(/\s+\d+\s+(\d+)/i), 0);
-                    if ($u.isNumber(general.records[it].eatk) && $u.isNumber(general.records[it].edef)) {
+                    if (general.records[it].eatk == '0' && $u.isNumber(general.records[it].edef) // Kobo
+                    || $u.isNumber(general.records[it].eatk) && $u.isNumber(general.records[it].edef)) {
                         con.log(2, "General equipped atk/def", general.records[it].eatk, general.records[it].edef);
                         success = true;
                     } else {
