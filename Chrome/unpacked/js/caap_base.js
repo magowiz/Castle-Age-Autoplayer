@@ -2451,6 +2451,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         'kobo_mess': "",
         'conquestbless_mess': "",
         'conquestcrystalbless_mess': "",
+        'conquestpathbless_mess': "",
         'level_mess': "",
         'exp_mess': "",
         'debug1_mess': "",
@@ -2809,7 +2810,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 autoKoboInstructions0 = "Enable or disable the auto kobo.",
                 autoKoboInstructions1 = "Number to keep of each item.",
                 autoKoboInstructions2 = "Enable to perform Ale for roll.",
-    			autoKoboBlackListInstructions = "List of item to not roll in Kobo. " + "It isn't case sensitive.",
+        		autoKoboBlackListInstructions = "List of item to not roll in Kobo. " + "It isn't case sensitive.",
                 autoPotionsInstructions0 = "Enable or disable the auto consumption " + "of energy and stamina potions.",
                 autoPotionsInstructions1 = "Number of stamina potions at which to " + "begin consuming.",
                 autoPotionsInstructions2 = "Number of stamina potions to keep.",
@@ -2884,6 +2885,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             htmlCode += caap.makeTD("<input type='button' id='caap_CollectConquestNow' value='Collect Now' style='padding: 0; font-size: 10px; height: 18px' />");
             htmlCode += caap.makeCheckTR('Enable Hero Crystal Collect', 'doConquestCrystalCollect', false, '');
             htmlCode += caap.makeTD("<input type='button' id='caap_collectCrystalNow' value='Collect Now' style='padding: 0; font-size: 10px; height: 18px' />");
+            htmlCode += caap.makeCheckTR('Enable Path Collect', 'doConquestPathCollect', false, '');
+            htmlCode += caap.makeTD("<input type='button' id='caap_collectPathNow' value='Collect Now' style='padding: 0; font-size: 10px; height: 18px' />");
             htmlCode += caap.endToggle;
             return htmlCode;
         } catch (err) {
@@ -3953,6 +3956,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     schedule.setItem('collectConquestTimer', 0);
                 } else if (idName === 'doConquestCrystalCollect' && value === 'None') {
                     schedule.setItem('collectConquestCrystalTimer', 0);
+                } else if (idName === 'doConquestPathCollect' && value === 'None') {
+                    schedule.setItem('collectConquestPathTimer', 0);
                 } else if (idName === 'festivalBless' && value === 'None') {
                     schedule.setItem('festivalBlessTimer', 0);
                 } else if (idName === 'TargetType') {
@@ -4475,6 +4480,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 caap.getCollectConquestCrystalButtonListener();
             });
 
+            $j('#caap_collectPathNow', caap.caapDivObject).click(function () {
+                caap.getCollectConquestPathButtonListener();
+            });
+
             $j('#caap_ResetMenuLocation', caap.caapDivObject).click(caap.resetMenuLocationListener);
 
             $j('#caap_resetElite', caap.caapDivObject).click(function () {
@@ -4976,6 +4985,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             caap.setDivContent('demibless_mess', schedule.check('BlessingTimer') ? 'Demi Blessing = none' : 'Next Demi Blessing: ' + $u.setContent(caap.displayTime('BlessingTimer'), "Unknown"));
             caap.setDivContent('conquestbless_mess', schedule.check('collectConquestTimer') ? 'Conquest Collect = none' : 'Next Conquest: ' + $u.setContent(caap.displayTime('collectConquestTimer'), "Unknown"));
             caap.setDivContent('conquestcrystalbless_mess', schedule.check('collectConquestCrystalTimer') ? 'Crystal Collect = none' : 'Next Crystal: ' + $u.setContent(caap.displayTime('collectConquestCrystalTimer'), "Unknown"));
+            caap.setDivContent('conquestpathbless_mess', schedule.check('collectConquestPathTimer') ? 'Path Collect = none' : 'Next Path: ' + $u.setContent(caap.displayTime('collectConquestPathTimer'), "Unknown"));
             caap.setDivContent('feats_mess', schedule.check('festivalBlessTimer') ? 'Feat = none' : 'Next Feat: ' + $u.setContent(caap.displayTime('festivalBlessTimer'), "Unknown"));
             if ($u.hasContent(general.List) && general.List.length <= 2) {
                 schedule.setItem("generals", 0);
@@ -9182,6 +9192,21 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         }
     };
 
+    caap.collectConquestPath = function () {
+        try {
+            if (!config.getItem('doConquestPathCollect', false) || !schedule.check('collectConquestPathTimer')) {
+                return false;
+            }
+
+            caap.clickAjaxLinkSend('guildv2_conquest_command.php?tier=3', 1000);
+
+            return true;
+        } catch (err) {
+            con.error("ERROR in collectConquestPath: " + err);
+            return false;
+        }
+    };
+
     // these conquest functions do not appear to be correct
     caap.checkResults_conquest = function () {
         var infoDiv = $j("#app_body div[style*='conq3_top.jpg']"),
@@ -9200,7 +9225,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             conquest.getCommonInfos(infoDiv);
         }
 
-        if ((!config.getItem('doConquestCollect', false) || !schedule.check('collectConquestTimer')) && (!config.getItem('doConquestCrystalCollect', false) || !schedule.check('collectConquestCrystalTimer'))) {
+        if ((!config.getItem('doConquestCollect', false) || !schedule.check('collectConquestTimer')) 
+		&& (!config.getItem('doConquestCrystalCollect', false) || !schedule.check('collectConquestCrystalTimer'))
+		&& (!config.getItem('doConquestPathCollect', false) || !schedule.check('collectConquestPathTimer'))) {
             infoDiv = null;
             return false;
         }
