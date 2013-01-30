@@ -2851,7 +2851,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             htmlCode += caap.makeCheckTR('Roll Ale', 'autoKoboAle', false, autoKoboInstructions2,true);
             htmlCode += caap.makeCheckTR('Use White list', 'autoKoboUseWhiteList', true, autoKoboInstructions3,true);
             htmlCode += caap.startCheckHide('autoKoboUseWhiteList');
-            htmlCode += caap.makeTD("White list of item to not roll",true);
+            htmlCode += caap.makeTD("White list of item to roll",true);
             htmlCode += caap.makeTextBox('kobo_whitelist', autoKoboWhiteListInstructions, '', '');
             htmlCode += caap.endCheckHide('autoKoboUseWhiteList');
             htmlCode += caap.makeCheckTR('Use Black list', 'autoKoboUseBlackList', false, autoKoboInstructions4,true);
