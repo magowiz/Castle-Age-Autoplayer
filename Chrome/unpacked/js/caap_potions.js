@@ -265,23 +265,42 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             if (gin_left > 0) {
                 var ingredientDIV = $j("div[class='ingredientUnit']" + (config.getItem('autoKoboAle', false) ? "" : "[id!='gout_6_261']") + ">div>span[id*='gout_value']"),
                     countClick = 0,
-                    blackList = config.getList('kobo_blacklist', '');
+                    whiteList = config.getList('kobo_whitelist', ''),
+					useWhiteList = config.getItem('autoKoboUseWhiteList',false),
+                    blackList = config.getList('kobo_blacklist', ''),
+					useBlackList = config.getItem('autoKoboUseBlackList',false);
 
                 con.log(4, "ingredientDIV = ", ingredientDIV);
                 ingredientDIV.each(function(_i, _e) {
                     var count = $j(_e).text(),
                         name = $j(_e).parent().parent()[0].children[0].children[0].alt,
-    					blackListed=false, p=0, len=0;
+    					whiteListed=false,
+    					blackListed=false, 
+						p=0, len=0;
 
                     con.log(3, "ingredient " + _i + " '" + name + "' :count = " + count);
                     if (count > config.getItem('koboKeepUnder', 10) && (gin_left > countClick) ) {
-						for (p = 0, len = blackList.length; p < len; p += 1) {
-							if (name.trim().toLowerCase().match(new RegExp(blackList[p].trim().toLowerCase()))) { 
-								con.log(2, "ingredient " + _i + " '" + name + "' is black listed");
-								blackListed = true; 
+						if (useWhiteList) {
+							for (p = 0, len = whiteList.length; p < len; p += 1) {
+								if (name.trim().toLowerCase().match(new RegExp(whiteList[p].trim().toLowerCase()))) { 
+									con.log(2, "ingredient " + _i + " '" + name + "' is white listed with condition : "+whiteList[p]);
+									whiteListed = true; 
+								}
 							}
+							if (!whiteListed) { con.log(2, "ingredient " + _i + " '" + name + "' isn't white listed"); }
+						} else {
+							whiteListed=true;
 						}
-						if (!blackListed) {
+						if (useBlackList) {
+							for (p = 0, len = blackList.length; p < len; p += 1) {
+								if (name.trim().toLowerCase().match(new RegExp(blackList[p].trim().toLowerCase()))) { 
+									con.log(2, "ingredient " + _i + " '" + name + "' is black listed with condition : "+blackList[p]);
+									blackListed = true; 
+								}
+							}
+							if (!blackListed) { con.log(2, "ingredient " + _i + " '" + name + "' isn't black listed"); }
+						}
+						if ((whiteListed)&&(!blackListed)) {
 							addClick = true;
 							countClick = countClick + 1;
 							$j(_e).parent().parent().click();
