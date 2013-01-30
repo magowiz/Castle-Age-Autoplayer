@@ -2809,6 +2809,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 autoKoboInstructions0 = "Enable or disable the auto kobo.",
                 autoKoboInstructions1 = "Number to keep of each item.",
                 autoKoboInstructions2 = "Enable to perform Ale for roll.",
+                autoKoboInstructions3 = "Enable a white list of item to roll.",
+                autoKoboInstructions4 = "Enable a black list of item to not roll.",
+        		autoKoboWhiteListInstructions = "List of item to roll in Kobo. " + "It isn't case sensitive.",
     			autoKoboBlackListInstructions = "List of item to not roll in Kobo. " + "It isn't case sensitive.",
                 autoPotionsInstructions0 = "Enable or disable the auto consumption " + "of energy and stamina potions.",
                 autoPotionsInstructions1 = "Number of stamina potions at which to " + "begin consuming.",
@@ -2846,8 +2849,16 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             htmlCode += caap.startCheckHide('AutoKobo');
             htmlCode += caap.makeNumberFormTR("Keep", 'koboKeepUnder', autoKoboInstructions1, 100, '', '', true, false);
             htmlCode += caap.makeCheckTR('Roll Ale', 'autoKoboAle', false, autoKoboInstructions2,true);
+            htmlCode += caap.makeCheckTR('Use White list', 'autoKoboUseWhiteList', true, autoKoboInstructions3,true);
+            htmlCode += caap.startCheckHide('autoKoboUseWhiteList');
+            htmlCode += caap.makeTD("White list of item to not roll",true);
+            htmlCode += caap.makeTextBox('kobo_whitelist', autoKoboWhiteListInstructions, '', '');
+            htmlCode += caap.endCheckHide('autoKoboUseWhiteList');
+            htmlCode += caap.makeCheckTR('Use Black list', 'autoKoboUseBlackList', false, autoKoboInstructions4,true);
+            htmlCode += caap.startCheckHide('autoKoboUseBlackList');
             htmlCode += caap.makeTD("Black list of item to not roll",true);
             htmlCode += caap.makeTextBox('kobo_blacklist', autoKoboBlackListInstructions, '', '');
+            htmlCode += caap.endCheckHide('autoKoboUseBlackList');
             htmlCode += caap.endCheckHide('AutoKobo');
             htmlCode += caap.endToggle;
             return htmlCode;
