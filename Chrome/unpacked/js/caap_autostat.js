@@ -248,10 +248,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 if (attribute === 'stamina' && caap.stats.points.skill < 2) {
                     if (config.getItem("StatSpendAll", false) && attrAdjust > value) {
                         continue;
-                    } else {
-                        passed = false;
-                        break;
-                    }
+                    } 
                 }
                 /*jslint continue: true */
 
