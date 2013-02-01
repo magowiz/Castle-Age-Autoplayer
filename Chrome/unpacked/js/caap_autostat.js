@@ -245,17 +245,20 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 // current thinking is that continue should not be used as it can cause reader confusion
                 // therefore when linting, it throws a warning
                 /*jslint continue: true */
-                if (attribute === 'stamina' && caap.stats.points.skill < 2) {
-                    if (config.getItem("StatSpendAll", false) && attrAdjust > value) {
-                        continue;
-                    } 
+                if (attrAdjust > value) {
+                    if (attribute === 'stamina' && caap.stats.points.skill < 2) {
+    					if (config.getItem("StatSpendAll", false)) {
+							continue;
+						} else {
+							passed = false;
+							break;
+						}
+					} else {
+						passed = true;
+						break;
+					}
                 }
                 /*jslint continue: true */
-
-                if (attrAdjust > value) {
-                    passed = true;
-                    break;
-                }
             }
 
             state.setItem("statsMatch", passed);
