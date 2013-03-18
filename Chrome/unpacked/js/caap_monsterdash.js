@@ -112,6 +112,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             army.dashboard();
             battle.dashboard();
             conquest.dashboard();
+            guilds.dashboard();
             town.dashboard();
             general.dashboard();
             gifting.queue.dashboard();
@@ -971,6 +972,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         caap.setDisplay("caapTopObject", 'infoTargets1', false);
         caap.setDisplay("caapTopObject", 'infoBattle', false);
         caap.setDisplay("caapTopObject", 'infoConquest', false);
+        caap.setDisplay("caapTopObject", 'infoGuilds', false);
         caap.setDisplay("caapTopObject", 'userStats', false);
         caap.setDisplay("caapTopObject", 'generalsStats', false);
         caap.setDisplay("caapTopObject", 'soldiersStats', false);
@@ -983,6 +985,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         caap.setDisplay("caapTopObject", 'buttonTargets', false);
         caap.setDisplay("caapTopObject", 'buttonBattle', false);
         caap.setDisplay("caapTopObject", 'buttonConquest', false);
+        caap.setDisplay("caapTopObject", 'buttonGuilds', false);
         caap.setDisplay("caapTopObject", 'buttonGifting', false);
         caap.setDisplay("caapTopObject", 'buttonGiftQueue', false);
         caap.setDisplay("caapTopObject", 'buttonArmy', false);
@@ -1000,6 +1003,11 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             case "Conquest Stats":
                 caap.setDisplay("caapTopObject", 'infoConquest', true);
                 caap.setDisplay("caapTopObject", 'buttonConquest', true);
+
+                break;
+            case "Guild Essence":
+                caap.setDisplay("caapTopObject", 'infoGuilds', true);
+                caap.setDisplay("caapTopObject", 'buttonGuilds', true);
 
                 break;
             case "User Stats":
@@ -1141,6 +1149,11 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         caap.updateDashboard(true);
     };
 
+    caap.clearGuildsButtonListener = function () {
+        guilds.clear();
+        caap.updateDashboard(true);
+    };
+
     caap.clearGiftingButtonListener = function () {
         gifting.clear("history");
         caap.updateDashboard(true);
@@ -1188,6 +1201,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             $j('#caap_clearTargets', caap.caapTopObject).on('click', caap.clearTargetsButtonListener);
             $j('#caap_clearBattle', caap.caapTopObject).on('click', caap.clearBattleButtonListener);
             $j('#caap_clearConquest', caap.caapTopObject).on('click', caap.clearConquestButtonListener);
+            $j('#caap_clearGuilds', caap.caapTopObject).on('click', caap.clearGuildsButtonListener);
             $j('#caap_clearGifting', caap.caapTopObject).on('click', caap.clearGiftingButtonListener);
             $j('#caap_clearGiftQueue', caap.caapTopObject).on('click', caap.clearGiftQueueButtonListener);
             $j('#caap_getArmy', caap.caapTopObject).on('click', caap.getArmyButtonListener);

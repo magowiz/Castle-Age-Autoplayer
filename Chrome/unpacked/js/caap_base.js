@@ -278,6 +278,22 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             "loaded": false
         },
 
+        "guilds.records": {
+            "get": function () {
+                return guilds.records;
+            },
+
+            "set": function (value) {
+                guilds.records = value;
+            },
+
+            "save": function (src) {
+                guilds.save(src);
+            },
+
+            "loaded": false
+        },
+
         "battle.reconRecords": {
             "get": function () {
                 return battle.reconRecords;
@@ -2139,6 +2155,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 feed.load();
                 battle.load();
                 conquest.load();
+                guilds.load();
                 caap.loadDemi();
                 battle.loadRecon();
                 town.load('soldiers');
@@ -2451,6 +2468,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         'kobo_mess': "",
         'conquestbless_mess': "",
         'conquestcrystalbless_mess': "",
+        'essenceScan_mess': "",
         'level_mess': "",
         'exp_mess': "",
         'debug1_mess': "",
@@ -2811,14 +2829,16 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 autoKoboInstructions2 = "Enable to perform Ale for roll.",
                 autoKoboInstructions3 = "Enable a white list of item to roll.",
                 autoKoboInstructions4 = "Enable a black list of item to not roll.",
-        		autoKoboWhiteListInstructions = "List of item to roll in Kobo. " + "It isn't case sensitive.",
-    			autoKoboBlackListInstructions = "List of item to not roll in Kobo. " + "It isn't case sensitive.",
+                autoKoboWhiteListInstructions = "List of item to roll in Kobo. " + "It isn't case sensitive.",
+                autoKoboBlackListInstructions = "List of item to not roll in Kobo. " + "It isn't case sensitive.",
                 autoPotionsInstructions0 = "Enable or disable the auto consumption " + "of energy and stamina potions.",
                 autoPotionsInstructions1 = "Number of stamina potions at which to " + "begin consuming.",
                 autoPotionsInstructions2 = "Number of stamina potions to keep.",
                 autoPotionsInstructions3 = "Number of energy potions at which to " + "begin consuming.",
                 autoPotionsInstructions4 = "Number of energy potions to keep.",
                 autoPotionsInstructions5 = "Do not consume potions if the " + "experience points to the next level are within this value.",
+                essenceInstructions = "Scan Trade Market for guilds with " + "room to trade essence.",
+                essenceInstructions1 = "Scan for new guilds " + "every this many minutes.",
                 autoBlessList = ['None', 'Auto Upgrade', 'Energy', 'Attack', 'Defense', 'Health', 'Stamina'],
                 autoBlessListInstructions = [
                     'None disables the auto bless feature.',
@@ -2845,6 +2865,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             htmlCode += caap.startCheckHide('AutoAlchemy');
             htmlCode += caap.makeCheckTR('Do Battle Hearts', 'AutoAlchemyHearts', false, autoAlchemyInstructions2, true);
             htmlCode += caap.endCheckHide('AutoAlchemy');
+            htmlCode += caap.makeCheckTR('Scan for Essence', 'EssenceScanCheck', false, essenceInstructions);
+            htmlCode += caap.startCheckHide('EssenceScanCheck');
+            htmlCode += caap.makeNumberFormTR("Scan Interval", 'essenceScanInterval', essenceInstructions1, 60, '', '', true, false);
+            htmlCode += caap.endCheckHide('EssenceScanCheck');
             htmlCode += caap.makeCheckTR('Auto Kobo', 'AutoKobo', false, autoKoboInstructions0);
             htmlCode += caap.startCheckHide('AutoKobo');
             htmlCode += caap.makeNumberFormTR("Keep", 'koboKeepUnder', autoKoboInstructions1, 100, '', '', true, false);
@@ -3079,6 +3103,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     'Generals Stats',
                     'Gift Queue',
                     'Gifting Stats',
+                    'Guild Essence',
                     'Guild Monster',
                     'Item Stats',
                     'Magic Stats',
@@ -3094,6 +3119,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     'Display the monsters that have been seen in your Live Feed and/or Guild Feed that are still valid.',
                     'Display the Festival battle in progress.', 'Display information about your Generals.',
                     'Display your current Gift Queue', 'Display your Gifting history, how many gifts you have received and returned to a user.',
+                    'Display Essence Storage space for Guilds that have been scouted.',
                     'Guild Monster',
                     'Display information about Items seen in your Black Smith page.',
                     'Display information about Magic seen in your Magic page.',
@@ -3142,6 +3168,13 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             \-------------------------------------------------------------------------------------*/
             layout += "<div id='caap_buttonConquest' style='position:absolute;top:0px;left:250px;display:" + (config.getItem('DBDisplay', 'Monster') === 'Conquest Stats' ? 'block' : 'none') + "'>";
             layout += "<input type='button' id='caap_clearConquest' value='Clear Conquest Stats' style='padding: 0; font-size: 9px; height: 18px' /></div>";
+
+            /*-------------------------------------------------------------------------------------\
+            Next we put in the Clear Guild Essence button which will only show when we have
+            selected the Guild Essence display
+            \-------------------------------------------------------------------------------------*/
+            layout += "<div id='caap_buttonGuilds' style='position:absolute;top:0px;left:250px;display:" + (config.getItem('DBDisplay', 'Monster') === 'Guild Essence' ? 'block' : 'none') + "'>";
+            layout += "<input type='button' id='caap_clearGuilds' value='Clear Guild Essence' style='padding: 0; font-size: 9px; height: 18px' /></div>";
 
             /*-------------------------------------------------------------------------------------\
             Next we put in the Clear Gifting Stats button which will only show when we have
@@ -3210,6 +3243,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             layout += "<div id='caap_festival' style='position:relative;top:15px;width:610px;height:165px;overflow:auto;display:" + (config.getItem('DBDisplay', 'Monster') === 'Festival' ? 'block' : 'none') + "'></div>";
             layout += "<div id='caap_feed' style='position:relative;top:15px;width:610px;height:165px;overflow:auto;display:" + (config.getItem('DBDisplay', 'Monster') === 'Feed' ? 'block' : 'none') + "'></div>";
             layout += "<div id='caap_infoConquest' style='position:relative;top:15px;width:610px;height:165px;overflow:auto;display:" + (config.getItem('DBDisplay', 'Monster') === 'Conquest Stats' ? 'block' : 'none') + "'></div>";
+            layout += "<div id='caap_infoGuilds' style='position:relative;top:15px;width:610px;height:165px;overflow:auto;display:" + (config.getItem('DBDisplay', 'Monster') === 'Guild Essence' ? 'block' : 'none') + "'></div>";
             layout += "</div>";
 
             /*-------------------------------------------------------------------------------------\
@@ -4656,6 +4690,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             signaturePic: 'tab_monster_active.gif',
             CheckResultsFunction: 'checkResults_viewFight'
         },
+        'battle_expansion_monster': {
+            signaturePic: 'tab_monster_active.gif',
+            CheckResultsFunction: 'checkResults_viewFight'
+        },
         'raid': {
             signaturePic: 'tab_raid_on.gif',
             CheckResultsFunction: 'checkResults_fightList',
@@ -4863,6 +4901,14 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         'conquest_duel': {
             signatureId: 'war_conquest_header2.jpg',
             CheckResultsFunction: 'checkResults_conquestBattle'
+        },
+        'trade_market': {
+            signatureId: 'trade_home_top.jpg',
+            CheckResultsFunction: 'checkResults_guildTradeMarket'
+        },
+        'guild_conquest_market': {
+            signatureId: 'trade_guild_top.jpg',
+            CheckResultsFunction: 'checkResults_guildConquestMarket'
         }
     };
 
@@ -4987,6 +5033,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             caap.setDivContent('demibless_mess', schedule.check('BlessingTimer') ? 'Demi Blessing = none' : 'Next Demi Blessing: ' + $u.setContent(caap.displayTime('BlessingTimer'), "Unknown"));
             caap.setDivContent('conquestbless_mess', schedule.check('collectConquestTimer') ? 'Conquest Collect = none' : 'Next Conquest: ' + $u.setContent(caap.displayTime('collectConquestTimer'), "Unknown"));
             caap.setDivContent('conquestcrystalbless_mess', schedule.check('collectConquestCrystalTimer') ? 'Crystal Collect = none' : 'Next Crystal: ' + $u.setContent(caap.displayTime('collectConquestCrystalTimer'), "Unknown"));
+            caap.setDivContent('essenceScan_mess', schedule.check('newEssenceListTimer') ? 'Essence Scan = none' : 'Next Scan: ' + $u.setContent(caap.displayTime('newEssenceListTimer'), "Unknown"));
             caap.setDivContent('feats_mess', schedule.check('festivalBlessTimer') ? 'Feat = none' : 'Next Feat: ' + $u.setContent(caap.displayTime('festivalBlessTimer'), "Unknown"));
             if ($u.hasContent(general.List) && general.List.length <= 2) {
                 schedule.setItem("generals", 0);
@@ -9237,6 +9284,18 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
     caap.checkResults_conquestBattle = function () {
 
         conquest.battle();
+        return true;
+    };
+
+    caap.checkResults_guildTradeMarket = function () {
+
+        guilds.tradeMarket();
+        return true;
+    };
+
+    caap.checkResults_guildConquestMarket = function () {
+
+        guilds.guildMarket();
         return true;
     };
 

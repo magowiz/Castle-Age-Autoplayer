@@ -20,39 +20,40 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 //////////////////////////////////
 
 var caapjQuery = "1.8.3",
-	caapjQueryUI = "1.9.2",
-	caapjQueryDataTables = "1.9.4",
-	caapVersion = "141.0.0",
-	devVersion = "166",
-	hiddenVar = true,
-	caap_timeout = 0,
-	image64 = {},
-	offline = {},
-	profiles = {},
-	session = null,
-	config = null,
-	state = null,
-	css = {},
-	gm = null,
-	ss = null,
-	db = null,
-	sort = {},
-	schedule = null,
-	general = {},
-	monster = {},
-	guild_monster = {},
-	//arena = {},
-	festival = {},
-	feed = {},
-	battle = {},
-	town = {},
-	spreadsheet = {},
-	gifting = {},
-	army = {},
-	caap = {},
-	con = {},
+    caapjQueryUI = "1.9.2",
+    caapjQueryDataTables = "1.9.4",
+    caapVersion = "141.0.0",
+    devVersion = "166",
+    hiddenVar = true,
+    caap_timeout = 0,
+    image64 = {},
+    offline = {},
+    profiles = {},
+    session = null,
+    config = null,
+    state = null,
+    css = {},
+    gm = null,
+    ss = null,
+    db = null,
+    sort = {},
+    schedule = null,
+    general = {},
+    monster = {},
+    guild_monster = {},
+    //arena = {},
+    festival = {},
+    feed = {},
+    battle = {},
+    town = {},
+    spreadsheet = {},
+    gifting = {},
+    army = {},
+    caap = {},
+    con = {},
     conquest = {},
-	retryDelay = 1000;
+    guilds = {},
+    retryDelay = 1000;
 
 String.prototype.stripCaap = function() {
     return this.replace(/caap_/i, '');
@@ -63,21 +64,21 @@ String.prototype.numberOnly = function() {
 };
 
 String.prototype.parseTimer = function() {
-	var a = [],
-		b = 0,
-		i = 0,
-		l = 0;
+    var a = [],
+        b = 0,
+        i = 0,
+        l = 0;
 
-	a = this.split(':');
-	for( i = 0, l = a.length; i < l; i += 1) {
-		b = b * 60 + parseInt(a[i], 10);
-	}
+    a = this.split(':');
+    for( i = 0, l = a.length; i < l; i += 1) {
+        b = b * 60 + parseInt(a[i], 10);
+    }
 
-	if(isNaN(b)) {
-		b = -1;
-	}
+    if(isNaN(b)) {
+        b = -1;
+    }
 
-	a = null;
+    a = null;
 
-	return b;
+    return b;
 };

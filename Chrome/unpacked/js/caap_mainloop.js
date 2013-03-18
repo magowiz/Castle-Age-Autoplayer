@@ -66,7 +66,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         'checkCharacterClasses': 'Character Classes',
         'festivalBless': 'Festival Feats',
         'collectConquest': 'Collect Conquest Resources',
-        'collectConquestCrystal': 'Collect Conquest Crystals'
+        'collectConquestCrystal': 'Collect Conquest Crystals',
+        'scoutGuildEssence': 'Scout Guild Essence'
     };
 
     caap.checkLastAction = function (thisAction) {
@@ -139,7 +140,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         0x30: 'collectConquestCrystal',
         0x31: 'autoArchives',
         0x32: 'autoKobo',
-        0x33: 'idle'
+        0x33: 'scoutGuildEssence',
+        0x34: 'idle'
     };
 
     caap.actionsList = [];
@@ -172,7 +174,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     // We count the number of actions contained in the
                     // Master Action list
 
-					/*jslint forin: true */
+                    /*jslint forin: true */
                     for (action in caap.masterActionList) {
                         if (caap.masterActionList.hasOwnProperty(action)) {
                             masterActionListCount += 1;
@@ -182,13 +184,13 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                             con.warn("Skipping 'action' from masterActionList: ", action);
                         }
                     }
-					/*jslint forin: false */
+                    /*jslint forin: false */
                 } else {
                     // We are building the Action Order Array from the
                     // Master Action List
                     con.log(2, "Building the default Action Order");
 
-					/*jslint forin: true */
+                    /*jslint forin: true */
                     for (action in caap.masterActionList) {
                         if (caap.masterActionList.hasOwnProperty(action)) {
                             masterActionListCount = actionOrderArray.push(action);
@@ -198,7 +200,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                             con.warn("Skipping 'action' from masterActionList: ", action);
                         }
                     }
-					/*jslint forin: false */
+                    /*jslint forin: false */
                 }
 
                 // We notify if the number of actions are not sensible or the
@@ -314,16 +316,17 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     window.caap = null;
                     window.con = null;
                     window.conquest = null;
+                    window.guilds = null;
                     $u.reload();
                 }, 180000);
             }, 60000 + (Math.floor(Math.random() * 60) * 1000));
 
             caap.errorCheckWait = true;
-			button = null;
+            button = null;
             return true;
         }
 
-		button = null;
+        button = null;
         return false;
     };
 
@@ -395,14 +398,14 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             mainSts = null;
-			gtv = null;
-			ecv = null;
+            gtv = null;
+            ecv = null;
             etv = null;
-			scv = null;
+            scv = null;
             stv = null;
-			hcv = null;
+            hcv = null;
             htv = null;
-			arr = null;
+            arr = null;
             return true;
         } catch (err) {
             con.error("ERROR in stsPoll: " + err);
@@ -421,12 +424,12 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
             // assorted errors...
             if (caap.errorCheck()) {
-				button = null;
+                button = null;
                 return true;
             }
 
             if (caap.domain.which === 1) {
-				button = null;
+                button = null;
                 gifting.collect();
                 caap.waitMainLoop();
                 return true;
@@ -449,7 +452,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 caap.click(button);
             }
 
-			button = null;
+            button = null;
 
             if (!$u.mutationTypes.DOMSubtreeModified) {
                 caap.stsPoll();
@@ -487,7 +490,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             if (caap.getDomWaiting()) {
                 if (schedule.since("clickedOnSomething", 45)) {
                     con.log(1, 'Clicked on something, but nothing new loaded.  Reloading page.', session, schedule);
-					caap.reloadCastleAge();
+                    caap.reloadCastleAge();
                     return true;
                 }
 
@@ -678,6 +681,19 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             'delete': function () {
                 conquest.records = [];
                 gm.deleteItem("conquest.records");
+            }
+        },
+        'Guilds': {
+            'export': function () {
+                return guilds.records;
+            },
+            'import': function (d) {
+                guilds.records = d;
+                guilds.save();
+            },
+            'delete': function () {
+                guilds.records = [];
+                gm.deleteItem("guilds.records");
             }
         },
         'Guild Monster': {
@@ -880,7 +896,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
     caap.exportList = function () {
         try {
             var it,
-			list = [];
+            list = [];
 
             for (it in caap.exportTable) {
                 if (caap.exportTable.hasOwnProperty(it)) {
@@ -1095,7 +1111,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             var h = '',
                 w = $j("#caap_import"),
                 l = {},
-				v = '',
+                v = '',
                 resp = false;
 
             if (!$u.hasContent(w)) {

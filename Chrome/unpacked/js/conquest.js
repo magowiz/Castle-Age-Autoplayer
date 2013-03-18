@@ -126,7 +126,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             conquest.hbest = conquest.hbest === false ? JSON.hbest(conquest.records) : conquest.hbest;
-            con.log(1, "conquest.load Hbest", conquest.hbest);
+            con.log(2, "conquest.load Hbest", conquest.hbest);
             session.setItem("ConquestDashUpdate", true);
             con.log(1, "conquest.load", conquest.records);
             return true;
@@ -144,7 +144,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 caap.messaging.setItem('conquest.records', conquest.records);
             } else {
                 gm.setItem('conquest.records', conquest.records, conquest.hbest, compress);
-                con.log(1, "conquest.save", conquest.records);
+                con.log(2, "conquest.save", conquest.records);
                 if (caap.domain.which === 0 && caap.messaging.connected.hasIndexOf("caapif") && src !== "caapif") {
                     caap.messaging.setItem('conquest.records', conquest.records);
                 }
@@ -193,7 +193,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             if (success) {
-                con.log(1, "Got conquest record", userId, conquest.records[it]);
+                con.log(2, "Got conquest record", userId, conquest.records[it]);
                 conquest.records[it].newRecord = false;
                 return conquest.records[it];
             }
@@ -1206,20 +1206,27 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             var button = caap.checkForImage("conq3_btn_collectpower_small.gif"),
                 button2 = caap.checkForImage("conq3_btn_collect.gif"),
                 buttonCrystal = caap.checkForImage("conq3_btn_pray.gif"),
+                landCapsules = $j("[style*='conq2_capsule']"),
                 timeLeft;
+                    // this is not complete, it doesn't handle lands in progress (once they're explored they still need to be conquered)
+            if (landCapsules.length == $j("[src*='conq2_btn_explore']", landCapsules).length) {
+                con.log (1, "There are no lands to collect from");
+            } else {
+                if (config.getItem('doConquestCollect', false)) {
+                    if ($u.hasContent(button)) {
+                        caap.click(button);
+                    }
 
-            if ($u.hasContent(button)) {
-                caap.click(button);
-            }
+                    if ($u.hasContent(button2)) {
+                        con.log(1, "button exists");
+                        caap.click(button2);
+                    }
+                }
 
-            if ($u.hasContent(button2)) {
-                con.log(1, "button exists");
-                caap.click(button2);
-            }
-
-            con.log(1, "done with buttons", button, button2, buttonCrystal);
-            if ($u.hasContent(buttonCrystal)) {
-                caap.click(buttonCrystal);
+                if (schedule.check('collectConquestTimer') && $u.hasContent(buttonCrystal)) {
+                    caap.click(buttonCrystal);
+                }
+                con.log(1, "done with buttons", button, button2, buttonCrystal);
             }
 
             timeLeft = $j("div[style*='conq3_mid_notop']")[0].children[0].children[0].children[2].children[0].innerHTML.match(/(\d+)/)[0];
@@ -1514,5 +1521,451 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             return false;
         }
     };
+}());
 
+(function() {
+   "use strict";
+
+    guilds.records = [];
+
+    guilds.targets = [];
+
+    guilds.record = function() {
+        this.data = {
+            'name': '',
+            'guildId': '',
+            'level': 0,
+            'lastCheck': 0,
+            'Attack': 0,
+            'Defense': 0,
+            'Damage': 0,
+            'Health': 0,
+            'AttackMax': 0,
+            'DefenseMax': 0,
+            'DamageMax': 0,
+            'HealthMax': 0,
+            'newRecord': true
+        };
+    };
+
+    guilds.hbest = 2;
+
+    guilds.load = function() {
+        try {
+            guilds.records = gm.getItem('guilds.records', 'default');
+            if (guilds.records === 'default' || !$j.isArray(guilds.records)) {
+                guilds.records = gm.setItem('guilds.records', []);
+            }
+
+            guilds.hbest = guilds.hbest === false ? JSON.hbest(guilds.records) : guilds.hbest;
+            con.log(2, "guilds.load Hbest", guilds.hbest);
+            session.setItem("GuildsDashUpdate", true);
+            con.log(2, "guilds.load", guilds.records);
+            return true;
+        } catch (err) {
+            con.error("ERROR in guilds.load: " + err);
+            return false;
+        }
+    };
+
+    guilds.save = function(src) {
+        try {
+            var compress = false;
+            if (caap.domain.which === 3) {
+                caap.messaging.setItem('guilds.records', guilds.records);
+            } else {
+                gm.setItem('guilds.records', guilds.records, guilds.hbest, compress);
+                con.log(2, "guilds.save", guilds.records);
+                if (caap.domain.which === 0 && caap.messaging.connected.hasIndexOf("caapif") && src !== "caapif") {
+                    caap.messaging.setItem('guilds.records', guilds.records);
+                }
+            }
+
+            if (caap.domain.which !== 0) {
+                session.setItem("GuildsDashUpdate", true);
+            }
+
+            return true;
+        } catch (err) {
+            con.error("ERROR in guilds.save: " + err);
+            return false;
+        }
+    };
+
+    guilds.clear = function() {
+        try {
+            guilds.records = [];
+            guilds.save();
+            session.setItem("GuildsDashUpdate", true);
+            return true;
+        } catch (err) {
+            con.error("ERROR in guilds.clear: " + err);
+            return false;
+        }
+    };
+
+    guilds.getItem = function(guildId) {
+        try {
+            var it = 0,
+                len = 0,
+                success = false,
+                newRecord = null;
+
+            if (guildId === '') {
+                con.warn("guildId", guildId);
+                throw "Invalid identifying guildId!";
+            }
+
+            for (it = 0, len = guilds.records.length; it < len; it += 1) {
+                if (guilds.records[it].guildId === guildId) {
+                    success = true;
+                    break;
+                }
+            }
+
+            if (success) {
+                con.log(2, "Got guilds record", guildId, guilds.records[it]);
+                guilds.records[it].newRecord = false;
+                return guilds.records[it];
+            }
+
+            newRecord = new guilds.record();
+            newRecord.data.guildId = guildId;
+            con.log(2, "New guilds record", guildId, newRecord.data);
+            return newRecord.data;
+        } catch (err) {
+            con.error("ERROR in guilds.getItem: " + err);
+            return false;
+        }
+    };
+
+    guilds.setItem = function(record) {
+        try {
+/*
+            if (!record || !$j.isPlainObject(record)) {
+                throw "Not passed a record";
+            }
+*/
+
+            if (record.guildId === '') {
+                con.warn("guildId", record.guildId);
+                throw "Invalid identifying guildId!";
+            }
+
+            var it = 0,
+                len = 0,
+                success = false;
+
+             for (it = 0, len = guilds.records.length; it < len; it += 1) {
+                if (guilds.records[it].guildId === record.guildId) {
+                    success = true;
+                    break;
+                }
+            }
+
+            record.newRecord = false;
+            if (success) {
+                if (record.Attack != -1) {
+                    guilds.records[it] = record;
+                    con.log(2, "Updated guilds record", record, guilds.records);
+                }
+            } else {
+                guilds.records.push(record);
+                con.log(2, "Added guilds record", record, guilds.records);
+            }
+
+            guilds.save();
+            return true;
+        } catch (err) {
+            con.error("ERROR in guilds.setItem: " + err, record);
+            return false;
+        }
+    };
+
+    guilds.deleteItem = function(guildId) {
+        try {
+            var it = 0,
+                len = 0,
+                success = false;
+
+            if (guildId === '') {
+                con.warn("guildId", guildId);
+                throw "Invalid identifying guildId!";
+            }
+
+            for (it = 0, len = guilds.records.length; it < len; it += 1) {
+                if (guilds.records[it].guildId === guildId) {
+                    success = true;
+                    break;
+                }
+            }
+
+            if (success) {
+                guilds.records.splice(it, 1);
+                guilds.save();
+                con.log(2, "Deleted guilds record", guildId, guilds.records);
+                return true;
+            }
+
+            con.warn("Unable to delete guilds record", guildId, guilds.records);
+            return false;
+        } catch (err) {
+            con.error("ERROR in guilds.deleteItem: " + err);
+            return false;
+        }
+    };
+
+    guilds.tradeMarket = function() {
+
+        var guildCapsules = $j("[style*='trade_capsule']");
+        guildCapsules.each(function() {
+            var currentCapsule = $j(this),
+                guildRecord = new guilds.record();
+            guildRecord.name = currentCapsule.children().eq(0).eq(0).eq(0).eq(0).text().trim();
+            guildRecord.level = currentCapsule.children().eq(1).children(2).children(0).children(0).eq(0).text().match(/(\d+)/)[1];
+            guildRecord.lastCheck = Date.now();
+            guildRecord.guildId = $j("[name='guild_id']", currentCapsule)[0].value;
+            guildRecord.Attack = -1;
+            guildRecord.Defense = -1;
+            guildRecord.Damage = -1;
+            guildRecord.Health = -1;
+            guildRecord.AttackMax = 0;
+            guildRecord.DefenseMax = 0;
+            guildRecord.DamageMax = 0;
+            guildRecord.HealthMax = 0;
+            guilds.setItem(guildRecord);
+        });
+    };
+
+    guilds.guildMarket = function() {
+        var storageDivs = $j("[id^='storage_']"),
+            guildRecord = new guilds.record();
+
+        guildRecord.name = $j("[id^='guild_name_header']").children().eq(0).text();
+        guildRecord.guildId = $j("[id^='guild_name_header']").children().eq(0).attr('href').split('=')[1];
+
+        storageDivs.each(function() {
+            var essenceText = $j(this).children().eq(0).text().split(/\W+/);
+            guildRecord[essenceText[1]] = essenceText[5];
+            guildRecord[essenceText[1] + 'Max'] = essenceText[6];
+        });
+        guilds.setItem(guildRecord);
+    };
+
+    guilds.nextToCheck = function() {
+        try {
+            var it = 0,
+                len = 0,
+                success = false;
+            for (it = 0, len = guilds.records.length; it < len; it += 1) {
+                if (guilds.records[it].Attack == -1) {
+                    success = true;
+                    break;
+                }
+            }
+
+            if (success) {
+                con.log(2, "Got guilds record", guilds.records[it]);
+                return guilds.records[it].guildId;
+            }
+
+            con.log(2, "No Unchecked guilds");
+            return 0;
+        } catch (err) {
+            con.error("ERROR in guilds.nextToCheck: " + err);
+            return false;
+        }
+    };
+
+    guilds.dashboard = function() {
+        function points(num) {
+            num = $u.setContent(num, 0);
+            return num >= 0 ? "+" + num : num;
+        }
+
+        try {
+            /*-------------------------------------------------------------------------------------\
+            Next we build the HTML to be included into the 'caap_infoGuilds' div. We set our
+            table and then build the header row.
+            \-------------------------------------------------------------------------------------*/
+            if (config.getItem('DBDisplay', '') === 'Guild Essence' && session.getItem("GuildsDashUpdate", true)) {
+                var headers = ['Name', 'Attack', 'Defense', 'Damage', 'Health'],
+                    values = ['name', 'attackStr', 'defenseStr', 'damageStr', 'healthStr'],
+                    pp = 0,
+                    i = 0,
+                    userIdLink = '',
+                    userIdLinkInstructions = '',
+                    len = 0,
+                    len1 = 0,
+                    data = {
+                        text: '',
+                        color: '',
+                        bgcolor: '',
+                        id: '',
+                        title: ''
+                    },
+                    head = '',
+                    body = '',
+                    row = '';
+
+                for (pp = 0; pp < headers.length; pp += 1) {
+                    switch (headers[pp]) {
+                    case 'Name':
+                        head += caap.makeTh({
+                            text: headers[pp],
+                            color: '',
+                            id: '',
+                            title: '',
+                            width: '30%'
+                        });
+                        break;
+                    case 'Attack':
+                    case 'Defense':
+                    case 'Damage':
+                    case 'Health':
+                        head += caap.makeTh({
+                            text: headers[pp],
+                            color: '',
+                            id: '',
+                            title: '',
+                            width: '10%'
+                        });
+                        break;
+                    default:
+                        head += caap.makeTh({
+                            text: headers[pp],
+                            color: '',
+                            id: '',
+                            title: '',
+                            width: '7%'
+                        });
+                    }
+                }
+
+                head = caap.makeTr(head);
+                for (i = 0, len = guilds.records.length; i < len; i += 1) {
+                    row = "";
+                    for (pp = 0, len1 = values.length; pp < len1; pp += 1) {
+                        switch (values[pp]) {
+                        case 'name':
+                            userIdLinkInstructions = "Clicking this link will take you to the guild keep of " + guilds.records[i][values[pp]];
+                            userIdLink = "guildv2_home.php?guild_id=" + guilds.records[i].guildId;
+                            data = {
+                                text: '<span id="caap_Guilds_' + i + '" title="' + userIdLinkInstructions + '" rlink="' + userIdLink +
+                                    '" onmouseover="this.style.cursor=\'pointer\';" onmouseout="this.style.cursor=\'default\';">' + guilds.records[i][values[pp]] + '</span>',
+                                color: 'blue',
+                                id: '',
+                                title: ''
+                            };
+
+                            row += caap.makeTd(data);
+                            break;
+                        case 'attackStr':
+                            row += caap.makeTd({
+                                text: (guilds.records[i].Attack != -1 ? guilds.records[i].Attack + "/" + guilds.records[i].AttackMax : 'Unchecked'),
+                                color: ((guilds.records[i].Attack < guilds.records[i].AttackMax) && (guilds.records[i].Attack >= 0) ? 'green' : 'black'),
+                                id: '',
+                                title: ''
+                            });
+                            break;
+                        case 'defenseStr':
+                            row += caap.makeTd({
+                                text: (guilds.records[i].Defense != -1 ? guilds.records[i].Defense + "/" + guilds.records[i].DefenseMax : 'Unchecked'),
+                                color: ((guilds.records[i].Defense < guilds.records[i].DefenseMax) && (guilds.records[i].Defense >= 0) ? 'green' : 'black'),
+                                id: '',
+                                title: ''
+                            });
+                            break;
+                        case 'damageStr':
+                            row += caap.makeTd({
+                                text: (guilds.records[i].Damage != -1 ? guilds.records[i].Damage + "/" + guilds.records[i].DamageMax : 'Unchecked'),
+                                color: ((guilds.records[i].Damage < guilds.records[i].DamageMax) && (guilds.records[i].Damage >= 0) ? 'green' : 'black'),
+                                id: '',
+                                title: ''
+                            });
+                            break;
+                        case 'healthStr':
+                            row += caap.makeTd({
+                                text: (guilds.records[i].Health != -1 ? guilds.records[i].Health + "/" + guilds.records[i].HealthMax : 'Unchecked'),
+                                color: ((guilds.records[i].Health < guilds.records[i].HealthMax) && (guilds.records[i].Health >= 0) ? 'green' : 'black'),
+                                id: '',
+                                title: ''
+                            });
+                            break;
+                        default:
+                            row += caap.makeTd({
+                                text: guilds.records[i][values[pp]],
+                                color: '',
+                                id: '',
+                                title: ''
+                            });
+                        }
+                    }
+
+                    body += caap.makeTr(row);
+                }
+
+                $j("#caap_infoGuilds", caap.caapTopObject).html(
+                $j(caap.makeTable("Guilds", head, body)).dataTable({
+                    "bAutoWidth": false,
+                    "bFilter": false,
+                    "bJQueryUI": false,
+                    "bInfo": false,
+                    "bLengthChange": false,
+                    "bPaginate": false,
+                    "bProcessing": false,
+                    "bStateSave": true,
+                    "bSortClasses": false
+                }));
+
+                $j("span[id*='caap_Guilds_']", caap.caapTopObject).click(function(e) {
+                    var visitUserIdLink = {
+                        rlink: '',
+                        arlink: ''
+                    },
+                    i = 0,
+                        len = 0;
+
+                    for (i = 0, len = e.target.attributes.length; i < len; i += 1) {
+                        if (e.target.attributes[i].nodeName === 'rlink') {
+                            visitUserIdLink.rlink = e.target.attributes[i].nodeValue;
+                            visitUserIdLink.arlink = visitUserIdLink.rlink;
+                        }
+                    }
+
+                    caap.clickAjaxLinkSend(visitUserIdLink.arlink);
+                });
+
+                session.setItem("GuildsDashUpdate", false);
+            }
+
+            return true;
+        } catch (err) {
+            con.error("ERROR in guilds.dashboard: " + err);
+            return false;
+        }
+    };
+
+    caap.scoutGuildEssence = function() {
+        try {
+            if (config.getItem('EssenceScanCheck', false)) {
+                var guildId, link;
+                if ((guildId = guilds.nextToCheck()) != 0) {
+                    link = "guild_conquest_market.php?guild_id=" + guildId;
+                    caap.clickAjaxLinkSend(link, 1000);
+                } else {
+                    if (schedule.check("newEssenceListTimer")) {
+                        schedule.setItem("newEssenceListTimer", config.getItem('essenceScanInterval', 60) * 60, 0);
+                        caap.navigateTo('trade_market');
+                    }
+                    else con.log(2, "waiting for list to reset");
+                }
+            }
+
+            return false;
+        } catch (err) {
+            con.error("ERROR in caap.schoutGuilEssence: " + err);
+            return false;
+        }
+    }
 }());
