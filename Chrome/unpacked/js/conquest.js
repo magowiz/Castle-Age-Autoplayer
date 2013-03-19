@@ -1862,7 +1862,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                             break;
                         case 'attackStr':
                             row += caap.makeTd({
-                                text: (guilds.records[i].Attack != -1 ? guilds.records[i].Attack + "/" + guilds.records[i].AttackMax : 'Unchecked'),
+                                text: (config.getItem('essenceRoomOnly', true) ? (guilds.records[i].Attack != -1 ? guilds.records[i].AttackMax - guilds.records[i].Attack : 'Unchecked') :
+                                        (guilds.records[i].Attack != -1 ? guilds.records[i].Attack + "/" + guilds.records[i].AttackMax : 'Unchecked')),
                                 color: ((guilds.records[i].Attack < guilds.records[i].AttackMax) && (guilds.records[i].Attack >= 0) ? 'green' : 'black'),
                                 id: '',
                                 title: ''
@@ -1870,7 +1871,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                             break;
                         case 'defenseStr':
                             row += caap.makeTd({
-                                text: (guilds.records[i].Defense != -1 ? guilds.records[i].Defense + "/" + guilds.records[i].DefenseMax : 'Unchecked'),
+                                text: (config.getItem('essenceRoomOnly', true) ? (guilds.records[i].Defense != -1 ? guilds.records[i].DefenseMax - guilds.records[i].Defense : 'Unchecked') :
+                                        (guilds.records[i].Defense != -1 ? guilds.records[i].Defense + "/" + guilds.records[i].DefenseMax : 'Unchecked')),
                                 color: ((guilds.records[i].Defense < guilds.records[i].DefenseMax) && (guilds.records[i].Defense >= 0) ? 'green' : 'black'),
                                 id: '',
                                 title: ''
@@ -1878,7 +1880,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                             break;
                         case 'damageStr':
                             row += caap.makeTd({
-                                text: (guilds.records[i].Damage != -1 ? guilds.records[i].Damage + "/" + guilds.records[i].DamageMax : 'Unchecked'),
+                                text: (config.getItem('essenceRoomOnly', true) ? (guilds.records[i].Damage != -1 ? guilds.records[i].DamageMax - guilds.records[i].Damage : 'Unchecked') :
+                                        (guilds.records[i].Damage != -1 ? guilds.records[i].Damage + "/" + guilds.records[i].DamageMax : 'Unchecked')),
                                 color: ((guilds.records[i].Damage < guilds.records[i].DamageMax) && (guilds.records[i].Damage >= 0) ? 'green' : 'black'),
                                 id: '',
                                 title: ''
@@ -1886,7 +1889,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                             break;
                         case 'healthStr':
                             row += caap.makeTd({
-                                text: (guilds.records[i].Health != -1 ? guilds.records[i].Health + "/" + guilds.records[i].HealthMax : 'Unchecked'),
+                                text: (config.getItem('essenceRoomOnly', true) ? (guilds.records[i].Health != -1 ? guilds.records[i].HealthMax - guilds.records[i].Health : 'Unchecked') :
+                                        (guilds.records[i].Health != -1 ? guilds.records[i].Health + "/" + guilds.records[i].HealthMax : 'Unchecked')),
                                 color: ((guilds.records[i].Health < guilds.records[i].HealthMax) && (guilds.records[i].Health >= 0) ? 'green' : 'black'),
                                 id: '',
                                 title: ''

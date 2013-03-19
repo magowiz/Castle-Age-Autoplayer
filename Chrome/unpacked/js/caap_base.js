@@ -2839,6 +2839,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 autoPotionsInstructions5 = "Do not consume potions if the " + "experience points to the next level are within this value.",
                 essenceInstructions = "Scan Trade Market for guilds with " + "room to trade essence.",
                 essenceInstructions1 = "Scan for new guilds " + "every this many minutes.",
+                essenceInstructions2 = "Check to show only space available " + "instead of Stored/Max.",
                 autoBlessList = ['None', 'Auto Upgrade', 'Energy', 'Attack', 'Defense', 'Health', 'Stamina'],
                 autoBlessListInstructions = [
                     'None disables the auto bless feature.',
@@ -2868,6 +2869,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             htmlCode += caap.makeCheckTR('Scan for Essence', 'EssenceScanCheck', false, essenceInstructions);
             htmlCode += caap.startCheckHide('EssenceScanCheck');
             htmlCode += caap.makeNumberFormTR("Scan Interval", 'essenceScanInterval', essenceInstructions1, 60, '', '', true, false);
+            htmlCode += caap.makeCheckTR('Show as Available Only', 'essenceRoomOnly', true, essenceInstructions2);
             htmlCode += caap.endCheckHide('EssenceScanCheck');
             htmlCode += caap.makeCheckTR('Auto Kobo', 'AutoKobo', false, autoKoboInstructions0);
             htmlCode += caap.startCheckHide('AutoKobo');
