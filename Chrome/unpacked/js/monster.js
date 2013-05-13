@@ -1956,7 +1956,6 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                 }
 
                 monsterInfo = monster.getInfo(monster.records[it]);
-
                 if (monsterInfo && monsterInfo.alpha) {
                     if (monster.records[it].damage !== -1 && monster.records[it].color !== 'grey' && schedule.since(monster.records[it].stunTime, 0)) {
                         con.log(2, "Review monster due to class timer", monster.records[it].name);
@@ -1964,16 +1963,14 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                         monster.flagReview();
                     }
                 }
-
                 monster.records[it].conditions = 'none';
                 if (config.getItem('SerializeRaidsAndMonsters', false)) {
                     monsterList.any.push(monster.records[it].md5);
-                } else if ((monster.records[it].page === 'raid') || (monster.records[it].page.replace('festival_battle_monster', 'battle_monster') === 'battle_monster')) {
-                    monsterList[monster.records[it].page.replace('festival_battle_monster', 'battle_monster')].push(monster.records[it].md5);
+                } else if ((monster.records[it].page === 'raid') || (monster.records[it].page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster') === 'battle_monster')) {
+                    monsterList[monster.records[it].page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster')].push(monster.records[it].md5);
                 }
             }
             /*jslint continue: false */
-
             monster.save();
 
             //PLEASE NOTE BEFORE CHANGING
@@ -2026,7 +2023,6 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                     if (!attackOrderList[p].trim()) {
                         continue;
                     }
-
                     monsterConditions = attackOrderList[p].replace(new RegExp("^[^:]+"), '').toString().trim();
                     // Now we try to match the users name agains our list of monsters
                     for (m = 0, len3 = monsterList[selectTypes[s]].length; m < len3; m += 1) {
@@ -2039,12 +2035,11 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                         if (monsterObj.conditions !== 'none') {
                             continue;
                         }
-
                         // If this monster does not match, skip to next one
                         // Or if this monster is dead, skip to next one
                         // Or if this monster is not the correct type, skip to next one
                         if (!monster.getItem(monsterList[selectTypes[s]][m]).name.toLowerCase().hasIndexOf(attackOrderList[p].match(new RegExp("^[^:]+")).toString().trim().toLowerCase()) ||
-                            (selectTypes[s] !== 'any' && monsterObj.page.replace('festival_battle_monster', 'battle_monster') !== selectTypes[s])) {
+                            (selectTypes[s] !== 'any' && monsterObj.page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster') !== selectTypes[s])) {
                             continue;
                         }
 
@@ -2176,9 +2171,9 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                 if (monsterMD5) {
                     monsterObj = monster.getItem(monsterMD5);
                     monsterInfo = monster.getInfo(monsterObj);
-                    target[monsterObj.page.replace('festival_battle_monster', 'battle_monster')] = monsterMD5;
+                    target[monsterObj.page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster')] = monsterMD5;
                     //state.setItem('targetFrom' + monsterObj.page.replace('festival_battle_monster', 'battle_monster'), monsterMD5);
-                    if (monsterObj.page.replace('festival_battle_monster', 'battle_monster') === 'battle_monster') {
+                    if (monsterObj.page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster') === 'battle_monster') {
                         nodeNum = 0;
                         if (!caap.inLevelUpMode() && monsterInfo && monsterInfo.staLvl) {
                             for (nodeNum = monsterInfo.staLvl.length - 1; nodeNum >= 0; nodeNum -= 1) {
@@ -2323,10 +2318,15 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                 id = $u.setContent(id, $u.setContent($j("img[src*='profile.ak.fbcdn.net']", monsterDiv).attr("uid"), '').regex(/(\d+)/));
                 id = $u.setContent(id, $u.setContent($j(".fb_link[href*='profile.php']", monsterDiv).attr("href"), '').regex(/id=(\d+)/));
                 id = $u.setContent(id, $u.setContent($j("img[src*='graph.facebook.com']", monsterDiv).attr("src"), '').regex(/\/(\d+)\//));
+                if ($j("input[name*='guild_creator_id']").length > 0) {
+                    id = $u.setContent(id, $j("input[name*='guild_creator_id']")[0].value + '_' + $j("input[name='slot']")[0].value + '_' + $j("input[name*='monster_slot']")[0].value);
+                }
                 id = $u.setContent(id, $u.setContent($j("#app_body #chat_log button[onclick*='ajaxSectionUpdate']").attr("onclick"), '').regex(/user=(\d+)/));
                 id = $u.setContent(id, $u.setContent($j("#app_body #monsterChatLogs img[src*='ldr_btn_chatoff.jpg']").attr("onclick"), '').regex(/user=(\d+)/));
                 id = $u.setContent(id, 0);
-    			id = eval(id);
+
+//                this doesn't work with the guild id scheme
+//                id = eval(id);
                 if (id === 0 || !$u.hasContent(id)) {
                     con.warn("2:Unable to get id!");
                     monsterDiv = null;
@@ -2443,6 +2443,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             htmlCode += caap.makeCheckTR("Siege Weapon Assist Monsters", 'monsterDoSiege', true, dosiegeInstructions);
             htmlCode += caap.makeCheckTR("Collect Monster Rewards", 'monsterCollectReward', false, collectRewardInstructions);
             htmlCode += caap.makeCheckTR("Clear Complete Monsters", 'clearCompleteMonsters', false, '');
+            htmlCode += caap.makeCheckTR("Battle Conquest Monsters", 'conquestMonsters', false, '');
             htmlCode += caap.makeCheckTR("Achievement Mode", 'AchievementMode', true, monsterachieveInstructions);
             htmlCode += caap.makeCheckTR("Get Demi Points First", 'DemiPointsFirst', false, demiPointsFirstInstructions);
             htmlCode += caap.startCheckHide('DemiPointsFirst');

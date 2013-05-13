@@ -4675,6 +4675,11 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             CheckResultsFunction: 'checkResults_fightList',
             subpages: ['onMonster']
         },
+        'guildv2_monster_list': {
+            signaturePic: 'tab_monster_list_on.gif',
+            CheckResultsFunction: 'checkResults_fightList',
+            subpages: ['onMonster']
+        },
         'player_monster_list': {
             signaturePic: 'monster_button_yourmonster_on.jpg',
             CheckResultsFunction: 'checkResults_fightList',
@@ -9259,6 +9264,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             con.log(1, "conquest.collect", caap.stats.resources.lumber, caap.stats.resources.iron, caap.stats.guild.level, caap.stats.rank.conquestLevel);
             conquest.getCommonInfos(infoDiv);
         }
+        conquest.getLands();
 
         if ((!config.getItem('doConquestCollect', false) || !schedule.check('collectConquestTimer')) && (!config.getItem('doConquestCrystalCollect', false) || !schedule.check('collectConquestCrystalTimer'))) {
             infoDiv = null;

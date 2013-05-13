@@ -59,7 +59,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 return false;
             }
 
-            var buttonsDiv = $j("#app_body img[src*='dragon_list_btn_'],input[src*='monster_button_'],img[src*='festival_monster_'],img[src*='festival_monster2_']"),
+            var buttonsDiv = $j("#app_body img[src*='dragon_list_btn_'],input[src*='monster_button_'],img[src*='festival_monster_'],img[src*='festival_monster2_'],img[src*='conq2_monster_']"),
                 page = '',
                 monsterReviewed = {},
                 it = 0,
@@ -68,7 +68,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 siege = '',
                 engageButtonName = '',
                 monsterName = '',
-                monsterRow = $j("#app_body div[style*='monsterlist_container.gif']"),
+                monsterRow = $j("#app_body div[style*='monsterlist_container.gif'], div[style*='conq2_monster_list.jpg']"),
                 monsterFull = '',
                 monsterInfo = {},
                 summonDiv = $j("#app_body img[src*='mp_button_summon_']" + (config.getItem("festivalTower", false) ? ",img[src*='festival_monster_summonbtn.gif']" : "")),
@@ -94,6 +94,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             page = session.getItem('page', 'battle_monster');
+
             if (page === 'player_monster_list') {
                 // Review monsters and find attack and fortify button
                 for (it = 0, len = monsterRow.length; it < len; it += 1) {
@@ -164,6 +165,97 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     monsterInfo = monster.getInfo(monsterReviewed);
                     siege = monsterInfo && monsterInfo.siege ? "&action=doObjective" : '';
                     monsterReviewed.feedLink = "battle_monster.php?casuser=" + monsterReviewed.userId + "&mpool=" + monsterReviewed.mpool;
+                    monsterReviewed.link = "<a href='" + caap.domain.altered + "/" + monsterReviewed.feedLink + siege + "'>Link</a>";
+                    monsterReviewed.joined = true;
+                    monster.setItem(monsterReviewed);
+                }
+             } else if (page === 'guildv2_monster_list') {
+                if (!$u.hasContent(buttonsDiv)) {
+                    con.log(2, "No monsters to review");
+                    //feed.checked("Not Found");
+                    state.setItem('reviewDone', true);
+                    buttonsDiv = null;
+                    monsterRow = null;
+                    summonDiv = null;
+                    newInputsDiv = null;
+                    return true;
+                }
+
+                tempText = buttonsDiv.eq(0).parent().attr("href");
+                pageUserCheck = session.getItem('pageUserCheck', 0);
+                if (pageUserCheck && tempText && !(new RegExp('user=' + caap.stats.FBID).test(tempText) || /alchemy\.php/.test(tempText))) {
+                    con.log(2, "On another player's keep.", pageUserCheck);
+                    buttonsDiv = null;
+                    monsterRow = null;
+                    summonDiv = null;
+                    newInputsDiv = null;
+                    return false;
+                }
+
+                // Review monsters and find attack and fortify button
+con.log(1, "buttonsDiv", buttonsDiv);
+                con.log(2, "buttonsDiv", buttonsDiv);
+                for (it = 0, len = buttonsDiv.length; it < len; it += 1) {
+                    // Make links for easy clickin'
+                    url = buttonsDiv.eq(it).parent().attr("href");
+                    con.log(3, "url", url);
+                    /*jslint continue: true */
+                    if (!(url && /guild_creator_id=/.test(url) && /monster_slot=/.test(url))) {
+                        continue;
+                    }
+                    /*jslint continue: false */
+                    url = url.replace(/http(s)*:\/\/(apps\.facebook\.com\/castle_age\/|web3\.castleagegame\.com\/castle_ws\/)/, '');
+                    monsterRow = buttonsDiv.eq(it).parents().eq(5);
+                    monsterFull = monsterRow.text().trim().innerTrim();
+                    monsterName = monsterFull.replace(/Completed!/i, '').replace(/Fled!/i, '').replace(/COLLECTION: \d+:\d+:\d+/i, '').trim().innerTrim();
+                    if (/^Your /.test(monsterName)) {
+                        monsterText = monsterName.replace(/^Your /, '').trim().innerTrim().toLowerCase().ucWords();
+                        userName = "Your";
+                    } else if (/Aurelius, Lion's Rebellion/.test(monsterName)) {
+                        monsterText = "Aurelius, Lion's Rebellion";
+                        userName = monsterName.replace(monsterText, '').trim();
+                    } else {
+                        monsterText = monsterName.replace(new RegExp(".+'s (.+)$"), '$1');
+                        userName = monsterName.replace(monsterText, '').trim();
+                        monsterText = monsterText.trim().innerTrim().toLowerCase().ucWords();
+                    }
+                    tempText = $j("div[style*='.jpg']", monsterRow).eq(0).attr("style").regex(new RegExp(".*\\/(.*\\.jpg)"));
+                    monsterText = $u.setContent(monster.getListName(tempText), monsterText);
+                    mName = userName + ' ' + monsterText;
+                    con.log(2, "Monster Name", mName);
+                    userId = $u.setContent(url.regex(/guild_creator_id=(\d+)/) + '_' + url.regex(/&slot=(\d+)/) + '_' + url.regex(/&monster_slot=(\d+)/), 0);
+                    md5 = (userId + ' ' + monsterText + ' guildv2_battle_monster').toLowerCase().MD5();
+                    monsterReviewed = monster.getItem(md5);
+                    monsterReviewed.name = mName;
+                    monsterReviewed.userName = userName;
+                    monsterReviewed.monster = monsterText;
+                    monsterReviewed.userId = userId;
+                    monsterReviewed.md5 = md5;
+                    monsterReviewed.type = $u.setContent(monsterReviewed.type, '');
+                    monsterReviewed.page = page;
+                    engageButtonName = $u.setContent(buttonsDiv.eq(it).attr("src"), '').regex(/conq2_monster_(\S+)\.gif/i);
+
+                    switch (engageButtonName) {
+                        case 'collect':
+                                // conquest monsters get stuck in a collection loop. skipping collection for now
+                            monsterReviewed.status = 'Complete';
+//                            monsterReviewed.status = 'Collect Reward';
+                            monsterReviewed.color = 'grey';
+ 
+                            break;
+                        case 'engage':
+                            monster.engageButtons[monsterReviewed.md5] = $j(buttonsDiv.eq(it));
+
+                            break;
+                        default:
+                    }
+
+                    monsterReviewed.hide = true;
+                    monsterReviewed.mpool = -1;
+                    monsterReviewed.mid = -1;
+                    monsterInfo = monster.getInfo(monsterReviewed);
+                    siege = monsterInfo && monsterInfo.siege ? "&action=doObjective" : '';
+                    monsterReviewed.feedLink = url;
                     monsterReviewed.link = "<a href='" + caap.domain.altered + "/" + monsterReviewed.feedLink + siege + "'>Link</a>";
                     monsterReviewed.joined = true;
                     monster.setItem(monsterReviewed);
@@ -295,7 +387,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             return false;
         }
     };
-
     caap.checkResults_battle = function () {
         try {
             var symDiv = $j(),
@@ -628,7 +719,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 i = 0,
                 ii = 0;
 
-            if ($u.hasContent(currentMonster)) {
+                if ($u.hasContent(currentMonster)) {
                 monsterInfo = $u.hasContent(currentMonster.type) ? (currentMonster.type === "Raid II" ? monsterInfo.stage2 : monsterInfo.stage1) : monsterInfo;
                 if ($u.hasContent(monsterInfo)) {
                     if (!caap.inLevelUpMode() && config.getItem('PowerFortifyMax', false) && monsterInfo.staLvl) {
@@ -672,7 +763,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 currentMonster = monster.getItem(targetMonster);
                 monsterName = currentMonster.name;
                 monsterInfo = monster.getInfo(currentMonster);
-                if ($u.hasContent(monsterName) && $u.hasContent(monsterInfo) && caap.checkStamina('Monster', state.getItem('MonsterStaminaReq', 1)) && currentMonster.page.replace('festival_battle_monster', 'battle_monster') === 'battle_monster') {
+                if ($u.hasContent(monsterName) && $u.hasContent(monsterInfo) && caap.checkStamina('Monster', state.getItem('MonsterStaminaReq', 1)) && currentMonster.page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster') === 'battle_monster') {
                     fightMode = 'Monster';
                 } else {
                     schedule.setItem('NotargetFrombattle_monster', 60);
@@ -708,7 +799,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     partsElem = null;
                     return true;
                 }
-
                 singleButtonList = ['button_nm_p_attack.gif', 'attack_monster_button.jpg', 'event_attack1.gif', 'seamonster_attack.gif', 'event_attack2.gif', 'attack_monster_button2.jpg'];
 
                 // if the monster has parts, run through them in reverse order until we find one with health and hit it.
@@ -862,7 +952,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             ///////////////// Check For Monster Page \\\\\\\\\\\\\\\\\\\\\\
-
+            
             if ($u.hasContent(currentMonster) && currentMonster.page === 'battle_monster') {
                 if (caap.navigateTo('keep,battle_monster', 'tab_monster_list_on.gif')) {
                     attackButton = null;
@@ -893,6 +983,20 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     partsElem = null;
                     return true;
                 }
+            } else if ($u.hasContent(currentMonster) && currentMonster.page === 'guildv2_monster_list') {
+                var slot = currentMonster.link.regex(/&slot=(\d+)/),
+//                    link = "guildv2_monster_list.php?guild_id=" + caap.stats['guild']['id'] + "&slot=" + slot;
+                    link = currentMonster.feedLink;
+
+                if (caap.clickAjaxLinkSend(link, 1000)) {
+                    attackButton = null;
+                    singleButtonList = null;
+                    buttonList = null;
+                    partsTargets = null;
+                    partsTarget = null;
+                    partsElem = null;
+                    return true;
+                }
             } else {
                 con.warn('What kind of monster?', currentMonster);
                 attackButton = null;
@@ -908,6 +1012,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             pageUserCheck = session.getItem('pageUserCheck', 0);
             if (pageUserCheck && (!buttonHref || !new RegExp('user=' + caap.stats.FBID).test(buttonHref) || !/alchemy\.php/.test(buttonHref))) {
                 con.log(2, "On another player's keep.", pageUserCheck);
+
                 if ($u.hasContent(currentMonster) && currentMonster.page === 'battle_monster') {
                     attackButton = null;
                     singleButtonList = null;
@@ -926,6 +1031,15 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     partsTarget = null;
                     partsElem = null;
                     return caap.navigateTo('soldiers,festival_home,festival_tower', 'festival_monster_towerlist_button.jpg');
+                }
+
+                if ($u.hasContent(currentMonster) && currentMonster.page === 'guildv2_monster_list') {
+                    attackButton = null;
+                    singleButtonList = null;
+                    buttonList = null;
+                    partsTargets = null;
+                    partsTarget = null;
+                    partsElem = null;
                 }
 
                 con.warn('What kind of monster?', currentMonster);
@@ -1007,25 +1121,44 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             Update:
             monsterReviewCounter is now set to -10 so there is room for more monsters later
             \-------------------------------------------------------------------------------------*/
-            var //fCounter = config.getItem("festivalTower", false) ? -4 : -3,
-                //counter = state.getItem('monsterReviewCounter', fCounter),
-                firstMonster = -4,
+            var firstMonster = -5,
                 counter = state.getItem('monsterReviewCounter', firstMonster),
                 link = '',
                 tempTime = 0,
                 isSiege = false,
                 monsterInfo = {};
 
-            /*
-            if(counter === fCounter) {
+            // conquest monsters
+            if (counter <= -5) {
+                if (counter < -5) {
+                    state.setItem("conquestCurrentLand", -1);
+                    caap.clickAjaxLinkSend('guildv2_conquest_command.php?tier=3', 1000);
+                }
+                if (config.getItem("conquestMonsters", false)) {
+                    var curLand = state.getItem("conquestCurrentLand", -1);
+                    state.setItem('monsterReviewCounter', counter = firstMonster);
+                    if (conquestLands.records.length == 0) {
+                        caap.clickAjaxLinkSend('guildv2_conquest_command.php?tier=3', 1000);
+                        return true;
+                    }
+
+                    var conquestMonsterLands = conquestLands.getMonsters();
+
+                    if (conquestMonsterLands.length >= (curLand + 2)) {
+                        state.setItem("conquestCurrentLand", curLand += 1);
+                        var thisLand = conquestMonsterLands[curLand].slot;
+                        var link = "guildv2_monster_list.php?guild_id=" + caap.stats['guild']['id'] + "&slot=" + conquestMonsterLands[curLand].slot;
+                        con.log (1, "starting conquest monsters", conquestMonsterLands, link);
+                        caap.clickAjaxLinkSend(link, 1000);
+                        return true;
+                    }
+                }
+
                 state.setItem('monsterReviewCounter', counter += 1);
-                return true;
             }
-            */
 
             // festival tower 2
             if (counter <= -4) {
-                state.setItem('monsterReviewCounter', counter = firstMonster);
                 if (config.getItem("festivalTower", false)) {
                     if (caap.stats.level > 6) {
                         if (caap.navigateTo('soldiers,festival_home,festival_tower2', 'festival_monster2_towerlist_button.jpg')) {
@@ -1159,7 +1292,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     continue;
                 }
                 /*jslint continue: false */
-
                 /*-------------------------------------------------------------------------------------\
                 If we looked at this monster more recently than an hour ago, skip it
                 \-------------------------------------------------------------------------------------*/
@@ -1245,7 +1377,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             \-------------------------------------------------------------------------------------*/
             schedule.setItem("monsterReview", (gm ? gm.getItem('monsterReviewMins', 60, hiddenVar) : 60) * 60, 300);
             session.setItem('resetselectMonster', true);
-            state.setItem('monsterReviewCounter', config.getItem("festivalTower", false) ? -4 : -3);
+            state.setItem('monsterReviewCounter', -10);
             con.log(1, 'Done with monster/raid review.');
             caap.setDivContent('monster_mess', '');
             caap.updateDashboard(true);
@@ -1264,7 +1396,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
     caap.checkResults_viewFight = function (ajax, aslice) {
         try {
             ajax = ajax || false;
-
             var slice = ajax ? $j(aslice) : $j("#app_body"),
                 currentMonster = {},
                 time = [],
@@ -1487,12 +1618,11 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 id = $u.setContent(id, $u.setContent($j("img[src*='profile.ak.fbcdn.net']", monsterDiv).attr("uid"), '').regex(/(\d+)/));
                 id = $u.setContent(id, $u.setContent($j(".fb_link[href*='profile.php']", monsterDiv).attr("href"), '').regex(/id=(\d+)/));
                 id = $u.setContent(id, $u.setContent($j("img[src*='graph.facebook.com']", monsterDiv).attr("src"), '').regex(/\/(\d+)\//));
+                if ($j("input[name*='guild_creator_id']").length > 0) {
+                    id = $u.setContent(id, $j("input[name*='guild_creator_id']")[0].value + '_' + $j("input[name='slot']")[0].value + '_' + $j("input[name*='monster_slot']")[0].value);
+                }
                 id = $u.setContent(id, $u.setContent($j("#app_body #chat_log button[onclick*='ajaxSectionUpdate']").attr("onclick"), '').regex(/user=(\d+)/));
                 id = $u.setContent(id, $u.setContent($j("#app_body #monsterChatLogs img[src*='ldr_btn_chatoff.jpg']").attr("onclick"), '').regex(/user=(\d+)/));
-                if ($j("input[name*='guild_creator_id']").length > 0) {
-                    id = $u.setContent(id, $j("input[name*='guild_creator_id']")[0].value);
-                }
-
                 id = $u.setContent(id, (feed.isScan || ajax) ? feed.scanRecord.id : 0);
                 con.log(3, "USER ID", id);
                 if (id === 0 || !$u.hasContent(id)) {
@@ -1570,7 +1700,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 }
             }
 
-            md5 = (id + ' ' + feedMonster + ' ' + page).toLowerCase().MD5();
+            md5 = (id + ' ' + feedMonster + ' ' + page.replace('battle_expansion_monster', 'guildv2_battle_monster')).toLowerCase().MD5();
             if ((feed.isScan || ajax) && matches && feed.scanRecord.md5 !== md5) {
                 con.warn("MD5 mismatch!", md5, feed.scanRecord.md5);
                 if (config.getItem("DebugLevel", 1) > 1) {
@@ -1863,10 +1993,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     }
                 }
             }
-
             tBool = currentMonster.monster === "The Deathrune Siege" ? true : false;
             if (/:ac\b/.test(currentMonster.conditions) || (tBool && config.getItem('raidCollectReward', false)) || (!tBool && config.getItem('monsterCollectReward', false))) {
-                counter = state.getItem('monsterReviewCounter', config.getItem("festivalTower", false) ? -4 : -3);
+                counter = state.getItem('monsterReviewCounter', -10);
                 // Change from using monster name to monster MD5 - need to keep an eye open for any more
                 if (counter >= 0 && monster.records[counter] && monster.records[counter].md5 === currentMonster.md5 && ($u.hasContent($j("a[href*='&action=collectReward']", slice)) || $u.hasContent($j("input[alt*='Collect Reward']", slice)))) {
                     con.log(2, 'Collecting Reward');
@@ -1876,10 +2005,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     currentMonster.rix = currentMonster.monster === "The Deathrune Siege" ? $u.setContent($u.setContent($j("a[href*='&rix=']", slice).attr("href"), '').regex(/&rix=(\d+)/), -1) : -1;
                 }
             }
-
             monstHealthImg = monsterInfo && monsterInfo.alpha ? 'nm_red.jpg' : 'monster_health_background.jpg';
             monsterDiv = $j("img[src*='" + monstHealthImg + "']", slice).parent();
             con.log(2, 'monster health',monsterInfo ,monstHealthImg ,monsterDiv);
+
             if ($u.hasContent(time) && time.length === 3 && $u.hasContent(monsterDiv)) {
                 currentMonster.time = time;
                 if ($u.hasContent(monsterDiv)) {
@@ -2276,5 +2405,4 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             con.error("ERROR in checkResults_viewFight: " + err);
         }
     };
-
 }());

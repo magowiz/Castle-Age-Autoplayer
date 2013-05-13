@@ -657,13 +657,12 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     tempDiv = null;
                     return;
                 }
-
                 if ($u.hasContent(idDiv)) {
-                    tempDiv = $j("a[href*='keep.php?casuser=']", idDiv);
+                    tempDiv = $j("img[src*='picture?type=square']", idDiv);
                     if ($u.hasContent(tempDiv)) {
-                        tempText = $u.setContent(tempDiv.attr('href'), '');
+                        tempText = $u.setContent(tempDiv.attr('src'), '');
                         if ($u.hasContent(tempText)) {
-                            userId = $u.setContent(tempText.regex(/casuser=(\d+)/i), -1);
+                            userId = $u.setContent(tempText.regex(/facebook\.com\/(\d+)/i), -1);
                             if (!$u.isNumber(userId) || userId < 1) {
                                 con.warn("skipping opponent, unable to get userid", tempText);
                                 opponentDiv = null;
@@ -778,7 +777,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
                 battleRecord.score = battleRecord.rankNum - (battleRecord.armyNum / levelMultiplier / caap.stats.army.capped);
                 conquest.targetsOnPage.push(battleRecord);
-
                 if (!$u.isNumber(caap.stats.level) || (caap.stats.level - minLevel > battleRecord.levelNum)) {
                     logOpponent(battleRecord, "minLevel", {
                         'level': battleRecord.levelNum,
@@ -1199,6 +1197,30 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         }
     };
 
+    conquest.getLands = function() {
+        var landCapsules = $j("[style*='conq2_capsule']"),
+            timeLeft;
+            landCapsules.each(function() {
+            var currentCapsule = $j(this),
+                tmp = '',
+                landRecord = new conquestLands.record();
+            landRecord.name = currentCapsule.children().eq(0).text().trim();
+            tmp = $j("img[src*='conq2_btn']", currentCapsule)[0].src.split('/');
+            landRecord.status = tmp[tmp.length - 1].match(/.+_(.+)\..+/)[1];
+            if (landRecord.status == 'explore') {
+                tmp = $j("img[src*='conq2_btn']", currentCapsule).attr('onClick').match(/.+popup_(\d+)/)[1];
+                landRecord.timeLeft = 0;
+                landRecord.stateTimeLeft = 0;
+            } else {
+                tmp = $j("img[src*='conq2_btn']", currentCapsule).parent().eq(0).attr('href').match(/.+slot=(\d+)/)[1];
+                landRecord.timeLeft = $j("[id*='expire_text']", currentCapsule).html().match(/.+forever in (\d+) hours/)[1];
+            }
+            landRecord.slot = tmp[tmp.length - 1];
+
+            conquestLands.setItem(landRecord);
+        });
+    };
+
     // this function appears to have some serious bugs and really needs to be reworked!
     // it can try to click all 3 buttons, but the DOM could change after each click
     conquest.collect = function() {
@@ -1208,8 +1230,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 buttonCrystal = caap.checkForImage("conq3_btn_pray.gif"),
                 landCapsules = $j("[style*='conq2_capsule']"),
                 timeLeft;
-                    // this is not complete, it doesn't handle lands in progress (once they're explored they still need to be conquered)
-            if (landCapsules.length == $j("[src*='conq2_btn_explore']", landCapsules).length) {
+
+                // this should now handle lands in progress because they have the attack button displayed while they're in collect before they produce resources
+            if (landCapsules.length == $j("[src*='conq2_btn_explore'],[src*='conq2_btn_attack']", landCapsules).length) {
                 con.log (1, "There are no lands to collect from");
             } else {
                 if (config.getItem('doConquestCollect', false)) {
@@ -1226,7 +1249,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 if (schedule.check('collectConquestTimer') && $u.hasContent(buttonCrystal)) {
                     caap.click(buttonCrystal);
                 }
-                con.log(1, "done with buttons", button, button2, buttonCrystal);
             }
 
             timeLeft = $j("div[style*='conq3_mid_notop']")[0].children[0].children[0].children[2].children[0].innerHTML.match(/(\d+)/)[0];
@@ -1972,4 +1994,151 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             return false;
         }
     }
+}());
+
+(function() {
+    conquestLands.records = [];
+
+    conquestLands.record = function() {
+        this.data = {
+            'name': '',
+            'slot': 0,
+            'status': 0,
+            'timeLeft': 0,
+            'stateTimeLeft': 0,
+            'newRecord': true
+        };
+    };
+
+    conquestLands.hbest = 2;
+
+    conquestLands.load = function() {
+        try {
+            conquestLands.records = gm.getItem('conquestLands.records', 'default');
+            if (conquestLands.records === 'default' || !$j.isArray(conquestLands.records)) {
+                conquestLands.records = gm.setItem('conquestLands.records', []);
+            }
+
+            conquestLands.hbest = conquestLands.hbest === false ? JSON.hbest(conquestLands.records) : conquestLands.hbest;
+            con.log(2, "conquestLands.load Hbest", conquestLands.hbest);
+            session.setItem("ConquestDashUpdate", true);
+            con.log(1, "conquestLands.load", conquestLands.records);
+            return true;
+        } catch (err) {
+            con.error("ERROR in conquestLands.load: " + err);
+            return false;
+        }
+    };
+
+    conquestLands.save = function(src) {
+        try {
+            var compress = false;
+            if (caap.domain.which === 3) {
+                caap.messaging.setItem('conquestLands.records', conquestLands.records);
+            } else {
+                gm.setItem('conquestLands.records', conquestLands.records, conquestLands.hbest, compress);
+                con.log(2, "conquestLands.save", conquestLands.records);
+                if (caap.domain.which === 0 && caap.messaging.connected.hasIndexOf("caapif") && src !== "caapif") {
+                    caap.messaging.setItem('conquestLands.records', conquestLands.records);
+                }
+            }
+
+            if (caap.domain.which !== 0) {
+                session.setItem("ConquestDashUpdate", true);
+            }
+
+            return true;
+        } catch (err) {
+            con.error("ERROR in conquestLands.save: " + err);
+            return false;
+        }
+    };
+
+    conquestLands.clear = function() {
+        try {
+            conquestLands.records = [];
+            conquestLands.save();
+            session.setItem("ConquestDashUpdate", true);
+            return true;
+        } catch (err) {
+            con.error("ERROR in conquestLands.clear: " + err);
+            return false;
+        }
+    };
+
+    conquestLands.getItem = function(slot) {
+        try {
+            var it = 0,
+                len = 0,
+                success = false,
+                newRecord = null;
+
+            if (slot === '' || $u.isNaN(slot) || slot < 1) {
+                con.warn("slot", slot);
+                throw "Invalid identifying slot!";
+            }
+
+            for (it = 0, len = conquestLands.records.length; it < len; it += 1) {
+                if (conquestLands.records[it].slot === slot) {
+                    success = true;
+                    break;
+                }
+            }
+
+            if (success) {
+                con.log(2, "Got conquest land record", slot, conquestLands.records[it]);
+                conquestLands.records[it].newRecord = false;
+                return conquestLands.records[it];
+            }
+
+            newRecord = new conquestLands.record();
+            newRecord.data.slot = slot;
+            con.log(2, "New conquest record", slot, newRecord.data);
+            return newRecord.data;
+        } catch (err) {
+            con.error("ERROR in conquestLands.getItem: " + err);
+            return false;
+        }
+    };
+
+    conquestLands.getMonsters = function() {
+        var retVal = [],
+            curReturn = 0;
+        for (var ii=0; ii < conquestLands.records.length; ii+= 1) {
+            if (conquestLands.records[ii].status == 'attack') {
+                retVal[curReturn] = conquestLands.records[ii];
+                curReturn++;
+            }
+        }
+        return retVal;
+    };
+
+    conquestLands.setItem = function(record) {
+        try {
+            var it = 0,
+                success = false;
+
+            for (it = 0; it < conquestLands.records.length; it += 1) {
+                if (conquestLands.records[it].slot === record.slot) {
+                    success = true;
+                    break;
+                }
+            }
+
+            record.newRecord = false;
+            if (success) {
+                conquestLands.records[it] = record;
+                con.log(1, "Updated conquestLands record", record, conquestLands.records);
+            } else {
+                conquestLands.records.push(record);
+                con.log(1, "Added conquestLands record", record, conquestLands.records);
+            }
+// this causes errors, need to look at it
+//            conquestLands.save();
+            return true;
+        } catch (err) {
+            con.error("ERROR in conquestLands.setItem: " + err, record);
+            return false;
+        }
+    };
 }());
