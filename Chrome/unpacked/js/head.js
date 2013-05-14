@@ -52,6 +52,7 @@ var caapjQuery = "1.8.3",
     caap = {},
     con = {},
     conquest = {},
+    conquestLands = {},
     guilds = {},
     retryDelay = 1000;
 
