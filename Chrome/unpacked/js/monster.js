@@ -2350,7 +2350,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                     return false;
                 }
 
-                if (id === caap.stats.FBID) {
+                if (id === caap.stats.FBID.FBID.toString()) {
                     con.log(2, "Your monster found", tempText);
                     userName = 'Your';
                 }
