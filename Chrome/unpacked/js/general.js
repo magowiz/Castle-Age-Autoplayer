@@ -419,7 +419,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
     general.GetCurrent = function () {
         try {
-            var generalName = $j('div[style*="hot_container.gif"] > div:first > div:nth-child(2), #equippedGeneralContainer div.general_name_div3').text().trim(); // get current general name after CA update // 2011-09-27 CAGE
+            var generalName = $j('div[style*="hot_general_container.gif"] > div:first > div:nth-child(2), #equippedGeneralContainer div.general_name_div3').text().trim(); // get current general name after CA update // 2011-09-27 CAGE
 
             if (!generalName) {
                 generalName = $j('div[id*="generalBox_caap"] > div:first > div:nth-child(2), #equippedGeneralContainer div.general_name_div3').text().trim(); // workaround for changing the general box
@@ -451,7 +451,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
     general.Shrink = function () {
         try {
-            var generalBox = $j('div[style*="hot_container.gif"]');
+            var generalBox = $j('div[style*="hot_general_container.gif"]');
 
             if (generalBox[0]) {
                 generalBox[0].style.zIndex = 1;
@@ -827,7 +827,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 return false;
             }
 
-            generalDiv = $j("#globalContainer #main_bn div[style*='hot_container.gif'] div[style*='width:25px;']");
+            generalDiv = $j("#globalContainer #main_bn div[style*='hot_general_container.gif'] div[style*='width:25px;']");
             if ($u.hasContent(generalDiv) && generalDiv.length === 2) {
                 temptext = $u.setContent(generalDiv.text(), '');
                 if ($u.hasContent(temptext)) {
