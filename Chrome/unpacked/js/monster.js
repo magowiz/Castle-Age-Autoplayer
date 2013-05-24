@@ -1422,6 +1422,36 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             cta_img: ['cta_darkness.gif'],
             bodyparts: 4,
             partOrder: [4, 3, 2, 1]
+        },
+    	// http://castleage.wikia.com/wiki/Alperon,_the_Corrupted
+        "Alperon": {
+            alpha: true,
+            duration: 168,
+            hp: 1010000000,
+            ach: 1000000,
+            siege: 10,
+            siegeClicks: [15, 30, 45, 60, 75, 100, 150, 200, 250, 300],
+            siegeDam: [20000000, 23000000, 26000000, 29000000, 32000000, 35000000, 38000000, 43000000, 45000000, 48000000],
+            siege_img: [
+                '/graphics/earth_siege_small',
+                '/graphics/castle_siege_small',
+                '/graphics/skaar_siege_small',
+                '/graphics/death_siege_small'],
+            fort: true,
+            staUse: 10,
+            staLvl: [0, 100, 200, 500],
+            staMax: [10, 20, 50, 100, 200],
+            nrgMax: [20, 40, 100, 200, 200],
+            defense_img: 'nm_green.jpg',
+            levels: [1, 50, 100, 150],
+            join: [30, 30, 35, 75],
+            mClass: 'Epic World',
+            mpool: 101,
+            newbg_img: ['monster_alperon_title.jpg'],
+            list_img: ['monster_alperon_list.jpg'],
+            cta_img: ['cta_icon2.gif'],
+            bodyparts: 4,
+            partOrder: [4, 3, 2, 1]
         }
     };
 
@@ -2244,7 +2274,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
     monster.confirmRightPage = function(monsterName) {
         try {
             // Confirm name and type of monster
-            var monsterDiv = $j("#app_body div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='boss_'][style*='_header'],div[style*='boss_header_']" +
+            var monsterDiv = $j("#app_body div[style*='dragon_title_owner'],div[style*='monster_header_'],div[style*='monster_'][style*='_title'],div[style*='monster_'][style*='_header'],div[style*='boss_'][style*='_header'],div[style*='boss_header_']" +
                     (config.getItem("festivalTower", false) ? ",div[style*='festival_monsters_top_']" : "")),
                 tempDiv = $j(),
                 tempText = '',
@@ -2268,7 +2298,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                         con.warn("2:Festival monster missing summoned string!");
                     }
                 } else {
-                    nMonstStyle = monsterDiv.attr("style").regex(/(monster_header_\S+\.jpg|monster_\S+\_header.jpg|boss_\S+\_header.jpg|boss_header_\S+\.jpg)/);
+                    nMonstStyle = monsterDiv.attr("style").regex(/(monster_header_\S+\.jpg|monster_\S+\_header.jpg||monster_\S+\_title.jpg|boss_\S+\_header.jpg|boss_header_\S+\.jpg)/);
                     con.log(2, "confirmRightPage nMonstStyle", nMonstStyle);
                     if ($u.hasContent(nMonstStyle)) {
                         tempDiv = $j("div :contains('Summoned'),:contains('summoned')", monsterDiv).last();
