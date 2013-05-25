@@ -1423,7 +1423,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             bodyparts: 4,
             partOrder: [4, 3, 2, 1]
         },
-    	// http://castleage.wikia.com/wiki/Alperon,_the_Corrupted
+        // http://castleage.wikia.com/wiki/Alperon,_the_Corrupted
         "Alperon": {
             alpha: true,
             duration: 168,
@@ -1450,8 +1450,8 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             newbg_img: ['monster_alperon_title.jpg'],
             list_img: ['monster_alperon_list.jpg'],
             cta_img: ['cta_icon2.gif'],
-            bodyparts: 4,
-            partOrder: [4, 3, 2, 1]
+            bodyparts: 5,
+            partOrder: [5, 4, 3, 2, 1]
         }
     };
 
@@ -2380,7 +2380,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                     return false;
                 }
 
-                if (id === caap.stats.FBID.FBID.toString()) {
+                if (id === caap.stats.FBID.toString()) {
                     con.log(2, "Your monster found", tempText);
                     userName = 'Your';
                 }
