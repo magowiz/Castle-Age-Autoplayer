@@ -789,7 +789,7 @@ con.log(1, "buttonsDiv", buttonsDiv);
             }
 
             // Check if on engage monster page
-            if ($u.hasContent($j("#app_body div[style*='dragon_title_owner'],div[style*='nm_top'],div[style*='monster_header_'],div[style*='monster_'][style*='_header'],div[style*='boss_'][style*='_header'],div[style*='boss_header'],div[style*='festival_monsters_top_']"))) {
+            if ($u.hasContent($j("#app_body div[style*='dragon_title_owner'],div[style*='nm_top'],div[style*='monster_header_'],div[style*='monster_'][style*='_title'],div[style*='monster_'][style*='_header'],div[style*='boss_'][style*='_header'],div[style*='boss_header'],div[style*='festival_monsters_top_']"))) {
                 if (monster.confirmRightPage(monsterName)) {
                     attackButton = null;
                     singleButtonList = null;
@@ -804,6 +804,7 @@ con.log(1, "buttonsDiv", buttonsDiv);
                 // if the monster has parts, run through them in reverse order until we find one with health and hit it.
                 partsTargets = $j("#app_body div[id^='monster_target_']");
                 if ($u.hasContent(partsTargets)) {
+                    con.log(2, "The monster has parts: partsTargets",partsTargets);
                     // Define if use user or default order parts
                     orderPartsArray = [];
                     if ($u.hasContent(currentMonster) && /:po/i.test(currentMonster.conditions)) {
