@@ -2570,7 +2570,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             htmlCode += caap.addAutoOptionsMenu();
             htmlCode += caap.addFestivalOptionsMenu();
             htmlCode += caap.addConquestOptionsMenu();
-            //htmlCode += arena.menu();
+            htmlCode += arena.menu();
             htmlCode += town.menu();
             htmlCode += caap.addOtherOptionsMenu();
             htmlCode += caap.addFooterMenu();
@@ -4000,6 +4000,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     schedule.setItem('collectConquestTimer', 0);
                 } else if (idName === 'doConquestCrystalCollect' && value === 'None') {
                     schedule.setItem('collectConquestCrystalTimer', 0);
+                } else if(idName === 'doArenaBattle' && value === 'None') {
+                    schedule.setItem('arenaTimer', 0);
                 } else if (idName === 'festivalBless' && value === 'None') {
                     schedule.setItem('festivalBlessTimer', 0);
                 } else if (idName === 'TargetType') {
@@ -4521,7 +4523,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             $j('#caap_collectCrystalNow', caap.caapDivObject).click(function () {
                 caap.getCollectConquestCrystalButtonListener();
             });
-
+            $j('#caap_ArenaNow', caap.caapDivObject).click(function(e) {
+                caap.getArenaButtonListener();
+            });
             $j('#caap_ResetMenuLocation', caap.caapDivObject).click(caap.resetMenuLocationListener);
 
             $j('#caap_resetElite', caap.caapDivObject).click(function () {
@@ -4916,6 +4920,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         'guild_conquest_market': {
             signatureId: 'trade_guild_top.jpg',
             CheckResultsFunction: 'checkResults_guildConquestMarket'
+        },
+        'arena' : {
+            signatureId : 'arena_homemid.jpg',
+            CheckResultsFunction : 'checkResults_arenaBattle'
         }
     };
 
@@ -9293,6 +9301,19 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
         conquest.battle();
         return true;
+    };
+
+    caap.doArenaBattle = function() {
+        if (!config.getItem('enableArena', false) || !schedule.check('arenaTimer')) {
+            return false;
+        }
+
+        arena.battle();
+        return true;
+    };
+
+    caap.checkResults_arenaBattle = function() {
+        arena.checkResults();
     };
 
     caap.checkResults_guildTradeMarket = function () {

@@ -147,9 +147,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             if (config.getItem('DBDisplay', '') === 'Target List' && session.getItem("ReconDashUpdate", true)) {
                 head = "";
                 body = "";
-                headers = ['UserId', 'Name', 'Deity', 'BR#', /*'Arena#',*/
+                headers = ['UserId', 'Name', 'Deity', 'BR#', 'Arena#',
                 'WR#', 'Level', 'Army', 'Last Alive'];
-                values = ['userId', 'nameStr', 'deityNum', 'rankNum', /*'arenaRankNum',*/
+                values = ['userId', 'nameStr', 'deityNum', 'rankNum', 'arenaRankNum',
                 'warRankNum', 'levelNum', 'armyNum', 'aliveTime'];
                 for (pp = 0; pp < headers.length; pp += 1) {
                     switch (headers[pp]) {
@@ -181,7 +181,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                             });
 
                             break;
-                        /*
                         case 'arena#':
                             head += caap.makeTh({
                                 text : headers[pp],
@@ -189,7 +188,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                             });
 
                             break;
-                        */
                         case 'WR#':
                             head += caap.makeTh({
                                 text: headers[pp],
@@ -252,7 +250,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                                 });
 
                                 break;
-                            /*
                             case 'arenaRankNum':
                                 row += caap.makeTd({
                                     text : battle.reconRecords[i][values[pp]],
@@ -260,7 +257,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                                 });
 
                                 break;
-                            */
                             case 'warRankNum':
                                 row += caap.makeTd({
                                     text: battle.reconRecords[i][values[pp]],
@@ -1179,11 +1175,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         caap.setDivContent('conquestcrystalbless_mess', schedule.check('collectConquestCrystalTimer') ? 'Crystal Collect = none' : 'Next Crystal: ' + $u.setContent(caap.displayTime('collectConquestCrystalTimer'), "Unknown"));
     };
 
-    /*
     caap.getArenaButtonListener = function() {
         schedule.setItem('arenaTimer', 0);
     };
-    */
 
     caap.addDBListener = function () {
         try {

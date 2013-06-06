@@ -67,7 +67,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         'festivalBless': 'Festival Feats',
         'collectConquest': 'Collect Conquest Resources',
         'collectConquestCrystal': 'Collect Conquest Crystals',
-        'scoutGuildEssence': 'Scout Guild Essence'
+        'scoutGuildEssence': 'Scout Guild Essence',
+        'doArenaBattle' : 'Battling in Arena' 
     };
 
     caap.checkLastAction = function (thisAction) {
@@ -139,9 +140,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         0x2F: 'collectConquest',
         0x30: 'collectConquestCrystal',
         0x31: 'autoArchives',
-        0x32: 'autoKobo',
-        0x33: 'scoutGuildEssence',
-        0x34: 'idle'
+        0x32: 'doArenaBattle',
+        0x33: 'autoKobo',
+        0x34: 'scoutGuildEssence',
+        0x35: 'idle'
     };
 
     caap.actionsList = [];

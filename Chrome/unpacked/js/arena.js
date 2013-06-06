@@ -1,4 +1,3 @@
-/*
     ////////////////////////////////////////////////////////////////////
     //                          ARENA OBJECT
     // this is the main object for dealing with Arena VI
@@ -202,7 +201,7 @@
             }
         },
         checkResults: function () {
-            try {
+            try {con.log (1, "in checkresults for arena");
                 var battleRecord = {},
                     tempTime     = 0,
                     result       = {};
@@ -250,14 +249,14 @@
             }
         },
 
-        battle: function () {
+        battle: function () {con.log (1, "starting arena.battle");
             var minLevel = 0,
                 maxLevel = 0,
                 useGeneral = '';
-            if(caap.navigateTo('arena', 'tab_arena_on.gif')) {
+            if(caap.navigateTo('arena', 'battle_tab_arena_on.jpg')) {
                 return true;
             }
-
+con.log (1, "in arena.battle");
             var inputDiv = $j("div[style*='arena_infobar']"),
                 arenaTokens = $j("span[id*='guild_token_current_value']")[0].innerHTML,
                 battleRecord      = {},
@@ -272,7 +271,7 @@
                 schedule.setItem('arenaTimer', Math.max (config.getItem("arenaTokenStart", 1) - config.getItem("arenaTokenStop", 1), 0) * 5 * 60);
                 return true;
             }
-
+con.log (1, "inputDiv", inputDiv);
             inputDiv.each(function (index) {
                 var tr         = $j(),
                     levelm     = [],
@@ -422,5 +421,3 @@
             }
         }
     };
-
-*/
