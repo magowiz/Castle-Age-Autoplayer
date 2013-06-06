@@ -119,7 +119,8 @@
                         result.userId = $j('form[id*="fight_opp_"]')[0].children[0].value;
                         result.userName = 'unknown';
 
-                        tempDiv = $j("a[href*='keep.php?casuser=']").eq(0);
+                        /* There is no link to target's keep 
+                        /*tempDiv = $j("a[href*='keep.php?casuser=']").eq(0);
                         if ($u.hasContent(tempDiv)) {
                             tempText = $u.setContent(tempDiv.attr("href"), '');
                             if ($u.hasContent(tempText)) {
@@ -144,7 +145,7 @@
                         } else {
                             con.warn("Unable to find keep.php?casuser= in $j('#app_body #results_main_wrapper')");
                             throw "Unable to get userId!";
-                        }
+                        }*/
 
                     } else {
                         con.warn("Unable to find result div");
