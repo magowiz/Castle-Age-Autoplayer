@@ -22,6 +22,8 @@
             htmlCode += caap.makeNumberFormTR("Start At Or Above", 'arenaTokenStart', '', 10, '', '', true, false);
             htmlCode += caap.makeNumberFormTR("Stop At Or Below", 'arenaTokenStop', '', 0, '', '', true, false);
             htmlCode += caap.makeNumberFormTR("Opponent's Army Max", 'arenaArmyMax', '', 501, '', '', true, false);
+            htmlCode += caap.makeNumberFormTR("Opponent's Rank Min", 'arenaRankMin', '', '', '', '', true, false);
+            htmlCode += caap.makeNumberFormTR("Opponent's Rank Max", 'arenaRankMax', '', '', '', '', true, false);
             htmlCode += caap.makeNumberFormTR("Opponent's Level Min", 'arenaLevelMin', MinLevelInstructions, '', '', '', true, false);
             htmlCode += caap.makeNumberFormTR("Opponent's Level Max", 'arenaLevelMax', MaxLevelInstructions, '', '', '', true, false);
             htmlCode += caap.makeTD("<input type='button' id='caap_ArenaNow' value='Fight!' style='padding: 0; font-size: 10px; height: 18px' />");
@@ -101,9 +103,9 @@
                             con.log(3, "Unable to find arena_battlepoints in $j('#app_body #results_main_wrapper')");
                         }
 
-                        result.gold = 100000;   // don't really care about the gold
-
-                        tempDiv = $j("b[class*='gold']").eq(0);
+                        result.gold = 100000;   
+    					// don't really care about the gold
+                        /*tempDiv = $j("b[class*='gold']").eq(0);
                         if ($u.hasContent(tempDiv)) {
                             tNum = $u.setContent(tempDiv.text(), '').trim().numberOnly();
                             if ($u.hasContent(tNum)) {
@@ -113,13 +115,14 @@
                             }
                         } else {
                             con.warn("Unable to find gold element in $j('#app_body #results_main_wrapper')");
-                        }
+                        }*/
 
                         result.userId = state.getItem("lastArenaBattleID", 0);
                         result.userId = $j('form[id*="fight_opp_"]')[0].children[0].value;
                         result.userName = 'unknown';
-
-                        tempDiv = $j("a[href*='keep.php?casuser=']").eq(0);
+						
+						// There is no link to target's keep 
+                        /*tempDiv = $j("a[href*='keep.php?casuser=']").eq(0);
                         if ($u.hasContent(tempDiv)) {
                             tempText = $u.setContent(tempDiv.attr("href"), '');
                             if ($u.hasContent(tempText)) {
@@ -144,7 +147,7 @@
                         } else {
                             con.warn("Unable to find keep.php?casuser= in $j('#app_body #results_main_wrapper')");
                             throw "Unable to get userId!";
-                        }
+                        }*/
 
                     } else {
                         con.warn("Unable to find result div");
@@ -204,11 +207,20 @@
             try {con.log (1, "in checkresults for arena");
                 var battleRecord = {},
                     tempTime     = 0,
+					arenaTokens = $j("span[id*='guild_token_current_value']")[0].innerHTML,
                     result       = {};
-
+					
                 if (!arena.flagResult) {
                     return true;
                 }
+					
+				state.setItem("arenaTokens", arenaTokens);
+
+				if (arenaTokens <= config.getItem("arenaTokenStop", 1)) {
+					con.log (1, "Not enough tokens");
+					schedule.setItem('arenaTimer', Math.max (config.getItem("arenaTokenStart", 1) - config.getItem("arenaTokenStop", 1), 0) * 5 * 60);
+					return true;
+				}
 
                 con.log(2, "Checking Battle Results");
                 arena.flagResult = false;
@@ -252,6 +264,8 @@
         battle: function () {con.log (1, "starting arena.battle");
             var minLevel = 0,
                 maxLevel = 0,
+                minRank = 0,
+                maxRank = 0,
                 useGeneral = '';
             if(caap.navigateTo('arena', 'battle_tab_arena_on.jpg')) {
                 return true;
@@ -285,7 +299,7 @@ con.log (1, "inputDiv", inputDiv);
                 tempRecord.data.nameStr = inputDiv[index].children[1].children[0].innerHTML.trim();
                 tempRecord.data.levelNum = /\d+/.exec(inputDiv[index].children[1].children[1].innerHTML)[0];
                 tempRecord.data.rankStr = inputDiv[index].children[1].children[2].innerHTML.trim();
-                tempRecord.data['arenaRankNum'] = /\d+/.exec(inputDiv[index].children[1].children[2].innerHTML)[0];
+                tempRecord.data.arenaRankNum = /\d+/.exec(inputDiv[index].children[1].children[2].innerHTML)[0];
                 tempRecord.data.userId = $j("input[name*='target_id']", inputDiv[index].children[4].children[0].children[0])[0].value;
                 tempRecord.data.armyNum = Math.min (501, inputDiv[index].children[2].innerHTML.trim());  // arena doesn't list the army size capped at 501
 
@@ -330,6 +344,26 @@ con.log (1, "inputDiv", inputDiv);
                     minLevel = 99999;
                 }
 
+                maxRank = config.getItem("arenaRankMax", 8);
+                con.log(3, "arenaRankMax", maxRank);
+                if (maxRank === '' || $u.isNaN(maxRank)) {
+                    if (maxRank !== '') {
+                        con.warn("arenaRankMax is NaN, using default", maxRank);
+                    }
+
+                    maxRank = 8;
+                }
+
+                minRank = config.getItem("arenaRankMin", 0);
+                con.log(3, "arenaRankMin", minRank);
+                if (minRank === '' || $u.isNaN(minRank)) {
+                    if (minRank !== '') {
+                        con.warn("arenaRankMin is NaN, using default", minRank);
+                    }
+
+                    minRank = 0;
+                }
+
                 if (tempRecord.data.levelNum - caap.stats.level > maxLevel) {
                     con.log(2, "Exceeds relative maxLevel", {'level': tempRecord.data.levelNum, 'levelDif': tempRecord.data.levelNum - caap.stats.level, 'maxLevel': maxLevel});
                     return true;
@@ -340,6 +374,16 @@ con.log (1, "inputDiv", inputDiv);
                     return true;
                 }
 
+                if (tempRecord.data.arenaRankNum > maxRank) {
+                    con.log(2, "This guy's rank is too big ", {'Rank': tempRecord.data.arenaRankNum, 'maxRank': maxRank});
+                    return true;
+                }
+
+                if (tempRecord.data.arenaRankNum < minRank) {
+                    con.log(2, "This guy's rank is too small ", {'Rank': tempRecord.data.arenaRankNum, 'minRank': minRank});
+                    return true;
+                }
+
                 if (config.getItem("arenaArmyMax", 501) < tempRecord.data.armyNum) {
                     con.log(2, "This guy's army is too big (" + tempRecord.data.armyNum + "): ", tempRecord.data.userId);
                     return true;
@@ -347,11 +391,11 @@ con.log (1, "inputDiv", inputDiv);
 
                 switch (config.getItem("ArenaBattleType", 'Invade')) {
                 case 'Invade' :
-                    tempRecord.data.score = tempRecord.data['arenaRankNum'] - (tempRecord.data.armyNum / levelMultiplier / caap.stats.army.capped);
+                    tempRecord.data.score = tempRecord.data.arenaRankNum - (tempRecord.data.armyNum / levelMultiplier / caap.stats.army.capped);
                 case 'Duel' :
-                    tempRecord.data.score = tempRecord.data['arenaRankNum'] - (tempRecord.data.armyNum / levelMultiplier / caap.stats.army.capped);
+                    tempRecord.data.score = tempRecord.data.arenaRankNum - (tempRecord.data.armyNum / levelMultiplier / caap.stats.army.capped);
                 default :
-                    tempRecord.data.score = tempRecord.data['arenaRankNum'] - (tempRecord.data.armyNum / levelMultiplier / caap.stats.army.capped);
+                    tempRecord.data.score = tempRecord.data.arenaRankNum - (tempRecord.data.armyNum / levelMultiplier / caap.stats.army.capped);
                 }
 
                 tempRecord.data.targetNumber = index + 1;
