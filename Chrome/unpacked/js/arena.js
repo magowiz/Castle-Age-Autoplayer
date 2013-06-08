@@ -409,7 +409,7 @@ con.log (1, "inputDiv", inputDiv);
             lastArenaBattleID = state.getItem("lastArenaBattleID", 0);
             if (safeTargets.length == 0) {
                 con.log (1, "No valid targets right now, try again in a few minutes");
-                schedule.setItem('arenaTimer', 5);
+                schedule.setItem('arenaTimer', 5 * 60);
                 return true;
             }
             for (it = 0, len = safeTargets.length; it < len; it += 1) {
