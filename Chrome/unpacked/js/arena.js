@@ -210,17 +210,21 @@
 					arenaTokens = $j("span[id*='guild_token_current_value']")[0].innerHTML,
                     result       = {};
 					
+				state.setItem("arenaTokens", arenaTokens);
+
+				if (arenaTokens >= config.getItem("arenaTokenStart", 10)) {
+					con.log (1, "Arena Timer resetting");
+					schedule.setItem('arenaTimer', 0);
+				}
+				
+				if (arenaTokens <= config.getItem("arenaTokenStop", 1)) {
+					con.log (1, "Not enough tokens");
+					schedule.setItem('arenaTimer', Math.max (config.getItem("arenaTokenStart", 1) - arenaTokens, 0) * 5 * 60);
+				}
+					
                 if (!arena.flagResult) {
                     return true;
                 }
-					
-				state.setItem("arenaTokens", arenaTokens);
-
-				if (arenaTokens <= config.getItem("arenaTokenStop", 1)) {
-					con.log (1, "Not enough tokens");
-					schedule.setItem('arenaTimer', Math.max (config.getItem("arenaTokenStart", 1) - config.getItem("arenaTokenStop", 1), 0) * 5 * 60);
-					return true;
-				}
 
                 con.log(2, "Checking Battle Results");
                 arena.flagResult = false;
