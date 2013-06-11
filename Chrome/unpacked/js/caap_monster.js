@@ -59,7 +59,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 return false;
             }
 
-            var buttonsDiv = $j("#app_body img[src*='dragon_list_btn_'],input[src*='monster_button_'],img[src*='festival_monster_'],img[src*='festival_monster2_'],img[src*='conq2_monster_']"),
+            var buttonsDiv = $j("#app_body img[src*='dragon_list_btn_'],input[src*='monster_button_'],img[src*='festival_monster_'],img[src*='festival_monster2_'],img[src*='conq2_monster_'],img[src*='list_conq_']"),
                 page = '',
                 monsterReviewed = {},
                 it = 0,
@@ -163,7 +163,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     monsterReviewed.hide = true;
                     monsterReviewed.mpool = $u.setContent($j("a[href*='mpool=']", monsterRow.eq(it)).attr("href"), 'mpool=0').regex(/mpool=(\d+)/i);
                     monsterInfo = monster.getInfo(monsterReviewed);
-                    siege = monsterInfo && monsterInfo.siege ? "&action=doObjective" : '';
+// siege is different now so disabled
+//                    siege = monsterInfo && monsterInfo.siege ? "&action=doObjective" : '';
                     monsterReviewed.feedLink = "battle_monster.php?casuser=" + monsterReviewed.userId + "&mpool=" + monsterReviewed.mpool;
                     monsterReviewed.link = "<a href='" + caap.domain.altered + "/" + monsterReviewed.feedLink + siege + "'>Link</a>";
                     monsterReviewed.joined = true;
@@ -254,7 +255,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     monsterReviewed.mpool = -1;
                     monsterReviewed.mid = -1;
                     monsterInfo = monster.getInfo(monsterReviewed);
-                    siege = monsterInfo && monsterInfo.siege ? "&action=doObjective" : '';
+// siege is different now so disabled
+//                    siege = monsterInfo && monsterInfo.siege ? "&action=doObjective" : '';
                     monsterReviewed.feedLink = url;
                     monsterReviewed.link = "<a href='" + caap.domain.altered + "/" + monsterReviewed.feedLink + siege + "'>Link</a>";
                     monsterReviewed.joined = true;
@@ -367,7 +369,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     monsterReviewed.mpool = /mpool=\d+/.test(url) ? '&mpool=' + url.regex(/mpool=(\d+)/) : '';
                     monsterReviewed.mid = /mid=\S+/.test(url) ? '&mid=' + url.regex(/mid=(\S+)[&]*/) : '';
                     monsterInfo = monster.getInfo(monsterReviewed);
-                    siege = monsterInfo && monsterInfo.siege ? "&action=doObjective" : '';
+// siege is different now so disabled
+//                    siege = monsterInfo && monsterInfo.siege ? "&action=doObjective" : '';
                     monsterReviewed.feedLink = url;
                     monsterReviewed.link = "<a href='" + caap.domain.altered + "/" + monsterReviewed.feedLink + siege + "'>Link</a>";
                     monsterReviewed.joined = true;
@@ -1133,13 +1136,13 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             if (counter <= -5) {
                 if (counter < -5) {
                     state.setItem("conquestCurrentLand", -1);
-                    caap.clickAjaxLinkSend('guildv2_conquest_command.php?tier=3', 1000);
+                    caap.clickAjaxLinkSend('guildv2_conquest_command.php?tier=3', 2000);
                 }
                 if (config.getItem("conquestMonsters", false)) {
                     var curLand = state.getItem("conquestCurrentLand", -1);
                     state.setItem('monsterReviewCounter', counter = firstMonster);
                     if (conquestLands.records.length == 0) {
-                        caap.clickAjaxLinkSend('guildv2_conquest_command.php?tier=3', 1000);
+                        caap.clickAjaxLinkSend('guildv2_conquest_command.php?tier=3', 2000);
                         return true;
                     }
 
@@ -1150,7 +1153,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                         var thisLand = conquestMonsterLands[curLand].slot;
                         var link = "guildv2_monster_list.php?guild_id=" + caap.stats['guild']['id'] + "&slot=" + conquestMonsterLands[curLand].slot;
                         con.log (1, "starting conquest monsters", conquestMonsterLands, link);
-                        caap.clickAjaxLinkSend(link, 1000);
+                        caap.clickAjaxLinkSend(link, 3000);
                         return true;
                     }
                 }
@@ -1358,7 +1361,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                         link = link.replace('&action=doObjective', '');
                         state.setItem('CollectedRewards', true);
                     } else if ((monster.records[counter].conditions && monster.records[counter].conditions.match(':!s')) ||
-                                (!config.getItem('raidDoSiege', true) && isSiege) || (!config.getItem('monsterDoSiege', true) && !isSiege && monsterInfo && monsterInfo.siege) || caap.stats.stamina.num === 0) {
+                                (!config.getItem('raidDoSiege', false) && isSiege) || (!config.getItem('monsterDoSiege', false) && !isSiege && monsterInfo && monsterInfo.siege) || caap.stats.stamina.num === 0) {
                         con.log(2, "Do not siege");
                         link = link.replace('&action=doObjective', '');
                     }

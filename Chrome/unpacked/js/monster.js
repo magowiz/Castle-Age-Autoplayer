@@ -2498,7 +2498,9 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             htmlCode += caap.makeCheckTR("Power Attack Max", 'PowerAttackMax', false, powerattackMaxInstructions, true);
             htmlCode += caap.endCheckHide('PowerAttack');
             htmlCode += caap.makeCheckTR("Power Fortify Max", 'PowerFortifyMax', false, powerfortifyMaxInstructions);
-            htmlCode += caap.makeCheckTR("Siege Weapon Assist Monsters", 'monsterDoSiege', true, dosiegeInstructions);
+// siege is changed so disable 
+config.setItem('monsterDoSiege', false);
+//            htmlCode += caap.makeCheckTR("Siege Weapon Assist Monsters", 'monsterDoSiege', true, dosiegeInstructions);
             htmlCode += caap.makeCheckTR("Collect Monster Rewards", 'monsterCollectReward', false, collectRewardInstructions);
             htmlCode += caap.makeCheckTR("Clear Complete Monsters", 'clearCompleteMonsters', false, '');
             htmlCode += caap.makeCheckTR("Battle Conquest Monsters", 'conquestMonsters', false, '');

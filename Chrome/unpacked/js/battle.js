@@ -1537,7 +1537,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             htmlCode += caap.endDropHide('WhenBattle', 'DemiOnly');
             htmlCode += caap.makeDropDownTR("Battle Type", 'BattleType', typeList, typeInst, '', '', false, false, 62);
             htmlCode += caap.makeCheckTR("Wait For Safe Health", 'waitSafeHealth', false, safeHealthInstructions);
-            htmlCode += caap.makeCheckTR("Siege Weapon Assist Raids", 'raidDoSiege', true, dosiegeInstructions);
+// siege is changed so disable 
+config.setItem('raidDoSiege', false)
+//            htmlCode += caap.makeCheckTR("Siege Weapon Assist Raids", 'raidDoSiege', true, dosiegeInstructions);
             htmlCode += caap.makeCheckTR("Collect Raid Rewards", 'raidCollectReward', false, collectRewardInstructions);
             htmlCode += caap.makeCheckTR("Clear Complete Raids", 'clearCompleteRaids', false, '');
             htmlCode += caap.makeCheckTR("Ignore Battle Losses", 'IgnoreBattleLoss', false, ignorebattlelossInstructions);
