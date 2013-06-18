@@ -234,7 +234,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     monsterReviewed.md5 = md5;
                     monsterReviewed.type = $u.setContent(monsterReviewed.type, '');
                     monsterReviewed.page = page;
-                    engageButtonName = $u.setContent(buttonsDiv.eq(it).attr("src"), '').regex(/conq2_monster_(\S+)\.gif/i);
+                    engageButtonName = $u.setContent(buttonsDiv.eq(it).attr("src"), '').regex(/list_conq_(\S+)\.gif/i);
 
                     switch (engageButtonName) {
                         case 'collect':
@@ -1241,30 +1241,30 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
             if (counter === -1) {
                 if (caap.domain.which === 2) {
-    				// Raid is unavailable for web3
-					con.log(1, "Raids: lock for domain 2");
-					state.setItem('reviewDone', true);
-				} else {
-					if (caap.stats.level > 7) {
-						// This is a temporary fix for the web3 url until CA fix their HTML
-						if (caap.domain.which === 2 && !$u.hasContent($j("#app_body img[src*='tab_raid_']"))) {
-							if (caap.navigateTo(caap.battlePage, 'battle_tab_battle_on.jpg')) {
-								return true;
-							}
+                    // Raid is unavailable for web3
+                    con.log(1, "Raids: lock for domain 2");
+                    state.setItem('reviewDone', true);
+                } else {
+                    if (caap.stats.level > 7) {
+                        // This is a temporary fix for the web3 url until CA fix their HTML
+                        if (caap.domain.which === 2 && !$u.hasContent($j("#app_body img[src*='tab_raid_']"))) {
+                            if (caap.navigateTo(caap.battlePage, 'battle_tab_battle_on.jpg')) {
+                                return true;
+                            }
 
-							caap.clickAjaxLinkSend("raid.php");
-							return true;
-						}
+                            caap.clickAjaxLinkSend("raid.php");
+                            return true;
+                        }
 
-						if (caap.navigateTo(caap.battlePage + ',raid', 'battle_tab_raid_on.jpg')) {
-							state.setItem('reviewDone', false);
-							//return true;
-						}
-					} else {
-						con.log(1, "Raids: Unlock at level 8");
-						state.setItem('reviewDone', true);
-					}
-				}
+                        if (caap.navigateTo(caap.battlePage + ',raid', 'battle_tab_raid_on.jpg')) {
+                            state.setItem('reviewDone', false);
+                            //return true;
+                        }
+                    } else {
+                        con.log(1, "Raids: Unlock at level 8");
+                        state.setItem('reviewDone', true);
+                    }
+                }
 
                 if (config.getItem('clearCompleteRaids', false) && $u.hasContent(monster.completeButton.raid.button) && $u.hasContent(monster.completeButton.raid.md5)) {
                     caap.click(monster.completeButton.raid.button);
@@ -1375,6 +1375,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
                     con.log(3, "Link", link);
                     caap.clickAjaxLinkSend(link);
+
                     state.setItem('monsterRepeatCount', state.getItem('monsterRepeatCount', 0) + 1);
                     session.setItem('resetselectMonster', true);
                     return true;
