@@ -1200,7 +1200,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
     conquest.getLands = function() {
         var landCapsules = $j("[style*='conq2_capsule']"),
             timeLeft;
-            landCapsules.each(function() {
+        landCapsules.each(function() {
             var currentCapsule = $j(this),
                 tmp = '',
                 landRecord = new conquestLands.record();
@@ -1213,7 +1213,12 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 landRecord.stateTimeLeft = 0;
             } else {
                 tmp = $j("img[src*='conq2_btn']", currentCapsule).parent().eq(0).attr('href').match(/.+slot=(\d+)/)[1];
-                landRecord.timeLeft = $j("[id*='expire_text']", currentCapsule).html().match(/.+forever in (\d+) hours/)[1];
+    			try{
+					landRecord.timeLeft = $j("[id*='expire_text']", currentCapsule).html().match(/.+forever in (\d+) hours/)[1];
+				} catch (err) {
+					con.error("ERROR in landRecord.timeLeft: " + err);
+					landRecord.timeLeft = 999999;
+				}	
             }
             landRecord.slot = tmp[tmp.length - 1];
 
