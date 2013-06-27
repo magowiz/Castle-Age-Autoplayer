@@ -4383,13 +4383,14 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
     caap.energyListener = function (e) {
         var num = $u.setContent($u.setContent($j(e.target).text(), '').parseInt(), -1);
-
+con.log (1, "energy listener", e, $j(e.target).text(), num);
         if (num < 0 || $u.isNaN(num)) {
             return;
         }
 
         caap.stats.energy = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.energy.max), caap.stats.energy);
         caap.stats.energyT = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.energyT.max), caap.stats.energy);
+con.log (1, "done listener", caap.stats.energy, caap.stats.energyT);
         con.log(3, "energyListener", num);
     };
 
@@ -4408,13 +4409,14 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
     caap.healthListener = function (e) {
         var num = $u.setContent($u.setContent($j(e.target).text(), '').parseInt(), -1);
-
+con.log (1, "health e", e, $j(e.target).text(), num);
         if (num < 0 || $u.isNaN(num)) {
             return;
         }
 
         caap.stats.health = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.health.max), caap.stats.health);
         caap.stats.healthT = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.healthT.max), caap.stats.healthT);
+con.log (1, "healthListener", caap.stats);
         con.log(3, "healthListener", num);
     };
 
@@ -5320,7 +5322,24 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
             // gold
             if ($u.hasContent(tempDiv)) {
-                caap.stats.gold.cash = $u.setContent($u.setContent(tempDiv.text(), '').numberOnly(), 0);
+                var tmpMultiplier = 1, tmpVal = $u.setContent($u.setContent(tempDiv.text(), ''), 0);
+
+                switch (tmpVal.replace ("$","").replace (tmpVal.numberOnly(), '')) {
+                    case 'M':
+                        tmpMultiplier = 1000000;
+                    break
+                    case 'B':
+                        tmpMultiplier = 1000000000;
+                    break
+                    case 'T':
+                        tmpMultiplier = 1000000000000;
+                    break
+                }
+                tmpVal = tmpVal.numberOnly() * tmpMultiplier;
+
+    //disabled for now
+//                caap.stats.gold.cash = tmpVal;
+caap.stats.gold.cash = 0;
                 caap.stats.gold.total = caap.stats.gold.bank + caap.stats.gold.cash;
             } else {
                 con.warn("Unable to get cashDiv");
@@ -5328,7 +5347,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             // energy
-            tempDiv = $j("#energy_current_value", ststbDiv);
+            tempDiv = $j($j("#energy_current_value", ststbDiv)[0].parentNode);
             if ($u.hasContent(tempDiv)) {
                 caap.stats.energyT = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
                 caap.stats.energy = caap.getStatusNumbers(caap.stats.energyT.num + "/" + caap.stats.energy.max);
@@ -5338,7 +5357,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             // health
-            tempDiv = $j("#health_current_value", ststbDiv);
+            tempDiv = $j($j("#health_current_value", ststbDiv)[0].parentNode);
             if ($u.hasContent(tempDiv)) {
                 caap.stats.healthT = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
                 caap.stats.health = caap.getStatusNumbers(caap.stats.healthT.num + "/" + caap.stats.health.max);
@@ -5348,7 +5367,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             // stamina
-            tempDiv = $j("#stamina_current_value", ststbDiv);
+            tempDiv = $j($j("#stamina_current_value", ststbDiv)[0].parentNode);
             if ($u.hasContent(tempDiv)) {
                 caap.stats.staminaT = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
                 caap.stats.stamina = caap.getStatusNumbers(caap.stats.staminaT.num + "/" + caap.stats.stamina.max);
@@ -5433,7 +5452,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 $j().alert("<div style='text-align: center;'>" + con.warn("Paused as this account may have been disabled!", caap.stats) + "</div>");
                 caap.pauseListener();
             }
-
+con.log (1, "caap.stats", caap.stats);
             ststbDiv = null;
             bntpDiv = null;
             tempDiv = null;
