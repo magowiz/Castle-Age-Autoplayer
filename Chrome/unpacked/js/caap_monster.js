@@ -59,7 +59,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 return false;
             }
 
-            var buttonsDiv = $j("#app_body img[src*='dragon_list_btn_'],input[src*='monster_button_'],img[src*='festival_monster_'],img[src*='festival_monster2_'],img[src*='conq2_monster_'],img[src*='list_conq_']"),
+            var buttonsDiv = $j("#app_body img[src*='dragon_list_btn_'],input[src*='list_btn_atk'],input[src*='monster_button_'],img[src*='festival_monster_'],img[src*='festival_monster2_'],img[src*='conq2_monster_'],img[src*='list_conq_']"),
                 page = '',
                 monsterReviewed = {},
                 it = 0,
@@ -68,7 +68,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 siege = '',
                 engageButtonName = '',
                 monsterName = '',
-                monsterRow = $j("#app_body div[style*='monsterlist_container.gif'], div[style*='conq2_monster_list.jpg']"),
+                monsterRow = $j("#app_body div[style*='monsterlist_container2.gif'], div[style*='conq2_monster_list.jpg']"),
                 monsterFull = '',
                 monsterInfo = {},
                 summonDiv = $j("#app_body img[src*='mp_button_summon_']" + (config.getItem("festivalTower", false) ? ",img[src*='festival_monster_summonbtn.gif']" : "")),
@@ -766,7 +766,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 currentMonster = monster.getItem(targetMonster);
                 monsterName = currentMonster.name;
                 monsterInfo = monster.getInfo(currentMonster);
-                if ($u.hasContent(monsterName) && $u.hasContent(monsterInfo) && caap.checkStamina('Monster', state.getItem('MonsterStaminaReq', 1)) && currentMonster.page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster') === 'battle_monster') {
+                if ($u.hasContent(monsterName) && $u.hasContent(monsterInfo) && caap.checkStamina('Monster', state.getItem('MonsterStaminaReq', 1)) && currentMonster.page.replace('festival_battle_monster', 'player_monster_list').replace('guildv2_monster_list', 'player_monster_list') === 'player_monster_list') {
                     fightMode = 'Monster';
                 } else {
                     schedule.setItem('NotargetFrombattle_monster', 60);
@@ -957,8 +957,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
             ///////////////// Check For Monster Page \\\\\\\\\\\\\\\\\\\\\\
             
-            if ($u.hasContent(currentMonster) && currentMonster.page === 'battle_monster') {
-                if (caap.navigateTo('keep,battle_monster', 'tab_monster_list_on.gif')) {
+            if ($u.hasContent(currentMonster) && currentMonster.page === 'player_monster_list') {
+                if (caap.navigateTo('player_monster_list', 'tab_monster_list_on.gif')) {
                     attackButton = null;
                     singleButtonList = null;
                     buttonList = null;
@@ -1017,14 +1017,14 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             if (pageUserCheck && (!buttonHref || !new RegExp('user=' + caap.stats.FBID).test(buttonHref) || !/alchemy\.php/.test(buttonHref))) {
                 con.log(2, "On another player's keep.", pageUserCheck);
 
-                if ($u.hasContent(currentMonster) && currentMonster.page === 'battle_monster') {
+                if ($u.hasContent(currentMonster) && currentMonster.page === 'player_monster_list') {
                     attackButton = null;
                     singleButtonList = null;
                     buttonList = null;
                     partsTargets = null;
                     partsTarget = null;
                     partsElem = null;
-                    return caap.navigateTo('keep,battle_monster', 'tab_monster_list_on.gif');
+                    return caap.navigateTo('player_monster_list', 'tab_monster_list_on.gif');
                 }
 
                 if ($u.hasContent(currentMonster) && currentMonster.page === 'festival_battle_monster') {
@@ -1209,7 +1209,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
             if (counter === -2) {
                 if (caap.stats.level > 6) {
-                    if (caap.navigateTo('keep,battle_monster', 'tab_monster_list_on.gif')) {
+                    if (caap.navigateTo('player_monster_list', 'tab_monster_list_on.gif')) {
                         state.setItem('reviewDone', false);
                         return true;
                     }
