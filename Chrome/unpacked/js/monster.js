@@ -1309,8 +1309,8 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             newbg_img: ['monster_abomination_header.jpg'],
             list_img: ['monster_abomination_list.jpg'],
             cta_img: ['cta_abomination.gif'],
-            bodyparts: 4,
-            partOrder: [4, 3, 2, 1]
+            bodyparts: 5,
+            partOrder: [5, 4, 3, 2, 1]
         },
         "Poseidon": {
             alpha: true,
@@ -1392,8 +1392,8 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             newbg_img: ['monster_baal_title.jpg'],
             list_img: ['monster_baal_list.jpg'],
             cta_img: ['cta_baal.gif'],
-            bodyparts: 4,
-            partOrder: [4, 3, 2, 1]
+            bodyparts: 5,
+            partOrder: [5, 4, 3, 2, 1]
         },
         "Lord Of Darkness": {
             alpha: true,
@@ -1420,8 +1420,8 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             newbg_img: ['monster_darkness_header.jpg'],
             list_img: ['monster_darkness_list.jpg'],
             cta_img: ['cta_darkness.gif'],
-            bodyparts: 4,
-            partOrder: [4, 3, 2, 1]
+            bodyparts: 5,
+            partOrder: [5, 4, 3, 2, 1]
         },
         "Svarog": {
             alpha: true,
@@ -1448,8 +1448,8 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             newbg_img: ['monster_magmapede_title.jpg'],
             list_img: ['monster_magmapede_list.jpg'],
             cta_img: ['cta_magmapede.gif'],
-            bodyparts: 4,
-            partOrder: [4, 3, 2, 1]
+            bodyparts: 5,
+            partOrder: [5, 4, 3, 2, 1]
         },
         // http://castleage.wikia.com/wiki/Alperon,_the_Corrupted
         "Alperon": {
@@ -2407,6 +2407,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                     tempDiv = null;
                     return false;
                 }
+                feedMonster=feedMonster.replace('Baal Stealer Of Souls','BAAL Stealer of Souls');
 
                 if (id === caap.stats.FBID.toString()) {
                     con.log(2, "Your monster found", tempText);
