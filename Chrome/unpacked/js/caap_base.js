@@ -2423,7 +2423,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             var selector = $j(caap.dashboardXY.selector);
 
             return {
-                y: reset ? selector.offset().top - 10 : caap.dashboardXY.y,
+                y: reset ? selector.offset().top : caap.dashboardXY.y,
                 x: caap.dashboardXY.x === '' || reset ? selector.offset().left : selector.offset().left + caap.dashboardXY.x
             };
         } catch (err) {
@@ -2442,7 +2442,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             state.setItem('caap_div_zIndex', '1');
             state.setItem('caap_top_zIndex', '2');
             caap.dashboardXY.x = state.getItem('caap_top_menuLeft', '');
-            caap.dashboardXY.y = state.getItem('caap_top_menuTop', $j(caap.dashboardXY.selector).offset().top - 10);
+            caap.dashboardXY.y = state.getItem('caap_top_menuTop', $j(caap.dashboardXY.selector).offset().top);
         } catch (err) {
             con.error("ERROR in saveDashboardXY: " + err);
         }
@@ -3252,13 +3252,13 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             No we apply our CSS to our container
             \-------------------------------------------------------------------------------------*/
             caap.dashboardXY.x = state.getItem('caap_top_menuLeft', '');
-            caap.dashboardXY.y = state.getItem('caap_top_menuTop', $j(caap.dashboardXY.selector).offset().top - 10);
+            caap.dashboardXY.y = state.getItem('caap_top_menuTop', $j(caap.dashboardXY.selector).offset().top);
             styleXY = caap.getDashboardXY();
             $j(layout).css({
                 background : bgc,
                 color : $u.bestTextColor(bgc),
                 padding : "5px",
-                height : "185px",
+                height : "175px",
                 width : "610px",
                 margin : "0 auto",
                 opacity : state.getItem('StyleOpacityLight', 1),
@@ -3507,7 +3507,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     if (caap.domain.which === 3) {
                         $j("img[src*='cross_promo.jpg']").parents("div:first").css('display', e.target.checked ? 'none' : 'block');
                         caap.dashboardXY.x = state.getItem('caap_top_menuLeft', '');
-                        caap.dashboardXY.y = state.getItem('caap_top_menuTop', $j(caap.dashboardXY.selector).offset().top - 10);
+                        caap.dashboardXY.y = state.getItem('caap_top_menuTop', $j(caap.dashboardXY.selector).offset().top);
                         styleXY = caap.getDashboardXY();
                         caap.caapTopObject.css({
                             top: styleXY.y + 'px',
@@ -4225,7 +4225,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         state.deleteItem('caap_top_zIndex');
         if (caap.domain.which !== 0) {
             caap.dashboardXY.x = '';
-            caap.dashboardXY.y = $j(caap.dashboardXY.selector).offset().top - 10;
+            caap.dashboardXY.y = $j(caap.dashboardXY.selector).offset().top;
             caap_topXY = caap.getDashboardXY(true);
             caap.caapTopObject.css({
                 'cursor': '',
