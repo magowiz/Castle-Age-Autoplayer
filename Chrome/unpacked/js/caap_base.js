@@ -5313,7 +5313,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 tNum = 0,
                 xS = 0,
                 xE = 0,
-                ststbDiv = $j('#globalContainer #main_ststb'),
+//                ststbDiv = $j('#globalContainer #main_ststb'),
+                ststbDiv = $j('#globalContainer #main_sts_container'),
                 bntpDiv = $j('#globalContainer #main_bntp'),
                 tempDiv = $j("#gold_current_value", ststbDiv);
 
@@ -5327,7 +5328,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             // energy
-            tempDiv = $j("#st_2_2", ststbDiv);
+            tempDiv = $j("#energy_current_value", ststbDiv);
             if ($u.hasContent(tempDiv)) {
                 caap.stats.energyT = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
                 caap.stats.energy = caap.getStatusNumbers(caap.stats.energyT.num + "/" + caap.stats.energy.max);
@@ -5337,7 +5338,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             // health
-            tempDiv = $j("#st_2_3", ststbDiv);
+            tempDiv = $j("#health_current_value", ststbDiv);
             if ($u.hasContent(tempDiv)) {
                 caap.stats.healthT = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
                 caap.stats.health = caap.getStatusNumbers(caap.stats.healthT.num + "/" + caap.stats.health.max);
@@ -5347,7 +5348,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             // stamina
-            tempDiv = $j("#st_2_4", ststbDiv);
+            tempDiv = $j("#stamina_current_value", ststbDiv);
             if ($u.hasContent(tempDiv)) {
                 caap.stats.staminaT = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
                 caap.stats.stamina = caap.getStatusNumbers(caap.stats.staminaT.num + "/" + caap.stats.stamina.max);
@@ -5357,7 +5358,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             // experience
-            tempDiv = $j("#st_2_5", ststbDiv);
+            tempDiv = $j("#header_player_xp_totals", ststbDiv);
             if ($u.hasContent(tempDiv)) {
                 caap.stats.exp = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
             } else {
@@ -5366,7 +5367,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             // level
-            tempDiv = $j("#st_5", ststbDiv);
+            tempDiv = $j("[title*='level']", ststbDiv);
             if ($u.hasContent(tempDiv)) {
                 tNum = $u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+)/), 0);
                 if (tNum > caap.stats.level) {
