@@ -1205,7 +1205,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 gift = request_params.indexOf("gift=") >= 0,
                 fest = request_params.indexOf("fest=") >= 0,
                 recr = msg.indexOf("recruiting") >= 0,
-                mons = request_params.indexOf("battle_monster") >= 0,
+                mons = request_params.indexOf('player_monster_list') >= 0,
                 prom = request_params.indexOf("popup_promo_create") >= 0,
                 filterFunc;
 
@@ -4383,14 +4383,14 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
     caap.energyListener = function (e) {
         var num = $u.setContent($u.setContent($j(e.target).text(), '').parseInt(), -1);
-con.log (1, "energy listener", e, $j(e.target).text(), num);
+con.log(1, "energy listener", e, $j(e.target).text(), num);
         if (num < 0 || $u.isNaN(num)) {
             return;
         }
 
         caap.stats.energy = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.energy.max), caap.stats.energy);
         caap.stats.energyT = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.energyT.max), caap.stats.energy);
-con.log (1, "done listener", caap.stats.energy, caap.stats.energyT);
+con.log(1, "done listener", caap.stats.energy, caap.stats.energyT);
         con.log(3, "energyListener", num);
     };
 
@@ -4409,14 +4409,14 @@ con.log (1, "done listener", caap.stats.energy, caap.stats.energyT);
 
     caap.healthListener = function (e) {
         var num = $u.setContent($u.setContent($j(e.target).text(), '').parseInt(), -1);
-con.log (1, "health e", e, $j(e.target).text(), num);
+con.log(1, "health e", e, $j(e.target).text(), num);
         if (num < 0 || $u.isNaN(num)) {
             return;
         }
 
         caap.stats.health = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.health.max), caap.stats.health);
         caap.stats.healthT = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.healthT.max), caap.stats.healthT);
-con.log (1, "healthListener", caap.stats);
+con.log(1, "healthListener", caap.stats);
         con.log(3, "healthListener", num);
     };
 
@@ -4677,7 +4677,7 @@ con.log (1, "healthListener", caap.stats);
             CheckResultsFunction: 'checkResults_index'
         },
         'battle_monster': {
-            signaturePic: 'tab_monster_list_on.gif',
+            signaturePic: 'tab_monster_active.gif',
             CheckResultsFunction: 'checkResults_fightList',
             subpages: ['onMonster']
         },
@@ -4687,7 +4687,7 @@ con.log (1, "healthListener", caap.stats);
             subpages: ['onMonster']
         },
         'player_monster_list': {
-            signaturePic: 'monster_button_yourmonster_on.jpg',
+            signaturePic: 'tab_monster_list_on.gif',
             CheckResultsFunction: 'checkResults_fightList',
             subpages: ['onMonster']
         },
@@ -5009,7 +5009,7 @@ con.log (1, "healthListener", caap.stats);
                 // we are using the new whatclickedimgButton listener
                 // Also detect when there is an actual page match that is incorrect
             if (page !== page2) {
-                if ((page === 'onBattle' && page2 !== 'battle_monster') || (page === 'onRaid' && page2 === 'raid')) {
+                if ((page === 'onBattle' && page2 !== 'player_monster_list') || (page === 'onRaid' && page2 === 'raid')) {
                     con.warn("page and page2 differ", page, page2, pageUrl);
                 } else {
                     con.log(2, "page and page2 differ", page, page2, pageUrl);
@@ -5452,7 +5452,7 @@ caap.stats.gold.cash = 0;
                 $j().alert("<div style='text-align: center;'>" + con.warn("Paused as this account may have been disabled!", caap.stats) + "</div>");
                 caap.pauseListener();
             }
-con.log (1, "caap.stats", caap.stats);
+con.log(1, "caap.stats", caap.stats);
             ststbDiv = null;
             bntpDiv = null;
             tempDiv = null;
@@ -9113,7 +9113,7 @@ con.log (1, "caap.stats", caap.stats);
             }
 
             con.log(2, "Checking Monster Class to get Character Class Stats");
-            return caap.navigateTo('keep,battle_monster,view_class_progress', 'nm_class_whole_progress_bar.jpg');
+            return caap.navigateTo('monster_summon_list,view_class_progress', 'nm_class_whole_progress_bar.jpg');
         } catch (err) {
             con.error("ERROR in checkCharacterClasses: " + err);
             return false;
