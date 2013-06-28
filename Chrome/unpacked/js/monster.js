@@ -62,7 +62,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
     monster.engageButtons = {};
 
     monster.completeButton = {
-        'battle_monster': {
+        'player_monster_list': {
             'name': undefined,
             'button': undefined
         },
@@ -1780,6 +1780,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                 }
 
                 monster.save();
+                con.log(3, "save monster record", monster.records);
             }
 
             return record;
@@ -1956,7 +1957,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
 
             con.log(3, 'Selecting monster');
             var monsterList = {
-                'battle_monster': [],
+                'player_monster_list': [],
                 'raid': [],
                 'any': []
             },
@@ -1982,7 +1983,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                 stunTarget = '',
                 energyTarget = monster.energyTarget(),
                 target = {
-                    'battle_monster': '',
+                    'player_monster_list': '',
                     'raid': '',
                     'fortify': monster.energyTarget()
                 },
@@ -1995,6 +1996,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                 m = 0,
                 attackOrderList = [],
                 theGeneral = config.getItem('MonsterGeneral', 'Use Current');
+
 
             theGeneral = theGeneral === "Under Level" ? (config.getItem('ReverseLevelUpGenerals') ? general.GetLevelUpNames().reverse().pop() : general.GetLevelUpNames().pop()) : theGeneral;
             // First we forget everything about who we already picked.
@@ -2024,8 +2026,8 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                 monster.records[it].conditions = 'none';
                 if (config.getItem('SerializeRaidsAndMonsters', false)) {
                     monsterList.any.push(monster.records[it].md5);
-                } else if ((monster.records[it].page === 'raid') || (monster.records[it].page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster') === 'battle_monster')) {
-                    monsterList[monster.records[it].page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster')].push(monster.records[it].md5);
+                } else if ((monster.records[it].page === 'raid') || (monster.records[it].page.replace('festival_battle_monster', 'player_monster_list').replace('guildv2_battle_monster', 'player_monster_list').replace('guildv2_monster_list', 'player_monster_list') === 'player_monster_list')) {
+                    monsterList[monster.records[it].page.replace('festival_battle_monster', 'player_monster_list').replace('guildv2_battle_monster', 'player_monster_list').replace('guildv2_monster_list', 'player_monster_list')].push(monster.records[it].md5);
                 }
             }
             /*jslint continue: false */
@@ -2039,7 +2041,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             if (config.getItem('SerializeRaidsAndMonsters', false)) {
                 selectTypes = ['any'];
             } else {
-                selectTypes = ['battle_monster', 'raid'];
+                selectTypes = ['player_monster_list', 'raid'];
             }
 
             con.log(3, 'records/monsterList/selectTypes', monster.records, monsterList, selectTypes);
@@ -2097,13 +2099,13 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                         // Or if this monster is dead, skip to next one
                         // Or if this monster is not the correct type, skip to next one
                         if (!monster.getItem(monsterList[selectTypes[s]][m]).name.toLowerCase().hasIndexOf(attackOrderList[p].match(new RegExp("^[^:]+")).toString().trim().toLowerCase()) ||
-                            (selectTypes[s] !== 'any' && monsterObj.page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster') !== selectTypes[s])) {
+                            (selectTypes[s] !== 'any' && monsterObj.page.replace('festival_battle_monster', 'player_monster_list').replace('guildv2_monster_list', 'player_monster_list') !== selectTypes[s])) {
                             continue;
                         }
 
                         //Monster is a match so we set the conditions
                         monsterObj.conditions = monsterConditions;
-                        monsterObj.select = true;
+                        monsterObj.select = true;    	
                         monster.setItem(monsterObj);
                         // If it's complete or collect rewards, no need to process further
                         if (monsterObj.color === 'grey') {
@@ -2229,9 +2231,9 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
                 if (monsterMD5) {
                     monsterObj = monster.getItem(monsterMD5);
                     monsterInfo = monster.getInfo(monsterObj);
-                    target[monsterObj.page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster')] = monsterMD5;
-                    //state.setItem('targetFrom' + monsterObj.page.replace('festival_battle_monster', 'battle_monster'), monsterMD5);
-                    if (monsterObj.page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster') === 'battle_monster') {
+                    target[monsterObj.page.replace('festival_battle_monster', 'player_monster_list').replace('guildv2_monster_list', 'player_monster_list')] = monsterMD5;
+                    //state.setItem('targetFrom' + monsterObj.page.replace('festival_battle_monster', 'player_monster_list'), monsterMD5);
+                    if (monsterObj.page.replace('festival_battle_monster', 'player_monster_list').replace('guildv2_monster_list', 'player_monster_list') === 'player_monster_list') {
                         nodeNum = 0;
                         if (!caap.inLevelUpMode() && monsterInfo && monsterInfo.staLvl) {
                             for (nodeNum = monsterInfo.staLvl.length - 1; nodeNum >= 0; nodeNum -= 1) {
@@ -2287,7 +2289,7 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             }
             /*jslint continue: false */
 
-            state.setItem('targetFrombattle_monster', target.battle_monster);
+            state.setItem('targetFrombattle_monster', target.player_monster_list);
             state.setItem('targetFromraid', target.raid);
             state.setItem('targetFromfortify', target.fortify);
 
@@ -2424,12 +2426,12 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             con.log(2, 'monster Name', mName);
             if (monsterName !== mName) {
                 con.log(2, 'Looking for ' + monsterName + ' but on ' + mName + '. Going back to select screen');
-                page = page === 'onMonster' ? 'battle_monster' : (page === 'onRaid' ? 'raid' : page);
+                page = page === 'onMonster' ? 'player_monster_list' : (page === 'onRaid' ? 'raid' : page);
                 con.log(4, "monster.confirmRightPage page", page);
                 monsterDiv = null;
                 tempDiv = null;
                 md5 = (id + ' ' + feedMonster + ' ' + page).toLowerCase().MD5();
-                return caap.navigateTo('keep,' + monster.getItem(md5).page);
+                return caap.navigateTo(monster.getItem(md5).page);
             }
 
             monsterDiv = null;
