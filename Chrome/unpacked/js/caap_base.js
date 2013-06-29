@@ -5321,26 +5321,9 @@ con.log(1, "healthListener", caap.stats);
                 tempDiv = $j("#gold_current_value", ststbDiv);
 
             // gold
+            tempDiv = $j('#gold_current_value_amount', ststbDiv);
             if ($u.hasContent(tempDiv)) {
-                var tmpMultiplier = 1, tmpVal = $u.setContent($u.setContent(tempDiv.text(), ''), 0);
-
-                switch (tmpVal.replace ("$","").replace (tmpVal.numberOnly(), '')) {
-                    case 'M':
-                        tmpMultiplier = 1000000;
-                    break
-                    case 'B':
-                        tmpMultiplier = 1000000000;
-                    break
-                    case 'T':
-                        tmpMultiplier = 1000000000000;
-                    break
-                }
-                tmpVal = tmpVal.numberOnly() * tmpMultiplier;
-
-    //disabled for now
-//                caap.stats.gold.cash = tmpVal;
-caap.stats.gold.cash = 0;
-                caap.stats.gold.total = caap.stats.gold.bank + caap.stats.gold.cash;
+                caap.stats.gold.cash = parseInt(tempDiv.val(),10);
             } else {
                 con.warn("Unable to get cashDiv");
                 passed = false;
