@@ -526,7 +526,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
     conquest.targeting = function() {
         function logOpponent(opponent, reason, conditions) {
-            con.log((reason === 'sorted' ? 1 : 2), (opponent.nameStr.lpad(' ', 20) + opponent.userId.lpad(' ', 16) +
+            con.log(2, (reason === 'sorted' ? 1 : 2), (opponent.nameStr.lpad(' ', 20) + opponent.userId.lpad(' ', 16) +
                 opponent.levelNum.lpad(' ', 4) + conquest.conquestRankTable[opponent.rankNum].lpad(' ', 16) +
                 opponent.armyNum.lpad(' ', 4) + opponent.score.dp().lpad(' ', 5)), reason, conditions);
         }
@@ -632,68 +632,36 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             opponentsSlice.each(function() {
                 var opponentDiv = $j(this),
                     boxesDiv = opponentDiv.children("div"),
-                    idDiv = $j(),
-                    playerDiv = $j(),
-                    armyDiv = $j(),
                     tempDiv = $j(),
                     tempText = '',
-                    userId = 0,
                     battleRecord = {},
                     levelMultiplier = 0,
                     armyRatio = 0,
                     tempTime = 0;
 
                 if ($u.hasContent(boxesDiv) && boxesDiv.length === 7 ) {
-                    idDiv = boxesDiv.eq(1);
-                    playerDiv = boxesDiv.eq(2);
-                    armyDiv = boxesDiv.eq(3);
+                    var playerDiv = boxesDiv.eq(2),
+                        armyDiv = boxesDiv.eq(3),
+                        idDiv = boxesDiv.eq(5);
                 } else {
                     con.warn("skipping opponent, missing boxes", opponentDiv);
                     opponentDiv = null;
                     boxesDiv = null;
-                    idDiv = null;
-                    playerDiv = null;
-                    armyDiv = null;
                     tempDiv = null;
                     return;
                 }
-                if ($u.hasContent(idDiv)) {
-                    tempDiv = $j("img[src*='picture?type=square']", idDiv);
-                    if ($u.hasContent(tempDiv)) {
-                        tempText = $u.setContent(tempDiv.attr('src'), '');
-                        if ($u.hasContent(tempText)) {
-                            userId = $u.setContent(tempText.regex(/facebook\.com\/(\d+)/i), -1);
-                            if (!$u.isNumber(userId) || userId < 1) {
-                                con.warn("skipping opponent, unable to get userid", tempText);
-                                opponentDiv = null;
-                                boxesDiv = null;
-                                idDiv = null;
-                                playerDiv = null;
-                                armyDiv = null;
-                                tempDiv = null;
-                                return;
-                            }
 
-                            battleRecord = conquest.getItem(userId);
-                        } else {
-                            con.warn("No text in idDiv");
-                            opponentDiv = null;
-                            boxesDiv = null;
-                            idDiv = null;
-                            playerDiv = null;
-                            armyDiv = null;
-                            tempDiv = null;
-                            return;
-                        }
-                    }
+                var userId = parseInt($j("input[name='target_id']",idDiv)[0].defaultValue,10);
+                if (userId > 0) {
+                    battleRecord = conquest.getItem(userId);
                 } else {
-                    con.warn("skipping opponent, missing idDiv", opponentDiv);
+                    con.warn("skipping opponent, unable to get userid", tempText);
                     opponentDiv = null;
                     boxesDiv = null;
-                    idDiv = null;
                     playerDiv = null;
                     armyDiv = null;
-                    tempDiv = null;
+                    idDiv = null;
+                    userId = null;
                     return;
                 }
 
@@ -774,7 +742,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     tempDiv = null;
                     return;
                 }
-
+                levelMultiplier = caap.stats.level / battleRecord.levelNum;
                 battleRecord.score = battleRecord.rankNum - (battleRecord.armyNum / levelMultiplier / caap.stats.army.capped);
                 conquest.targetsOnPage.push(battleRecord);
                 if (!$u.isNumber(caap.stats.level) || (caap.stats.level - minLevel > battleRecord.levelNum)) {
@@ -1055,18 +1023,13 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     con.warn("conquest.battle: missing name targetDiv");
                 }
 
-                buttonDiv = $j("input[src*='war_invadeagainbtn.gif'],input[src*='war_duelagainbtn.gif']", bottomDiv);
+                buttonDiv = $j('input[name="duel"]',bottomDiv);
+
                 if ($u.hasContent(buttonDiv)) {
-                    tempText = buttonDiv.attr('src');
-                    if ($u.hasContent(tempText)) {
-                        type = $u.setContent(tempText.regex(/war_(\S+)againbtn.gif/), 'unknown');
-                        if (!$u.hasContent(type) || (type !== 'invade' && type !== 'duel')) {
-                            con.warn("conquest.battle: type unknown", tempText);
-                        }
-                    } else {
-                        con.warn("conquest.battle: missing buttonDiv tempText");
-                    }
+                    tempText = buttonDiv.val();
+                    type = tempText == 'true' ? 'duel' : 'invade';
                 } else {
+                    type = 'unknown';
                     con.warn("conquest.battle: missing buttonDiv");
                 }
 

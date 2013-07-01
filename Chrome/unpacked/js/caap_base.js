@@ -2971,7 +2971,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
             htmlCode += caap.makeCheckTR('Display Keep Stats', 'displayKStats', true, "Display user statistics on your keep.");
             htmlCode += caap.makeCheckTR('Enable Oracle Mod', 'enableOracleMod', true, "Allows you to change the monthly general and the equipment that you wish to purchase.");
-            htmlCode += caap.makeCheckTR('Display ETNL', 'displayETNL', true, "Display Experience To Next Level.");
             htmlCode += caap.makeCheckTR('Display Item Titles', 'enableTitles', true, itemTitlesInstructions);
             htmlCode += caap.makeCheckTR('Do Goblin Hinting', 'goblinHinting', true, goblinHintingInstructions);
             //htmlCode += caap.makeCheckTR('Hide Recipe Ingredients', 'enableIngredientsHide', false, ingredientsHideInstructions);
@@ -4929,27 +4928,6 @@ con.log(1, "healthListener", caap.stats);
         }
     };
 
-    caap.addExpDisplay = function () {
-        try {
-            if (config.getItem("displayETNL", true)) {
-                var etnlDiv = $j('#globalContainer #caap_etnl');
-
-                etnlDiv = $u.hasContent(etnlDiv) ? etnlDiv.html(caap.stats.exp.dif) : $j('#globalContainer #st_2_5 strong').prepend("(<span id='caap_etnl' style='color:red'>" + caap.stats.exp.dif + "</span>) ");
-                if (!$u.hasContent(etnlDiv)) {
-                    con.warn("Unable to get experience array");
-                }
-
-                caap.setDivContent('exp_mess', "Experience to next level: " + caap.stats.exp.dif);
-                etnlDiv = null;
-            }
-
-            return true;
-        } catch (err) {
-            con.error("ERROR in addExpDisplay: " + err);
-            return false;
-        }
-    };
-
     caap.checkResults = function () {
         try {
             con.log(1, 'caap.checkResults');
@@ -5042,7 +5020,6 @@ con.log(1, "healthListener", caap.stats);
 
             // Information updates
             caap.updateDashboard();
-            caap.addExpDisplay();
             caap.setDivContent('level_mess', 'Expected next level: ' + $u.makeTime(caap.stats.indicators.enl, caap.timeStr(true)));
             caap.setDivContent('demipoint_mess',
                 (whenBattle !== 'Never' && demiPointsFirst && whenMonster !== 'Never') || whenBattle === 'Demi Points Only' ?
