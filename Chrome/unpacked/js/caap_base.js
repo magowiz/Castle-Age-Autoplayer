@@ -2255,7 +2255,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         'Land of Fire III',
         'Land of Earth III',
         'Land of Mist IV',
-        'Land of Water III'
+        'Land of Water III',
+        'Undead II'
     ];
 
     caap.demiQuestList = ['Ambrosia', 'Malekus', 'Corvintheus', 'Aurora', 'Azeron'];
@@ -6608,11 +6609,20 @@ con.log(1, "caap.stats", caap.stats);
         'Land of Water III': {
             clas: 'quests_stage_20',
             base: 'tab_water3',
-            next: 'DemiChange',
+            next: 'Undead II',
             area: '',
             list: '',
             boss: "Baal",
             orb: 'Orb of Baal'
+        },
+        'Undead II': {
+            clas: 'quests_stage_21',
+            base: 'tab_undead2',
+            next: 'DemiChange',
+            area: '',
+            list: '',
+            boss: 'Aspect of Death',
+            orb: 'Orb of Deathl'
         },
 
         'DemiChange': {
@@ -6872,20 +6882,18 @@ con.log(1, "caap.stats", caap.stats);
                             case 'tab_earth2':
                             case 'tab_ivory':
                             case 'tab_underworld':
+                            case 'tab_undead2':
                                 pathToPage += '_small.gif';
                                 imageOnPage += '_big.gif';
-
                                 break;
                             case 'tab_heaven':
                                 pathToPage += '_small2.gif';
                                 imageOnPage += '_big2.gif';
-
                                 break;
                             case 'land_undead_realm':
                             case 'land_demon_realm':
                                 pathToPage += '.gif';
                                 imageOnPage += '_sel.gif';
-
                                 break;
                             default:
                                 pathToPage = 'quests,jobs_tab_back.gif,' + landPic + '.gif';
@@ -7618,6 +7626,7 @@ con.log(1, "caap.stats", caap.stats);
         'quests_stage_18': 'Land of Earth III',
         'quests_stage_19': 'Land of Mist IV',
         'quests_stage_20': 'Land of Water III',
+        'quests_stage_21': 'Undead II',
         'symbolquests_stage_1': 'Ambrosia',
         'symbolquests_stage_2': 'Malekus',
         'symbolquests_stage_3': 'Corvintheus',
