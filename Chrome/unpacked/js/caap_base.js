@@ -1205,7 +1205,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 gift = request_params.indexOf("gift=") >= 0,
                 fest = request_params.indexOf("fest=") >= 0,
                 recr = msg.indexOf("recruiting") >= 0,
-                mons = request_params.indexOf('player_monster_list') >= 0,
+                mons = request_params.indexOf("battle_monster") >= 0,
                 prom = request_params.indexOf("popup_promo_create") >= 0,
                 filterFunc;
 
@@ -4383,14 +4383,13 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
     caap.energyListener = function (e) {
         var num = $u.setContent($u.setContent($j(e.target).text(), '').parseInt(), -1);
-	con.log(1, "energy listener", e, $j(e.target).text(), num);
+
         if (num < 0 || $u.isNaN(num)) {
             return;
         }
 
         caap.stats.energy = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.energy.max), caap.stats.energy);
         caap.stats.energyT = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.energyT.max), caap.stats.energy);
-con.log(1, "done listener", caap.stats.energy, caap.stats.energyT);
         con.log(3, "energyListener", num);
     };
 
@@ -4409,14 +4408,13 @@ con.log(1, "done listener", caap.stats.energy, caap.stats.energyT);
 
     caap.healthListener = function (e) {
         var num = $u.setContent($u.setContent($j(e.target).text(), '').parseInt(), -1);
-con.log(1, "health e", e, $j(e.target).text(), num);
+
         if (num < 0 || $u.isNaN(num)) {
             return;
         }
 
         caap.stats.health = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.health.max), caap.stats.health);
         caap.stats.healthT = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.healthT.max), caap.stats.healthT);
-con.log(1, "healthListener", caap.stats);
         con.log(3, "healthListener", num);
     };
 
@@ -4988,7 +4986,7 @@ con.log(1, "healthListener", caap.stats);
                 // we are using the new whatclickedimgButton listener
                 // Also detect when there is an actual page match that is incorrect
             if (page !== page2) {
-                if ((page === 'onBattle' && page2 !== 'player_monster_list') || (page === 'onRaid' && page2 === 'raid')) {
+                if ((page === 'onBattle' && page2 !== 'battle_monster') || (page === 'onRaid' && page2 === 'raid')) {
                     con.warn("page and page2 differ", page, page2, pageUrl);
                 } else {
                     con.log(2, "page and page2 differ", page, page2, pageUrl);
@@ -5414,7 +5412,6 @@ con.log(1, "healthListener", caap.stats);
                 caap.pauseListener();
             }
 
-con.log(1, "caap.stats", caap.stats);
             ststbDiv = null;
             bntpDiv = null;
             tempDiv = null;
@@ -6889,11 +6886,13 @@ con.log(1, "caap.stats", caap.stats);
                             case 'tab_heaven':
                                 pathToPage += '_small2.gif';
                                 imageOnPage += '_big2.gif';
+
                                 break;
                             case 'land_undead_realm':
                             case 'land_demon_realm':
                                 pathToPage += '.gif';
                                 imageOnPage += '_sel.gif';
+
                                 break;
                             default:
                                 pathToPage = 'quests,jobs_tab_back.gif,' + landPic + '.gif';
@@ -8160,23 +8159,6 @@ con.log(1, "caap.stats", caap.stats);
 
     caap.blessingPerformed = false;
 
-    caap.pstDay = function () {
-		var time = new Date();
-		var pstMS = time.getTime() + ((-420) * 60000);
-		var pstTime = new Date(pstMS);
-		var weekday = {
-			0 : "Sunday",
-			1 : "Monday",
-			2 : "Tuesday",
-			3 : "Wednesday",
-			4 : "Thursday",
-			5 : "Friday",
-			6 : "Saturday"
-		};
-
-		return weekday[pstTime.getUTCDay()];
-    }
-
     caap.blessingResults = function () {
         try {
             var hours = 0,
@@ -8213,21 +8195,20 @@ con.log(1, "caap.stats", caap.stats);
 
     caap.autoBlessSelection = function () {
         var autoBless = config.getItem('AutoBless', 'none'),
-		pstDayBonus = caap.pstDay(),
-		startAtt = 0,
-		stopAtt = 4,
-		attribute = '',
-		attrName = '',
-		attrValue = 0,
-		attrAdjustNew = 0,
-		attrCurrent = 0,
-		level = 0,
-		energy = 0,
-		stamina = 0,
-		attack = 0,
-		defense = 0,
-		health = 0,
-		n;
+            startAtt = 0,
+            stopAtt = 4,
+            attribute = '',
+            attrName = '',
+            attrValue = 0,
+            attrAdjustNew = 0,
+            attrCurrent = 0,
+            level = 0,
+            energy = 0,
+            stamina = 0,
+            attack = 0,
+            defense = 0,
+            health = 0,
+            n;
 
         if (autoBless.match('Auto Upgrade')) {
             try {
@@ -8268,10 +8249,6 @@ con.log(1, "caap.stats", caap.stats);
 
                             break;
                         case 'stamina':
-				if (pstDayBonus === 'Thursday' || pstDayBonus === 'Friday' ) {
-					con.log(1, "We don't pray stamina on Thursday and Friday: continue");
-					continue;
-				}
                             attrCurrent = stamina;
 
                             break;

@@ -91,7 +91,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 return false;
             }
 
-            page = session.getItem('page', 'player_monster_list');
+
+            page = session.getItem('page', 'battle_monster');
 
             if (page === 'player_monster_list') {
                 // Review monsters and find attack and fortify button
@@ -119,7 +120,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     mName = userName + ' ' + monsterText;
                     con.log(2, "Monster Name", mName);
                     con.log(3, "checkResults_fightList page", page);
-                    md5 = (userId + ' ' + monsterText + ' ' + 'player_monster_list').toLowerCase().MD5();
+                    md5 = (userId + ' ' + monsterText + ' ' + "battle_monster").toLowerCase().MD5();
                     monsterReviewed = monster.getItem(md5);
                     monsterReviewed.name = mName;
                     monsterReviewed.userName = userName;
@@ -128,7 +129,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     monsterReviewed.md5 = md5;
                     monsterReviewed.type = $u.setContent(monsterReviewed.type, '');
                     monsterReviewed.page = "battle_monster";
-                    newInputsDiv = $j("img[src*='monster_button_collect'],img[src*='monsterlist_button_engage']", monsterRow.eq(it));
+                    newInputsDiv = $j("img[src*='list_btn_collect'],img[src*='list_btn_atk']", monsterRow.eq(it));
+con.log (1, "newInputsDiv", newInputsDiv);
                     engageButtonName = $u.setContent(newInputsDiv.attr("src"), '').regex(/(collect|atk)/);
                     con.log(2, "engageButtonName", engageButtonName);
                     switch (engageButtonName) {
@@ -144,10 +146,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                         case 'complete':
                             // don't think CA use this image any more :(
                             // need to see if there is any alternative
-                            if (!$u.hasContent(monster.completeButton.player_monster_list.md5)) {
-                                monster.completeButton.player_monster_list.md5 = $u.setContent(monsterReviewed.md5, '');
-                                monster.completeButton.player_monster_list.name = $u.setContent(monsterReviewed.name, '');
-                                monster.completeButton.player_monster_list.button = $u.setContent($j("img[src*='cancelButton.gif']", monsterRow.eq(it)), null);
+                            if (!$u.hasContent(monster.completeButton.battle_monster.md5)) {
+                                monster.completeButton.battle_monster.md5 = $u.setContent(monsterReviewed.md5, '');
+                                monster.completeButton.battle_monster.name = $u.setContent(monsterReviewed.name, '');
+                                monster.completeButton.battle_monster.button = $u.setContent($j("img[src*='cancelButton.gif']", monsterRow.eq(it)), null);
                             }
 
                             monsterReviewed.status = 'Complete';
@@ -259,7 +261,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     monster.setItem(monsterReviewed);
                 }
             } else {
-                if ((page === 'player_monster_list' || page === 'festival_tower') && !$u.hasContent(buttonsDiv)) {
+                if ((page === 'battle_monster' || page === 'festival_tower') && !$u.hasContent(buttonsDiv)) {
                     con.log(2, "No monsters to review");
                     //feed.checked("Not Found");
                     state.setItem('reviewDone', true);
@@ -345,11 +347,11 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                                 break;
                             }
 
-                            if ((page !== "festival_tower" && page !== "festival_tower2" && !$u.hasContent(monster.completeButton[page.replace(/festival_tower\d*/, 'player_monster_list')].button)) ||
-                                    !$u.hasContent(monster.completeButton[page.replace(/festival_tower\d*/, 'player_monster_list')].md5)) {
-                                monster.completeButton[page.replace(/festival_tower\d*/, 'player_monster_list')].md5 = $u.setContent(monsterReviewed.md5, '');
-                                monster.completeButton[page.replace(/festival_tower\d*/, 'player_monster_list')].name = $u.setContent(monsterReviewed.name, '');
-                                monster.completeButton[page.replace(/festival_tower\d*/, 'player_monster_list')].button = $u.setContent($j("img[src*='cancelButton.gif']", monsterRow), null);
+                            if ((page !== "festival_tower" && page !== "festival_tower2" && !$u.hasContent(monster.completeButton[page.replace(/festival_tower\d*/, "battle_monster")].button)) ||
+                                    !$u.hasContent(monster.completeButton[page.replace(/festival_tower\d*/, "battle_monster")].md5)) {
+                                monster.completeButton[page.replace(/festival_tower\d*/, "battle_monster")].md5 = $u.setContent(monsterReviewed.md5, '');
+                                monster.completeButton[page.replace(/festival_tower\d*/, "battle_monster")].name = $u.setContent(monsterReviewed.name, '');
+                                monster.completeButton[page.replace(/festival_tower\d*/, "battle_monster")].button = $u.setContent($j("img[src*='cancelButton.gif']", monsterRow), null);
                             }
 
                             monsterReviewed.status = 'Complete';
@@ -759,7 +761,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 currentMonster = monster.getItem(targetMonster);
                 monsterName = currentMonster.name;
                 monsterInfo = monster.getInfo(currentMonster);
-                if ($u.hasContent(monsterName) && $u.hasContent(monsterInfo) && caap.checkStamina('Monster', state.getItem('MonsterStaminaReq', 1)) && currentMonster.page.replace('festival_battle_monster', 'player_monster_list').replace('guildv2_monster_list', 'player_monster_list') === 'player_monster_list') {
+                if ($u.hasContent(monsterName) && $u.hasContent(monsterInfo) && caap.checkStamina('Monster', state.getItem('MonsterStaminaReq', 1)) && currentMonster.page.replace('festival_battle_monster', 'battle_monster').replace('guildv2_monster_list', 'battle_monster') === 'battle_monster') {
                     fightMode = 'Monster';
                 } else {
                     schedule.setItem('NotargetFrombattle_monster', 60);
@@ -950,7 +952,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
             ///////////////// Check For Monster Page \\\\\\\\\\\\\\\\\\\\\\
             
-            if ($u.hasContent(currentMonster) && currentMonster.page === 'player_monster_list') {
+            if ($u.hasContent(currentMonster) && currentMonster.page === 'battle_monster') {
                 if (caap.navigateTo('player_monster_list', 'tab_monster_list_on.gif')) {
                     attackButton = null;
                     singleButtonList = null;
@@ -1010,7 +1012,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             if (pageUserCheck && (!buttonHref || !new RegExp('user=' + caap.stats.FBID).test(buttonHref) || !/alchemy\.php/.test(buttonHref))) {
                 con.log(2, "On another player's keep.", pageUserCheck);
 
-                if ($u.hasContent(currentMonster) && currentMonster.page === 'player_monster_list') {
+                if ($u.hasContent(currentMonster) && currentMonster.page === 'battle_monster') {
                     attackButton = null;
                     singleButtonList = null;
                     buttonList = null;
@@ -1049,10 +1051,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 return false;
             }
 
-            if (config.getItem('clearCompleteMonsters', false) && $u.hasContent(monster.completeButton.player_monster_list.button) && $u.hasContent(monster.completeButton.player_monster_list.md5)) {
-                caap.click(monster.completeButton.player_monster_list.button);
-                monster.deleteItem(monster.completeButton.player_monster_list.md5);
-                monster.completeButton.player_monster_list = {
+            if (config.getItem('clearCompleteMonsters', false) && $u.hasContent(monster.completeButton.battle_monster.button) && $u.hasContent(monster.completeButton.battle_monster.md5)) {
+                caap.click(monster.completeButton.battle_monster.button);
+                monster.deleteItem(monster.completeButton.battle_monster.md5);
+                monster.completeButton.battle_monster = {
                     'md5': undefined,
                     'name': undefined,
                     'button': undefined
@@ -1080,7 +1082,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 partsElem = null;
                 return true;
             }
-
+con.log (1, "after button check:", monster, currentMonster);
             schedule.setItem('NotargetFrombattle_monster', 60);
             con.warn('No "Engage" button for ', monsterName);
             attackButton = null;
@@ -1145,7 +1147,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                         state.setItem("conquestCurrentLand", curLand += 1);
                         var thisLand = conquestMonsterLands[curLand].slot;
                         var link = "guildv2_monster_list.php?guild_id=" + caap.stats['guild']['id'] + "&slot=" + conquestMonsterLands[curLand].slot;
-                        con.log(1, "starting conquest monsters", conquestMonsterLands, link);
+                        con.log (1, "starting conquest monsters", conquestMonsterLands, link);
                         caap.clickAjaxLinkSend(link, 3000);
                         return true;
                     }
@@ -1211,10 +1213,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     state.setItem('reviewDone', true);
                 }
 
-    			if (config.getItem('clearCompleteMonsters', false) && $u.hasContent(monster.completeButton.player_monster_list.button) && $u.hasContent(monster.completeButton.player_monster_list.md5)) {
-                    caap.click(monster.completeButton.player_monster_list.button);
-                    monster.deleteItem(monster.completeButton.player_monster_list.md5);
-                    monster.completeButton.player_monster_list = {
+                if (config.getItem('clearCompleteMonsters', false) && $u.hasContent(monster.completeButton.battle_monster.button) && $u.hasContent(monster.completeButton.battle_monster.md5)) {
+                    caap.click(monster.completeButton.battle_monster.button);
+                    monster.deleteItem(monster.completeButton.battle_monster.md5);
+                    monster.completeButton.battle_monster = {
                         'md5': undefined,
                         'name': undefined,
                         'button': undefined
@@ -1259,7 +1261,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     }
                 }
 
-				if (config.getItem('clearCompleteRaids', false) && $u.hasContent(monster.completeButton.raid.button) && $u.hasContent(monster.completeButton.raid.md5)) {
+                if (config.getItem('clearCompleteRaids', false) && $u.hasContent(monster.completeButton.raid.button) && $u.hasContent(monster.completeButton.raid.md5)) {
                     caap.click(monster.completeButton.raid.button);
                     monster.deleteItem(monster.completeButton.raid.md5);
                     monster.completeButton.raid = {
@@ -1474,7 +1476,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     /* this is the begining of logic that will loop through the leaders and count them for the X/Y stuff, not really important so I'm skipping it for now
                     for (var ii = 1; ii < dleadersDiv2.length; ii++) {              // start at 1 to skip the title 'Damage Leaders:'
                         if (dleadersDiv2[ii].children.length > 0) {
-                            con.log(1, "dleadersDiv2 each", ii, dleadersDiv2[ii].children.length, dleadersDiv2[ii], dleadersDiv2[ii].innerHTML);
+                            con.log (1, "dleadersDiv2 each", ii, dleadersDiv2[ii].children.length, dleadersDiv2[ii], dleadersDiv2[ii].innerHTML);
                         }
                     }*/
                 } else { // this is for monster still on the old style, Tower 1, Tower 2, Conquest
@@ -1703,19 +1705,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     feed.checked(monster.getItem(''));
                 }
             }
-			
-			con.log(3,"md5 page page.replace",page,page.replace('battle_expansion_monster', 'guildv2_battle_monster').replace('battle_monster', 'player_monster_list'));			
-			switch (page) {
-				case 'battle_expansion_monster':
-					md5 = (id + ' ' + feedMonster + ' ' + 'guildv2_battle_monster').toLowerCase().MD5();
-					break;
-				case 'battle_monster':
-					md5 = (id + ' ' + feedMonster + ' ' + 'player_monster_list').toLowerCase().MD5();
-					break;
-				default:
-					md5 = (id + ' ' + feedMonster + ' ' + page).toLowerCase().MD5();
-			}
-			con.log(3,"md5",md5);
+
+            md5 = (id + ' ' + feedMonster + ' ' + page.replace('battle_expansion_monster', 'guildv2_battle_monster')).toLowerCase().MD5();
             if ((feed.isScan || ajax) && matches && feed.scanRecord.md5 !== md5) {
                 con.warn("MD5 mismatch!", md5, feed.scanRecord.md5);
                 if (config.getItem("DebugLevel", 1) > 1) {
