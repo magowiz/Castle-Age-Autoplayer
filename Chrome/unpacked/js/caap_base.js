@@ -8160,6 +8160,23 @@ con.log(1, "caap.stats", caap.stats);
 
     caap.blessingPerformed = false;
 
+    caap.pstDay = function () {
+		var time = new Date();
+		var pstMS = time.getTime() + ((-420) * 60000);
+		var pstTime = new Date(pstMS);
+		var weekday = {
+			0 : "Sunday",
+			1 : "Monday",
+			2 : "Tuesday",
+			3 : "Wednesday",
+			4 : "Thursday",
+			5 : "Friday",
+			6 : "Saturday"
+		};
+
+		return weekday[pstTime.getUTCDay()];
+    }
+
     caap.blessingResults = function () {
         try {
             var hours = 0,
@@ -8196,20 +8213,21 @@ con.log(1, "caap.stats", caap.stats);
 
     caap.autoBlessSelection = function () {
         var autoBless = config.getItem('AutoBless', 'none'),
-            startAtt = 0,
-            stopAtt = 4,
-            attribute = '',
-            attrName = '',
-            attrValue = 0,
-            attrAdjustNew = 0,
-            attrCurrent = 0,
-            level = 0,
-            energy = 0,
-            stamina = 0,
-            attack = 0,
-            defense = 0,
-            health = 0,
-            n;
+		pstDayBonus = caap.pstDay(),
+		startAtt = 0,
+		stopAtt = 4,
+		attribute = '',
+		attrName = '',
+		attrValue = 0,
+		attrAdjustNew = 0,
+		attrCurrent = 0,
+		level = 0,
+		energy = 0,
+		stamina = 0,
+		attack = 0,
+		defense = 0,
+		health = 0,
+		n;
 
         if (autoBless.match('Auto Upgrade')) {
             try {
@@ -8250,6 +8268,10 @@ con.log(1, "caap.stats", caap.stats);
 
                             break;
                         case 'stamina':
+				if (pstDayBonus === 'Thursday' || pstDayBonus === 'Friday' ) {
+					con.log(1, "We don't pray stamina on Thursday and Friday: continue");
+					continue;
+				}
                             attrCurrent = stamina;
 
                             break;
