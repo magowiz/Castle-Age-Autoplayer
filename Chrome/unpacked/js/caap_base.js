@@ -8193,22 +8193,40 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         }
     };
 
+    caap.pstDay = function () {
+    	var time = new Date();
+		var pstMS = time.getTime() + ((-420) * 60000);
+		var pstTime = new Date(pstMS);
+		var weekday = {
+			0 : "Sunday",
+			1 : "Monday",
+			2 : "Tuesday",
+			3 : "Wednesday",
+			4 : "Thursday",
+			5 : "Friday",
+			6 : "Saturday"
+		};
+
+		return weekday[pstTime.getUTCDay()];
+    }
+
     caap.autoBlessSelection = function () {
         var autoBless = config.getItem('AutoBless', 'none'),
-            startAtt = 0,
-            stopAtt = 4,
-            attribute = '',
-            attrName = '',
-            attrValue = 0,
-            attrAdjustNew = 0,
-            attrCurrent = 0,
-            level = 0,
-            energy = 0,
-            stamina = 0,
-            attack = 0,
-            defense = 0,
-            health = 0,
-            n;
+		pstDayBonus = caap.pstDay(),
+		startAtt = 0,
+		stopAtt = 4,
+		attribute = '',
+		attrName = '',
+		attrValue = 0,
+		attrAdjustNew = 0,
+		attrCurrent = 0,
+		level = 0,
+		energy = 0,
+		stamina = 0,
+		attack = 0,
+		defense = 0,
+		health = 0,
+		n;
 
         if (autoBless.match('Auto Upgrade')) {
             try {
@@ -8235,8 +8253,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
                     if (caap.stats.level < 10) {
                         if (attribute === 'Attack' || attribute === 'Defense' || attribute === 'Health') {
-                            con.log(1, "Characters below level 10 can not increase Attack, Defense or Health: continue");
-                            continue;
+							con.log(1, "Characters below level 10 can not increase Attack, Defense or Health: continue");
+							continue;
                         }
                     }
                     /*jslint continue: false */
@@ -8249,6 +8267,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
                             break;
                         case 'stamina':
+							if (pstDayBonus === 'Thursday' || pstDayBonus === 'Friday' ) {
+								con.log(1, "We don't pray stamina on Thursday and Friday: continue");
+								continue;
+							}
                             attrCurrent = stamina;
 
                             break;
