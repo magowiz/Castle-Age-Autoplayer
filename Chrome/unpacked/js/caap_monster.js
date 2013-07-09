@@ -88,7 +88,12 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 buttonsDiv = null;
                 monsterRow = null;
                 newInputsDiv = null;
-                return false;
+                if ($j("div:contains('You currently are not engaged')").length > 0) {
+                    state.setItem('reviewDone', true);
+                    return true;
+                } else {
+                    return false;
+                }
             }
 
 
@@ -130,7 +135,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     monsterReviewed.type = $u.setContent(monsterReviewed.type, '');
                     monsterReviewed.page = "battle_monster";
                     newInputsDiv = $j("img[src*='list_btn_collect'],img[src*='list_btn_atk']", monsterRow.eq(it));
-con.log (1, "newInputsDiv", newInputsDiv);
                     engageButtonName = $u.setContent(newInputsDiv.attr("src"), '').regex(/(collect|atk)/);
                     con.log(2, "engageButtonName", engageButtonName);
                     switch (engageButtonName) {
