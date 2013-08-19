@@ -1752,6 +1752,8 @@ con.log (1, "after button check:", monster, currentMonster);
                 con.log(3, "Set monster page", page);
             }
 
+            currentMonster.joined = ($j("input[src*='battle_enter_battle']").length == 0);
+
             if (!$u.hasContent(currentMonster.feedLink)) {
                 if (feed.isScan || ajax) {
                     currentMonster.save = false;
