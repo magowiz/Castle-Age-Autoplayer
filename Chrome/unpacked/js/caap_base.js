@@ -3176,7 +3176,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             selected the Guild Essence display
             \-------------------------------------------------------------------------------------*/
             layout += "<div id='caap_buttonGuilds' style='position:absolute;top:0px;left:250px;display:" + (config.getItem('DBDisplay', 'Monster') === 'Guild Essence' ? 'block' : 'none') + "'>";
-            layout += "<input type='button' id='caap_clearGuilds' value='Clear Guild Essence' style='padding: 0; font-size: 9px; height: 18px' /></div>";
+            layout += "<input type='button' id='caap_clearGuilds' value='Clear Guild Essence' style='padding: 0; font-size: 9px; height: 18px' />";
+            layout += "<input type='button' id='caap_rescanGuilds' value='Rescan Essence' style='padding: 0; font-size: 9px; height: 18px' />";
+            layout += "</div>";
 
             /*-------------------------------------------------------------------------------------\
             Next we put in the Clear Gifting Stats button which will only show when we have

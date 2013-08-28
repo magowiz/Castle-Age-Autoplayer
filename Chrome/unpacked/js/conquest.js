@@ -1594,6 +1594,29 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         }
     };
 
+    guilds.rescan = function() {
+        try {
+			var i = 0, len = 0;
+            for (i = 0, len = guilds.records.length; i < len; i += 1) {
+				guilds.records[i].lastCheck = Date.now();
+				guilds.records[i].Attack = -1;
+				guilds.records[i].Defense = -1;
+				guilds.records[i].Damage = -1;
+				guilds.records[i].Health = -1;
+				guilds.records[i].AttackMax = 0;
+				guilds.records[i].DefenseMax = 0;
+				guilds.records[i].DamageMax = 0;
+				guilds.records[i].HealthMax = 0;
+			}
+            guilds.save();
+            session.setItem("GuildsDashUpdate", true);
+            return true;
+        } catch (err) {
+            con.error("ERROR in guilds.clear: " + err);
+            return false;
+        }
+    };
+
     guilds.getItem = function(guildId) {
         try {
             var it = 0,
