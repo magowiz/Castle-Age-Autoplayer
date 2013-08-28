@@ -31,7 +31,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             /*-------------------------------------------------------------------------------------\
 			Now we navigate to the Alchemy Recipe page.
 			\-------------------------------------------------------------------------------------*/
-            if (!caap.navigateTo('keep,alchemy', 'alchfb_btn_craft.jpg')) {
+            if (!caap.navigateTo('keep,alchemy', 'alchfb_btn_alchemies_on.gif')) {
                 var button1 = {},
 					ssDiv = $j(),
                     clicked = false;
@@ -48,7 +48,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 /*-------------------------------------------------------------------------------------\
 				Now we get all of the recipes and step through them one by one
 				\-------------------------------------------------------------------------------------*/
-                ssDiv = $j("div[style*='alchfb_midrepeat.jpg']");
+                ssDiv = $j("div[id*='recipe']");
                 if (!ssDiv || !ssDiv.length) {
                     con.log(3, 'No recipes found');
                 }
