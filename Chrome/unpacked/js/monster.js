@@ -1480,6 +1480,33 @@ schedule,gifting,state,army, general,session,monster:true,guild_monster */
             cta_img: ['cta_icon2.gif'],
             bodyparts: 5,
             partOrder: [5, 4, 3, 2, 1]
+        },
+        "Bonegnasher" : {
+            alpha : true,
+            duration : 168,
+            hp : 850000000,
+            ach : 1000000,
+            siege : 5,
+            siegeClicks : [10, 20, 30, 40, 50],
+            siegeDam : [30000000, 35000000, 40000000, 45000000, 50000000],
+            siege_img : [
+                '/graphics/earth_siege_small1',
+                '/graphics/earth_siege_small2'],
+            fort : true,
+            staUse : 10,
+            staLvl : [0, 100, 200, 500],
+            staMax : [10, 20, 50, 100, 200],
+            nrgMax : [20, 40, 100, 200, 200],
+            defense_img : 'nm_green.jpg',
+            levels : [1, 50, 100, 150],
+            join : [30, 30, 35, 70],
+            mClass : 'Epic World',
+            mpool : 101,
+            newbg_img : ['monster_bonegnasher_title.jpg'],
+            list_img : ['monster_bonegnasher_list.jpg'],
+            cta_img : ['cta_btn_new.gif'],
+            bodyparts : 2,
+            partOrder : [2,1]
         }
     };
 
