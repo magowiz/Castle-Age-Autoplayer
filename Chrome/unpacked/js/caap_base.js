@@ -2478,6 +2478,13 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         'donate': ""
     };
 
+    caap.moveMenu = function () {
+        caap.caapDivObject.css({
+            top: config.getItem("udOffset", 0) + 'px',
+            left: config.getItem("lrOffset", 0) + 'px'
+        });
+    };
+
     caap.addControl = function (reload) {
         try {
             var caapDiv = "<div id='caap_div'>",
@@ -2501,7 +2508,11 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             caapDiv += "</div>";
             caap.controlXY.x = state.getItem('caap_div_menuLeft', '');
             caap.controlXY.y = state.getItem('caap_div_menuTop', $j(caap.controlXY.selector).offset().top);
+            // yinzanat - added this to change the position of the menu because chrome messed it up.
+            caap.controlXY.x = parseInt (config.getItem("lrOffset", 0), 10);
+            caap.controlXY.y = parseInt(config.getItem("udOffset", 0));
             styleXY = caap.getControlXY();
+
             caapDiv = $j(caapDiv);
             caapDiv.css({
                 width: '180px',
@@ -3010,6 +3021,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             //htmlCode += caap.makeCheckTR('Enable News Summary', 'NewsSummary', true, newsSummaryInstructions);
+            htmlCode += caap.makeNumberFormTR("Left - Right offset (px)", 'lrOffset', 'Changing this will move the side menu left or right.', 942, '', '', true, false);
+            htmlCode += caap.makeNumberFormTR("Up - Down offset (px)", 'udOffset', 'Changing this will move the side menu up or down', 44, '', '', true, false);
+            htmlCode += caap.makeTD("<input type='button' id='caap_moveMenu' value='Set Menu Position' style='padding: 0; font-size: 10px; height: 18px' />");
             htmlCode += caap.makeDropDownTR("Style", 'DisplayStyle', styleList, '', '', 'CA Skin', false, false, 62);
             htmlCode += caap.startDropHide('DisplayStyle', '', 'Custom');
             htmlCode += caap.makeTD("Running:");
@@ -4510,6 +4524,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             $j('#caap_TownItemReport', caap.caapDivObject).click(town.report);
 
             $j('#caap_ActionList', caap.caapDivObject).click(caap.actionDialog);
+            $j('#caap_moveMenu', caap.caapDivObject).click(function () {
+                caap.moveMenu();
+            });
 
             $j('#caap_FillArmy', caap.caapDivObject).click(function () {
                 state.setItem("FillArmy", true);
