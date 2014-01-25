@@ -3171,6 +3171,13 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             layout += "<input type='button' id='caap_refreshMonsters' value='Refresh Monster List' style='padding: 0; font-size: 9px; height: 18px' /></div>";
 
             /*-------------------------------------------------------------------------------------\
+            Next we put in our Refresh Generals List button which will only show when we have
+            selected the Generals display.
+            \-------------------------------------------------------------------------------------*/
+            layout += "<div id='caap_buttonGenerals' style='position:absolute;top:0px;left:250px;display:" + (config.getItem('DBDisplay', 'Monster') === 'Generals Stats' ? 'block' : 'none') + "'>";
+            layout += "<input type='button' id='caap_refreshGenerals' value='Refresh Generals List' style='padding: 0; font-size: 9px; height: 18px' /></div>";
+
+            /*-------------------------------------------------------------------------------------\
             Next we put in our Refresh Guild Monster List button which will only show when we have
             selected the Guild Monster display.
             \-------------------------------------------------------------------------------------*/
@@ -4959,12 +4966,16 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         'arena' : {
             signatureId : 'arena_homemid.jpg',
             CheckResultsFunction : 'checkResults_arenaBattle'
+        },
+        'player_loadouts' : {
+            signatureId : 'load_top2.jpg',
+            CheckResultsFunction : 'checkResults_loadouts'
         }
     };
 
     caap.checkResults = function () {
         try {
-            con.log(1, 'caap.checkResults');
+            con.log(4, 'caap.checkResults');
             // Check page to see if we should go to a page specific check function
             // todo find a way to verify if a function exists, and replace the array with a check_functionName exists check
             if (!schedule.check('CheckResultsTimer')) {
@@ -4985,7 +4996,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 spreadsheet.doTitles();
             }
 
-            general.GetCurrent();
             general.Shrink();
 
             var pageUrl = session.getItem('clickUrl', ''),
@@ -5013,7 +5023,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             if (general.quickSwitch) {
-                general.GetEquippedStats();
+//                general.GetEquippedStats();
             }
 
                 // why? because we need to make sure things like highlight users damage and
@@ -5037,11 +5047,12 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                     }
                 }
             }
-
+			
             session.setItem('page', page);
+            general.GetLoadouts();
+
             if ($u.hasContent(caap.pageList[page])) {
-                con.log(1, 'Checking results for', page);
-                con.log(1, 'caap.checkResults caap.resultsText', caap.resultsText);
+                con.log(3, 'caap.checkResults caap.resultsText', caap.resultsText);
                 if ($u.isFunction(caap[caap.pageList[page].CheckResultsFunction])) {
                     con.log(3, 'Calling function', caap.pageList[page].CheckResultsFunction);
                     caap[caap.pageList[page].CheckResultsFunction]();
@@ -5090,28 +5101,12 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
     	return;
     };
 
-    caap.checkResults_generals = function () {
-        try {
-            var currentGeneral = '',
-                html = '',
-                time = config.getItem("checkGenerals", 24);
+    caap.checkResults_generals = function() {
+        general.checkResults_generals();
+    };
 
-            general.GetGenerals();
-            currentGeneral = general.GetEquippedStats();
-            if (currentGeneral) {
-                html = "<span title='Equipped Attack Power Index' style='font-size: 12px, font-weight: normal;'>EAPI:" +
-                    currentGeneral.eapi + "</span> <span title='Equipped Defense Power Index' style='font-size: 12px, font-weight: normal;'>EDPI:" +
-                    currentGeneral.edpi + "</span> <span title='Equipped Mean Power Index' style='font-size: 12px, font-weight: normal;'>EMPI:" +
-                    currentGeneral.empi + "</span>";
-                $j("#app_body #general_name_div_int").append(html);
-            }
-            time = time < 24 ? 24 : time;
-            schedule.setItem("generals", time * 3600, 300);
-            return true;
-        } catch (err) {
-            con.error("ERROR in checkResults_generals: " + err);
-            return false;
-        }
+    caap.checkResults_loadouts = function() {
+        general.checkResults_loadouts();
     };
 
     /////////////////////////////////////////////////////////////////////
@@ -5151,7 +5146,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             'actual': 0,
             'capped': 0
         },
-        'generals': {
+        'records': {
             'total': 0,
             'invade': 0
         },
@@ -5965,6 +5960,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 $j("#app_body div[class*='statUnit'] img").attr("style", "height: 45px, width: 45px;").not("#app_body div[class*='statUnit'] img[alt='Stamina Potion'],img[alt='Energy Potion']").parent().parent().attr("style", "height: 45px, width: 45px;");
             }
             */
+			general.GetEquippedStats();
 
             return true;
         } catch (err) {
@@ -6464,7 +6460,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 theGeneral = config.getItem('IdleGeneral', 'Use Current');
 
             if (theGeneral !== 'Use Current') {
-                maxIdleEnergy = $u.setContent(general.GetEnergyMax(theGeneral), 0);
+                maxIdleEnergy = $u.setContent(general.GetStat(theGeneral,'energyMax'), 0);
                 if (maxIdleEnergy <= 0 || $u.isNaN(maxIdleEnergy)) {
                     con.log(1, "Changing to idle general to get Max energy");
                     if (general.Select('IdleGeneral')) {
@@ -7038,7 +7034,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             if (general.quickSwitch) {
-                general.GetEquippedStats();
+//                general.GetEquippedStats();
             }
 
             // Buy quest requires popup
@@ -7167,7 +7163,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 if (general.Select('SubQuestGeneral')) {
                     return true;
                 }
-            } else if (questGeneral && questGeneral !== general.GetCurrent()) {
+            } else if (questGeneral && questGeneral !== general.GetCurrentGeneral()) {
                 if (general.LevelUpCheck("QuestGeneral")) {
                     if (general.Select('LevelUpGeneral')) {
                         return true;
@@ -8047,7 +8043,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 theGeneral = config.getItem('IdleGeneral', 'Use Current');
 
                 if (theGeneral !== 'Use Current') {
-                    maxIdleEnergy = general.GetEnergyMax(theGeneral);
+                    maxIdleEnergy = general.GetStat(theGeneral, 'energyMax');
                 }
 
                 if (theGeneral !== 'Use Current' && !maxIdleEnergy) {
