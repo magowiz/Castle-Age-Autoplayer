@@ -818,7 +818,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
             con.log(3, 'Cool', useCool, coolZin, coolType, coolName, coolRecord);
             con.log(3, 'Zin', zinReady, zinFirst, zinRecord);
-            con.log(2, 'Select General ', whichGeneral);
+            con.log(3, 'Select General ', whichGeneral);
             if (levelUp) {
                 whichGeneral = 'LevelUpGeneral';
                 con.log(2, 'Using level up general');

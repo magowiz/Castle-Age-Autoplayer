@@ -9059,12 +9059,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
     caap.checkGenerals = function () {
         try {
-            if (!schedule.check("generals")) {
-                return false;
-            }
-
-            con.log(2, "Visiting generals to get 'General' list");
-            return caap.navigateTo('mercenary,generals', 'tab_generals_on.gif');
+  
+            return false;
         } catch (err) {
             con.error("ERROR in checkGenerals: " + err);
             return false;
