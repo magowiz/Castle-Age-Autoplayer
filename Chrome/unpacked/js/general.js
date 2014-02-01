@@ -392,12 +392,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 					if (loadoutName === defaultLoadout || defaultLoadout == 'Use Current') {
 						general.assignStats(general.records[it], eatk, edef);
 					}
-					
 					loadoutRecord = general.getRecord(loadoutName);
 					if (loadoutRecord.general === generalName) {
 						general.assignStats(loadoutRecord, eatk, edef);
 					}
-					general.save();
 
 				} else {
                     con.warn("Unable to get 'General' stats");
@@ -643,6 +641,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 });
 
                 if (save) {
+					caap.stats.generals = caap.stats.generals || {};
                     caap.stats.generals.total = general.records.length;
                     caap.stats.generals.invade = Math.min((caap.stats.army.actual / 5).dp(), general.records.length);
                     general.save();
@@ -883,7 +882,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				if (caap.navigateTo('mercenary,generals', 'tab_generals_on.gif')) {
 					return true;
 				}
-				// Need to add in general check outside of assignstats
 				general.clickedLoadout = i;
 				caap.click($j('div[id*="hot_swap_loadouts_content_div"] > div:nth-child(' + general.records[i].value + ') > div:first'));
 				return true;
@@ -901,8 +899,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             generalImage = general.GetStat(targetGeneral, 'img');
-            if (generalImage && caap.hasImage(generalImage)) {
-                return caap.navigateTo(generalImage);
+            if (generalImage && caap.hasImage(generalImage, $j('#generalContainerBox2'))) {
+                caap.click(caap.checkForImage(generalImage, $j('#generalContainerBox2')));
+				return true;
             }
 
             caap.setDivContent('Could not find ' + targetGeneral);

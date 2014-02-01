@@ -4426,10 +4426,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         if (num < 0 || $u.isNaN(num)) {
             return;
         }
-
         caap.stats.energy = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.energy.max), caap.stats.energy);
-        caap.stats.energyT = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.energyT.max), caap.stats.energy);
-        con.log(3, "energyListener", num);
+        con.log(3, "energyListener", num, caap.stats.energy);
     };
 
     caap.energyTimeListener = function (e) {
@@ -4453,7 +4451,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         }
 
         caap.stats.health = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.health.max), caap.stats.health);
-        caap.stats.healthT = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.healthT.max), caap.stats.healthT);
         con.log(3, "healthListener", num);
     };
 
@@ -4478,7 +4475,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         }
 
         caap.stats.stamina = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.stamina.max), caap.stats.stamina);
-        caap.stats.staminaT = $u.setContent(caap.getStatusNumbers(num + "/" + caap.stats.staminaT.max), caap.stats.staminaT);
         con.log(3, "staminaListener", num);
     };
 
@@ -5352,8 +5348,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             // energy
             tempDiv = $j($j("#energy_current_value", ststbDiv)[0].parentNode);
             if ($u.hasContent(tempDiv)) {
-                caap.stats.energyT = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
-                caap.stats.energy = caap.getStatusNumbers(caap.stats.energyT.num + "/" + caap.stats.energy.max);
+                caap.stats.energy = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
             } else {
                 con.warn("Unable to get energyDiv");
                 passed = false;
@@ -5362,8 +5357,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             // health
             tempDiv = $j($j("#health_current_value", ststbDiv)[0].parentNode);
             if ($u.hasContent(tempDiv)) {
-                caap.stats.healthT = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
-                caap.stats.health = caap.getStatusNumbers(caap.stats.healthT.num + "/" + caap.stats.health.max);
+                caap.stats.health = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
             } else {
                 con.warn("Unable to get healthDiv");
                 passed = false;
@@ -5372,8 +5366,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             // stamina
             tempDiv = $j($j("#stamina_current_value", ststbDiv)[0].parentNode);
             if ($u.hasContent(tempDiv)) {
-                caap.stats.staminaT = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
-                caap.stats.stamina = caap.getStatusNumbers(caap.stats.staminaT.num + "/" + caap.stats.stamina.max);
+                caap.stats.stamina = caap.getStatusNumbers($u.setContent($u.setContent(tempDiv.text(), '').regex(/(\d+\/\d+)/), "0/0"));
             } else {
                 con.warn("Unable to get staminaDiv");
                 passed = false;
@@ -6462,7 +6455,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             if (theGeneral !== 'Use Current') {
                 maxIdleEnergy = $u.setContent(general.GetStat(theGeneral,'energyMax'), 0);
                 if (maxIdleEnergy <= 0 || $u.isNaN(maxIdleEnergy)) {
-                    con.log(1, "Changing to idle general to get Max energy");
+                    con.log(1, "Changing to idle general to get Max energy", theGeneral, maxIdleEnergy);
                     if (general.Select('IdleGeneral')) {
                         return true;
                     }
@@ -9072,7 +9065,13 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             if (!config.getItem('enableCheckAllGenerals', false) || !schedule.check("allGenerals")) {
                 return false;
             }
-
+			if (((caap.stats.energy.max || 0) > 0 && caap.stats.energy.num > caap.stats.energy.max *.7) ||
+				((caap.stats.stamina.max || 0) > 0 && caap.stats.stamina.num > caap.stats.stamina.max *.7)) {
+				con.log(2, "Delaying general stats review while high sta/ene ", caap.stats.energy.max, caap.stats.energy.num, caap.stats.stamina.max, caap.stats.stamina.num);
+				return false;
+			}
+//				con.log(2, "DIDN'T Delaying general stats review while high sta/ene enT" + caap.stats.energy.max + ' en ' + caap.stats.energy.num, caap.stats.stamina.max, caap.stats.stamina.num);
+				
             return general.GetAllStats();
         } catch (err) {
             con.error("ERROR in checkAllGenerals: " + err);
