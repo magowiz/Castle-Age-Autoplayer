@@ -900,7 +900,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			
 			if (!general.getRecord(targetGeneral)) {
 				con.warn('Unable to find ' + targetGeneral + ' record for ' + whichGeneral + '.  Changing setting to "Use Current"');
-				general.clear(whichGeneral);
+				general.Clear(whichGeneral);
 				return false;
 			}
 
