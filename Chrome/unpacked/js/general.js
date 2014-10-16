@@ -583,7 +583,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                         container = $j(this),
                         it = 0,
                         len = 0,
-                        tempObj = $j("div.general_name_div3", container);
+                        tempObj = $j("div.general_name_div3_padding", container);
 
                     if ($u.hasContent(tempObj)) {
                         name = tempObj.text().trim(); // save all generals with complete name (eg Corvintheus**) // 2011-09-27 d11
