@@ -356,6 +356,7 @@ gm,hiddenVar,battle,general */
 					stats, ['PlayerName', 'rank.battle', 'energy.norm', 'stamina.norm', 'health.norm'])) {
 					con.warn('Stats: unable to read energy, stamina, health unmodified values', text);
 				}
+				stats.rank.battle = battle.ranks.rank.indexOf(stats.rank.battle);
 				// war rank
 				if (stats.level >= 100) {
 					tempDiv = $j("#app_body img[src*='war_rank_']");
@@ -1575,7 +1576,7 @@ gm,hiddenVar,battle,general */
                 it = 0,
                 htmlCode = '';
 
-            htmlCode += caap.startToggle('Stats', 'STATS OPTIONS');
+            htmlCode += caap.startToggle('Stats', 'STATS');
             htmlCode += caap.makeCheckTR('Item Archives', 'AutoArchives', false, autoArchivesInstructions);
             htmlCode += caap.makeDropDownTR("Demi Blessings", 'AutoBless', autoBlessList, autoBlessListInstructions, '', '', false, false, 62);
             htmlCode += caap.makeCheckTR("Upgrade Points", 'AutoStat', false, statusInstructions);

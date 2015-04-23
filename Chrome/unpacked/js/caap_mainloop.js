@@ -1,9 +1,9 @@
-/*jslint white: true, browser: true, devel: true, undef: true,
+/*jslint white: true, browser: true, devel: true,
 nomen: true, bitwise: true, plusplus: true,
 regexp: true, eqeq: true, newcap: true, forin: false */
-/*global window,escape,jQuery,$j,rison,utility,feed,spreadsheet,ss,
-$u,chrome,CAAP_SCOPE_RUN,self,caap,config,con,gm,battle,profiles,town,
-conquest,
+/*global window,escape,stats,$j,rison,chores,feed,spreadsheet,ss,
+$u,hyper,worker,self,caap,config,con,gm,guilds,profiles,town,
+conquest,battle,guild_battle,stats,statsFunc,
 schedule,gifting,state,army, general,session,monster,guild_monster */
 /*jslint maxlen: 256 */
 
@@ -239,9 +239,11 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				releaseControl = true,
 				result = false,
 				returnObj = {}, // Used to hold an object return for console logging or div setting
-                action = 0,
-                len = 0,
-                dmc = 0;
+                dmc = 0,
+				ucName,
+				message,
+				logText,
+				warnText;
 
             // assorted errors...
             if (caap.errorCheck()) {
@@ -342,23 +344,27 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             }
 
             actionsListCopy = worker.actionsList.slice();
-			releaseControl = session.getItem('ReleaseControl', true)
+			releaseControl = session.getItem('ReleaseControl', true);
 			if (!releaseControl) {
 				actionsListCopy.unshift(worker.actionsList.getObjByField('fName', state.getItem('LastAction', 'caap.idle')));
 			}
             result = actionsListCopy.some( function(action) {
 				session.setItem('ThisAction', action.fName);
-				returnObj = window[action.worker][action.functionName]()
+				returnObj = window[action.worker][action.functionName]();
 				if ($u.isObject(returnObj)) {
-					if ($u.hasContent(returnObj.log)) {
-						con.log($u.setContent(returnObj.level, 1), action.worker.ucWords() + ': ' + returnObj.log);
+					ucName = action.worker.ucWords();
+					message = $u.isDefined(returnObj.mess) ? returnObj.mess : $u.isDefined(returnObj.mlog) ? returnObj.mlog :
+						$u.isDefined(returnObj.mess) ? returnObj.mwarn : false;
+					logText = $u.isDefined(returnObj.log) ? returnObj.log : $u.isDefined(returnObj.mlog) ? returnObj.mlog : false;
+					warnText = $u.isDefined(returnObj.mwarn) ? returnObj.mwarn : false;
+					if (message !== false) {
+						caap.setDivContent(action.worker + '_mess', $u.hasContent(message) ? ucName + ': ' + message : '');
 					}
-					if ($u.hasContent(returnObj.mess)) {
-						caap.setDivContent(action.worker + '_mess', $u.hasContent(returnObj.mess) ? action.worker.ucWords() + ': ' + returnObj.mess : '');
+					if (logText !== false) {
+						con.log($u.setContent(returnObj.level, 1), ucName + ': ' + logText);
 					}
-					if ($u.hasContent(returnObj.mlog)) {
-						con.log($u.setContent(returnObj.level, 1), action.worker.ucWords() + ': ' + returnObj.mlog);
-						caap.setDivContent(action.worker + '_mess', $u.hasContent(returnObj.mlog) ? action.worker.ucWords() + ': ' + returnObj.mlog : '');
+					if (warnText !== false) {
+						con.warn(ucName + ': ' + warnText);
 					}
 				}
                 if (!$u.isObject(returnObj) ? returnObj : $u.setContent(returnObj.action, true)) {
@@ -405,7 +411,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         function doit() {
             var rc = session.incItem("reloadCounter"),
                 mc = session.getItem("messageCount", 0),
-				logonArray = [],
 				suffix = '';
 
             if (!force && rc < 20 && mc > 0) {
@@ -593,11 +598,11 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 return stats;
             },
             'import': function (d) {
-                stats = d;
+                window.stats = d;
                 statsFunc.setRecord(stats);
             },
             'delete': function () {
-                stats = {};
+                window.stats = {};
                 gm.deleteItem("stats.record");
             }
         },

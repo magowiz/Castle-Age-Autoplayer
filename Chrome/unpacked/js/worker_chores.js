@@ -545,7 +545,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 potionsInstructions5 = "Do not consume potions if the " + "experience points to the next level are within this value.",
                 htmlCode = '';
 
-            htmlCode += caap.startToggle('Item', 'ITEM OPTIONS');
+            htmlCode += caap.startToggle('Item', 'ITEM');
             htmlCode += caap.makeCheckTR('Potions', 'potions', false, potionsInstructions0);
             htmlCode += caap.display.start('potions');
             htmlCode += caap.makeNumberFormTR("Spend Stamina At", 'staminaPotionsSpendOver', potionsInstructions1, 30, '', '', true, false);

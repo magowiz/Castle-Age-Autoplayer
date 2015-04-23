@@ -476,7 +476,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				armyCodeInstructions = 'A list of army codes, separated by commas or any non-alphabetic characters. As army codes are invited, they will automatically be deleted from the list.',
                 htmlCode = '';
 
-            htmlCode += caap.startToggle('Army', 'ARMY OPTIONS');
+            htmlCode += caap.startToggle('Army', 'ARMY');
             htmlCode += caap.makeCheckTR('Accept Army Invites', 'armyAccept', false, acceptInst);
             htmlCode += caap.makeCheckTR('Enable Army Scan', 'EnableArmy', false, armyInstructions);
             htmlCode += caap.display.start('EnableArmy');

@@ -524,8 +524,14 @@
      * @return {*}
      * @private
      */
-    function setContent(o, v) {
-        return hasContent(o) ? o : v;
+
+	 function setContent() {
+		for (var i = 0; i < arguments.length - 1; i += 1) {
+			if (hasContent(arguments[i])) {
+				return arguments[i];
+			}
+		}
+		return arguments[i];
     }
 
     /**

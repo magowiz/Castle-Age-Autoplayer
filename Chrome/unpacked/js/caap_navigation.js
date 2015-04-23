@@ -419,7 +419,7 @@ regexp: true, eqeq: true, newcap: true, forin: false */
 	
 	// Equip general if appropriate, then navigate via ajax send to the toPage. Once there, confirm the click link is available.
 	// If available, click it!  If options object check option is false, then send the click link even if not on page
-	// Returns true if page navigation complete, 'done' if clicked the link, and false if on page but link not there
+	// Returns true if first page navigation complete, 'done' if clicked the link, and false if on page but link not there
     caap.navigate3 = function (toPage, click, thisGeneral, options) {
         try {
 			if (caap.bad3.hasIndexOf(toPage + ':' + click)) {

@@ -103,7 +103,7 @@ regexp: true, eqeq: true, newcap: true, forin: false */
 						'For example, to send FB ID 66666 Malekus Gifts and Serpent Eggs, 66666:45:14',
                 htmlCode = '';
 
-            htmlCode += caap.startToggle('Gift', 'GIFTING OPTIONS');
+            htmlCode += caap.startToggle('Gift', 'GIFTING');
             htmlCode += caap.makeCheckTR('Accept Gifts', 'giftAccept', false, acceptInst);
             htmlCode += caap.makeTD("Send gifts to:");
             htmlCode += caap.makeTextBox('giftCodes', giftFBIDListInst, '', '');

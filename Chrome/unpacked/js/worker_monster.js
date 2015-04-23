@@ -184,7 +184,7 @@ config,con,gm,schedule,state,general,session,monster:true */
 							return true;
 						}
 						mR = monster.getRecord(monster.cleanLink(link));
-						mR.monster = $j(which.monster, this).text().trim().replace(/,.*/,'').toLowerCase().ucWords();
+						mR.monster = $u.setContent(mR.monster, $j(which.monster, this).text().trim().replace(/,.*/,'').toLowerCase().ucWords());
 						mR.monster = monster.getInfo(mR.monster, 'alias', mR.monster);
 						mR.name = $u.setContent(mR.name, $j(which.name, this).text().trim() + ' ' + mR.monster);
 						mR.lpage = lpage;
@@ -1257,7 +1257,7 @@ config,con,gm,schedule,state,general,session,monster:true */
 					goBig = !general.ZinMisaCheck(generalMenuSetting) && (burning || charged);
 					statAvailable = stat == 'cover' || (stat == 'energy' && cM.stunDo) ? maxEnergy : whichStat == 'listEnergy' ?
 						energyAvailable : goBig ?
-						Math.min(stats.stamina.num, burning && !charged ? 100 : 1000) :
+						Math.min(stats.stamina.num - 20, burning && !charged ? 100 : 1000) :
 						Math.min(caap.checkStamina('Monster'), healPercStam > 0 && !caap.inLevelUpMode() ?
 							(stats.energy.num / healPercStam) : stats.stamina.num);
 					minMax = whichStat == 'listStamina' && (goBig || config.getItem('PowerAttackMax', false))	? 'max' : 'min';
@@ -1326,8 +1326,8 @@ config,con,gm,schedule,state,general,session,monster:true */
 					if (cM.link !== debtcM.link && (stat == 'energy' || !caap.inLevelUpMode())) {
 						return false;
 					}
-					// If done over 10% damage to fort and have energy to heal and debt is at least one heal, then wait for cover
-					if (stat == 'stamina' && cM.fortify < cM.debtStart - 10 && debtcM.debtStamina >= debtcM.listEnergy.split(',')[0] * gMult / healPercStam && maxEnergy >= debtcM.listEnergy.split(',')[0]) {
+					// If done enough damage to fort and have energy to heal and debt is at least one heal, then wait for cover
+					if (stat == 'stamina' && debtcM.debtStamina >= debtcM.listEnergy.split(',')[0] * gMult / healPercStam && maxEnergy >= debtcM.listEnergy.split(',')[0]) {
 						return false;
 					}
 				}
@@ -1620,13 +1620,17 @@ config,con,gm,schedule,state,general,session,monster:true */
             duration: 48,
             ach: 50000
         },
+        'Mephistopheles': {
+            duration: 48,
+            ach: 50000
+        },
         'Lotus Ravenmoore': {
             duration: 48,
             ach: 500000,
 			achTitle : "Lotus Hunter"
         },
         'Keira': {
-            duration: 48,
+            duration: 72,
             ach: 30000
         },
         'Amethyst Sea Serpent': {
