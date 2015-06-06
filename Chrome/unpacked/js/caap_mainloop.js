@@ -546,6 +546,19 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 gm.deleteItem("conquest.records");
             }
         },
+        'Essences': {
+            'export': function () {
+                return essence.records;
+            },
+            'import': function (d) {
+                essence.records = d;
+                essence.save();
+            },
+            'delete': function () {
+                essence.records = [];
+                gm.deleteItem("essence.records");
+            }
+        },
         'Guilds': {
             'export': function () {
                 return guilds.records;

@@ -1227,9 +1227,7 @@ gb,essence,gift,chores */
                 state.oldSave = state.save;
                 state.save = function () {
                     state.oldSave();
-                    con.log(3, "state.save", state);
                     if (caap.messaging.connected.hasIndexOf("caapif")) {
-                        con.log(3, "state.save send");
                         caap.messaging.setItem('state.flags', state.getAll());
                     }
                 };
@@ -1245,9 +1243,7 @@ gb,essence,gift,chores */
                 schedule.oldSave = schedule.save;
                 schedule.save = function () {
                     schedule.oldSave();
-                    con.log(3, "schedule.save", schedule);
                     if (caap.messaging.connected.hasIndexOf("caapif")) {
-                        con.log(3, "schedule.save send");
                         caap.messaging.setItem('schedule.timers', schedule.getAll());
                     }
                 };
@@ -1270,9 +1266,7 @@ gb,essence,gift,chores */
                 config.oldSave = config.save;
                 config.save = function () {
                     config.oldSave();
-                    con.log(3, "config.save", config);
                     if (caap.messaging.connected.hasIndexOf("caapif")) {
-                        con.log(3, "config.save send");
                         caap.messaging.setItem('config.options', config.getAll());
                     }
                 };
@@ -4764,7 +4758,7 @@ gb,essence,gift,chores */
                 return false;
             }
 
-            if (whenQuest === 'Not Fortifying' || (config.getItem('PrioritiseMonsterAfterLvl', false) && state.getItem('KeepLevelUpGeneral', false))) {
+            if (whenQuest === 'Not Fortifying') {
                 fortMon = state.getItem('targetFromfortify', new monster.energyTarget().data);
                 if ($j.isPlainObject(fortMon) && fortMon.md5 && fortMon.type) {
                     switch (fortMon.type) {
@@ -5417,6 +5411,21 @@ gb,essence,gift,chores */
                     con.warn('No influence found for', caap.questName, divTxt);
                 }
 
+                // xaman: autocollect on mines if influence 100
+                if (caap.isExcavationQuest[caap.questName] && config.getItem('ExcavateMines',false)){
+                     con.log(2, 'We are in an excavation quest: ' + caap.questName + ', influence = ' + influence);
+                     if (influence == 100) {
+                       con.log(2, 'influence (is 100, so collecting)= ' + influence);
+                      if (caap.hasImage('quest_collectreward2_btn.gif')){
+                         con.log(2, "Found a collect button and not a quest again... So lets collect....");
+                         click = $j("input[name='Collect']");
+                         
+                      } else {
+                         con.log(2, "No collect button found. Looping...");
+                      }
+                     }
+                } // xaman: autocollect on excavation mines
+                
                 general = 'none';
                 genDiv = $j();
 

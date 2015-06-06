@@ -1,7 +1,7 @@
 /*jslint white: true, browser: true, devel: true,
 nomen: true, bitwise: true, plusplus: true,
 regexp: true, eqeq: true, newcap: true, forin: false */
-/*global $j,$u,caap,config,con,battle,conquest,worker,stats,statsFunc,conquestLands,loe,lom,essence,gm,
+/*global $j,$u,caap,config,con,battle,conquest,worker,stats,statsFunc,conquestLands,loe,lom,essence,gm,recon,
 schedule,state,general,session */
 /*jslint maxlen: 256 */
 
@@ -279,6 +279,14 @@ schedule,state,general,session */
 					"Use +/- to indicate relative rank, e.g. +2 to attack opponents up to two ranks over your rank. " +
 					"If no +/-, the number is an absolute rank, e.g. 16 would mean do not attack above rank Baron (16). " +
 					"Leave blank to attack any rank.",
+                minLevelInst = "The lowest level that you are willing to spend your Guild Coins on. " +
+					"Use +/- to indicate relative level, e.g. -200 to attack opponents down to 200 levels below your level. " +
+					"If no +/-, the number is an absolute level, e.g. 190 would mean do not attack below level 190. " +
+					"Leave blank to attack any level.",
+                maxLevelInst = "The highest level that you are willing to spend your Guild Coins on. " +
+					"Use +/- to indicate relative level, e.g. +200 to attack opponents up to 200 levels over your level. " +
+					"If no +/-, the number is an absolute level, e.g. 190 would mean do not attack above level 190. " +
+					"Leave blank to attack any level.",
                 conquestList = ['Coins Available', 'At Max Coins', 'At X Coins', 'Never'],
                 conquestInst = [
                     'Guild Coins Available will conquest whenever you have enough Guild Coins',
@@ -328,6 +336,8 @@ schedule,state,general,session */
             htmlCode += caap.makeTD("Attack targets that are not:");
             htmlCode += caap.makeNumberFormTR("Lower Than Rank", 'ConquestMinRank', minRankInst, '', '', 'text'); // Check +1 works
             htmlCode += caap.makeNumberFormTR("Higher Than Rank", 'ConquestMaxRank', maxRankInst, '', '', 'text'); // Check +1 works
+            htmlCode += caap.makeNumberFormTR("Lower Than Level", 'ConquestMinLevel', minLevelInst, '', '', 'text'); // Check +1 works
+            htmlCode += caap.makeNumberFormTR("Higher Than Level", 'ConquestMaxLevel', maxLevelInst, '', '', 'text'); // Check +1 works
             htmlCode += caap.display.end('WhenLoE', 'isnot', 'Always');
             htmlCode += caap.display.end('WhenConquest', 'isnot', 'Never');
             htmlCode += caap.endToggle;

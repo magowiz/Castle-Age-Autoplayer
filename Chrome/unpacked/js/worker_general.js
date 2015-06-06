@@ -65,7 +65,8 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
     general.usedGenerals = [];
     general.GeneralsList = [];
     general.LoadoutsList = [];
-
+	general.zinLike = [];
+	
     general.coolList = [
         'Monster',
         'Fortify',
@@ -110,6 +111,10 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
 			loadoutVals = general.records.flatten('value').filter( function(v) {
 				return v;
 			});
+			
+			general.zinLike = general.records.filter( function(r) {
+				return r.special.match(/(Invigorating Spirit|Sword Dance)/);
+			}).flatten('name');
 			
 			loadoutVals.forEach( function(v) {
 				worker.addPageCheck({page : 'ajax:player_loadouts.php?loadout=' + v + '&selection=4', hours : 5});
@@ -520,21 +525,23 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
 			return null;
 		}
 
-        var time = timeString.match(/(\d+)(:(\d\d))?\s*(p?)/i),
+        var time = timeString.match(/(\d+)(:(\d\d))?\s*(a|p)?/i),
 			hours,
-			d = new Date();
+			d = new Date(),
+			ampm = '';
 			
         if (time == null) {
 			return null;
 		}
 
+		ampm = $u.setContent(time[4], '');
+		
         hours = parseInt(time[1],10);
-        if (hours == 12 && !time[4]) {
-              hours = 0;
-        }
-        else {
-            hours += (hours < 12 && time[4])? 12 : 0;
-        }
+		if (hours == 12 && ampm.match(/a/i)) {
+          hours = 0;
+		} else {
+			hours += hours < 12 && ampm.match(/p/i) ? 12 : 0;
+		}
         d.setHours(hours);
         d.setMinutes(parseInt(time[3],10) || 0);
         d.setSeconds(0, 0);
@@ -622,9 +629,7 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
         try {
             var fullList = [],
                 generalList = [],
-				CoolDownNames = general.records.filter( function(r) {
-					return r.coolDown;
-				}).flatten('name').sort(),
+				CoolDownNames = [],
 				defaultLoadout = config.getItem('Default Loadout', 'Use Current'),
                 usedGen = '',
 				uGR = {},
@@ -638,6 +643,10 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
 			['energy', 'stamina', 'health'].forEach(function(stat) {
 				stats[stat].min = 0;
 			});
+			
+			CoolDownNames = general.records.filter( function(r) {
+				return r.coolDown;
+			}).flatten('name').sort();
 			
 			generalNames = general.records.flatten('name');
 
@@ -729,11 +738,8 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
 
             if (coolDown && general.coolDownList.length > 1) {
                 $j("div[id*='_cool_row']", caap.caapDivObject).css("display", "block");
-                if (general.hasRecord("Zin")) {
+                if (general.zinLike.length) {
                     $j("div[id*='_zin_row']", caap.caapDivObject).css("display", "block");
-                }
-                if (general.hasRecord("Misa")) {
-                    $j("div[id*='_misa_row']", caap.caapDivObject).css("display", "block");
                 }
             }
             return true;
@@ -777,10 +783,10 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
 		return  !go.newRecord && go.coolDown ? schedule.since(go.charge, 0) : false;
 	};
 
-	// Checks to see if Zin/Misa will be equipped and if fully charged
+	// Checks to see if Zin-like general will be equipped and if fully charged
     general.ZinMisaCheck = function (configLabel) {
 		var name = general.getConfigMenuGeneral(configLabel);
-		return ['Zin','Misa'].hasIndexOf(name) && general.charged(name);
+		return general.zinLike.hasIndexOf(name) && general.charged(name);
     };
 	
     // Convert from a role like "IdleGeneral" to a specific general required, and then calls a function to select that general
@@ -791,13 +797,17 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
 				expGain = whichGeneralwExp.regexd(/:(\d+)/, 0),
 				whichGeneral = whichGeneralwExp.replace(/:.*/, ''),
 				underLevelGenerals = [],
-				useStaminaAction = !['arena.doArenaBattle', 'caap.conquestBattle'].hasIndexOf(session.getItem('ThisAction', 'none'))
+				useStaminaAction = !['arena.doArenaBattle', 'conquest.worker'].hasIndexOf(session.getItem('ThisAction', 'none'))
 					&& !caap.inLevelUpMode() && ['InvadeGeneral', 'DuelGeneral'].hasIndexOf(whichGeneral)
 					&& config.getItem("useZinMisaFirst", false),
-                useZin =  useStaminaAction && general.charged("Zin") && stats.stamina.num <= (stats.stamina.max - 15),
-                useMisa =  useStaminaAction && general.charged("Misa") && stats.energy.num <= (stats.energy.max - 30),
+				useZinLike = useStaminaAction && general.zinLike.filter( function(g) {
+					var special = general.getRecordVal(g, 'special'),
+						stat = special.regexd(/(Energy|Stamina)/, 'Energy').toLowerCase(),
+						amount = special.regex(/(?:Spirit|Dance) \+(\d+)/);
+					return stats[stat].max - stats[stat].num > amount;
+				}),
                 coolType = general.getCoolDownType(whichGeneral),
-                coolName = useZin ? 'Zin' : useMisa ? 'Misa' : coolType ? config.getItem(coolType, '') : '';
+                coolName = useZinLike.length ? useZinLike.shift() : coolType ? config.getItem(coolType, '') : '';
 
             if (general.records.length <= (stats.level >= 100 ? 20 : 1)) {
                 con.log(1, "Generals count of " + general.records.length + " <= " + (stats.level >= 100 ? 20 : 2) + ', checking Generals page');
@@ -1038,7 +1048,6 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
             var LevelLowestFirstInst = "This will make the script level lowest level generals first. If unchecked, it will level up the highest generals first.",
                 LevelUpGenInstructions9 = "Ignore Banking until level up energy and stamina gains have been used.",
                 LevelUpGenInstructions10 = "Ignore Income until level up energy and stamina gains have been used.",
-                LevelUpGenInstructions11 = "EXPERIMENTAL: Enables the Quest 'Not Fortifying' mode after level up.",
                 timedLoadoutsList = "List of specific loadouts and time that loadout should loaded, such as '1 PM@Loadout Guild, 7 PM@Loadout Guild, 3@Loadout LoM, 14:30 - 18:30@Use Current",
                 timedFreezeInstructions = "If CAAP tries to equip a different general during a timed loadout or Guild Battle, freeze CAAP until time is up.  If not checked, CAAP will continue but without changing the general.",
                 coolDown = '',
@@ -1057,7 +1066,6 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
             htmlCode += caap.display.start('Level_UpGeneral', 'isnot', 'Use Current');
             htmlCode += caap.makeCheckTR("Do not Bank After", 'NoBankAfterLvl', true, LevelUpGenInstructions9, true, false);
             htmlCode += caap.makeCheckTR("Do not Income After", 'NoIncomeAfterLvl', true, LevelUpGenInstructions10, true, false);
-            htmlCode += caap.makeCheckTR("Prioritise Monster After", 'PrioritiseMonsterAfterLvl', false, LevelUpGenInstructions11, true, false);
             htmlCode += caap.display.end('Level_UpGeneral', 'isnot', 'Use Current');
             htmlCode += caap.makeCheckTR("Level Lowest General First", 'generalLevelLowestFirst', true, LevelLowestFirstInst);
             htmlCode += caap.makeTD("Use timed Loadouts at these times <a href='http://caaplayer.freeforums.org/viewtopic.php?f=9&t=828' target='_blank' style='color: blue'>(INFO)</a>");

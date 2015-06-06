@@ -137,7 +137,7 @@ schedule,gifting,state,army, general,session,monster,feed */
         }
 
         try {
-            if (!config.getItem('AutoPotions', true) || !schedule.check('AutoPotionTimerDelay')) {
+            if (!config.getItem('potions', true) || !schedule.check('AutoPotionTimerDelay')) {
                 return false;
             }
 

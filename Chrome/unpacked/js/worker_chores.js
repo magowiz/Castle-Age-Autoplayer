@@ -313,6 +313,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			
 			while (gin_left > 0) {
 				addClick = false;
+				countClick = 0;
 
                 ingredientDIV.each(addIng);
 

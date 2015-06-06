@@ -27,8 +27,8 @@ chores,town,general,session,monster:true */
 			var keeps = config.getItem('feedKeeps', ''); 
 			
 			worker.addPageCheck({page : 'ajax:public_monster_list.php?monster_tier=2', config: 'feedLowTier', cFreq: 'feedLowTierFreq', type: 'findKeep'});
-			worker.addPageCheck({page : 'ajax:public_monster_list.php?monster_tier=3', config: 'feedMediumTier', cFreq: 'feedMediumFreq', type: 'findKeep'});
-			worker.addPageCheck({page : 'ajax:public_monster_list.php?monster_tier=4', config: 'feedHighTier', cFreq: 'feedHighFreq', type: 'findKeep'});
+			worker.addPageCheck({page : 'ajax:public_monster_list.php?monster_tier=3', config: 'feedMediumTier', cFreq: 'feedMediumTierFreq', type: 'findKeep'});
+			worker.addPageCheck({page : 'ajax:public_monster_list.php?monster_tier=4', config: 'feedHighTier', cFreq: 'feedHighTierFreq', type: 'findKeep'});
 			worker.addPageCheck({page : 'ajax:guild_priority_mlist.php', config: 'feedGuild', cFreq: 'feedGuildFreq', type: 'findKeep'});
 			if (!$u.hasContent(keeps.trim())) {
 				return true;
@@ -71,6 +71,20 @@ chores,town,general,session,monster:true */
 							pR = town.getRecord(picDiv.attr('src').regex(/(\w+\.\w+)$/));
 							pR.name = picDiv.attr('alt');
 							pR.owned = picDiv.closest('div').next().text().innerTrim().trim().regex(/(\d+)/);
+							town.setRecord(pR);
+						}
+					});
+					state.getItem('feedNameOwned', '').split('\n').forEach( function(p) {
+						if (!$u.hasContent(p)) {
+							return;
+						}
+						var nameDiv = $j('img[alt]').filter(function() {
+							return this.alt.toLowerCase() == p.toLowerCase();
+						});
+						if ($u.hasContent(nameDiv)) {
+							pR = town.getRecord(nameDiv.attr('src').regex(/(\w+\.\w+)$/));
+							pR.name = nameDiv.attr('alt');
+							pR.owned = nameDiv.closest('div').next().text().innerTrim().trim().regex(/(\d+)/);
 							town.setRecord(pR);
 						}
 					});
@@ -182,7 +196,25 @@ chores,town,general,session,monster:true */
 				},
 				reviewInterval = Math.max(1, config.getItem('feedScan', false) ? config.getItem("feedMonsterReviewHrs", 6) : 365 * 24) * 3600,
 				attackReady = false;
-
+			
+			// Check on achievements
+			if (chores.checkPages('achievements') || chores.checkPages('general')) {
+				return true;
+			}
+			
+			// Check on item inventory
+			if (schedule.since('findKeep', 24 * 3600) && (state.getItem('feedPicOwned',false) || state.getItem('feedNameOwned',false))) {
+				if (page == 'keep') {
+					$j('img[src*="keep_plus.jpg"][onclick*="Items"]:visible').click();
+					caap.setDomWaiting('keep.php');
+					caap.clearDomWaiting();
+					caap.checkResultsTop();
+					return true;
+				}
+				return caap.navigateTo('keep');
+			}
+			
+			// Scan monsters
 			tR = monster.records.filter(joinable).reduce( function(previous, tarM) {
 				return tarM.score > previous.score ? tarM : previous;
 			}, {'score' : 0, conditions : ''});
@@ -221,22 +253,6 @@ chores,town,general,session,monster:true */
 			feed.isScan = false;
 			feed.scanRecord = {};
 
-			if (chores.checkPages('achievements')) {
-				return true;
-			}
-			
-			// Check on item inventory
-			if (schedule.since('findKeep', 24 * 3600) && (state.getItem('feedPicOwned',false) || state.getItem('feedNameOwned',false))) {
-				if (page == 'keep') {
-					$j('img[src*="keep_plus.jpg"][onclick*="Items"]:visible').click();
-					caap.setDomWaiting('keep.php');
-					caap.clearDomWaiting();
-					caap.checkResultsTop();
-					return true;
-				}
-				return caap.navigateTo('keep');
-			}
-			
 			if (attackReady) {
 				link += tR.link;
 				if (tR.charClass) {
@@ -459,17 +475,17 @@ chores,town,general,session,monster:true */
 					return town.records.getObjByFieldLc('name', name.toLowerCase(), {owned: 0}).owned;
 				},
 				needname = function(name, want) {
-					name = $u.setContent(name.regex(/([\w' ]+)/g),[]);
-					return name.some( function(n) {
-						return want > nameowned(n.trim()) + same;
-					});
+					name = name.regexd(/([\w' ]+)/g, []);
+					return name.reduce( function(p, c) {
+						return Math.max(p, want - nameowned(c.trim()) - same);
+					}, 0);
 				},
 				hasgeneral = function(g) {
 					return general.hasRecord(g);
 				},
 				// r = result of recipe, nr = number wanted, or 'g' for a general, i = ingredients, and nr = number of ingredients per item
 				needrecipe = function(r, nr, i, ni) { 
-					return nr == 'g' ? !hasgeneral(r) && needname(i, ni) : (nameowned(r) + Math.floor(nameowned(i) / ni) < nr);
+					return nr == 'g' ? !hasgeneral(r) && needname(i, ni) : needname(i, (nr - nameowned(r)) * ni);
 				},
 				userdamage = function(userId, damage) {
 					state.setItem('feedUserId', state.getItem('feedUserId', '').split('\n').addToList(name).join('\n'));

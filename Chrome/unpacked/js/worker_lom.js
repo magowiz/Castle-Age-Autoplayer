@@ -124,7 +124,8 @@ schedule,state,general,session,battle:true */
 				
 				// Your health is too low to use a special ability, heal first
 				
-				if (resultsText.match(/Your health is too low to use a special ability, heal first/)) {
+				if (resultsText.match(/Your health is too low to use a special ability, heal first/) ||
+					resultsText.match(/The guild battle is over, you cannot commence this battle/)) {
 					con.log(2, 'LoM: Health too low, so disabling LoM guardian until next land', fR);
 					fR.state = 'No Battle';
 					

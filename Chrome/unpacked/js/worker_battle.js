@@ -50,7 +50,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             warPoints: 0,
             chainCount: 0,
             chainRest: 0,
-			gbPoints : 0,
 /*          arenaRank: 0,
 			arenaLost : 0,
 			arenaWon : 0,
@@ -59,8 +58,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			arenaPoints: 0,
 			arenaTotal: 0,
 			arenaInvalid: false,
-*/          newRecord: true
-        };
+*/			gbPoints : 0
+		};
     };
 	
 /////////////////////////////////////////////////////////////////////
@@ -114,13 +113,15 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 					general: 	'InvadeGeneral',
 					when: 		'WhenBattle',
 					maxChain: 	'maxChain',
-					min: 		'battleMinRank',
-					max: 		'battleMaxRank',
+					minRank:	'battleMinRank',
+					maxRank:	'battleMaxRank',
+					minLevel:	'battleMinLevel',
+					maxLevel:	'battleMaxLevel',
 					idList:		'battleIdList',
 					lost:		'invadeLost',
 					won:		'invadeWon',
 					valid:		'valid',
-					minLevel: 	8,
+					startLevel: 	8,
 					page:		'battle',
 					reconDelay:	'reconDelay',
 					battleDelay:'battleDelay',
@@ -133,7 +134,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 						return 'battle.php?symbol_id=' + deity + '&target_id=' + userId +'&action=battle&duel=false';
 					},
 					checkF: function(bR, div) {
-						if (stats.level >= battle.War.minLevel) {
+						if (stats.level >= battle.War.startLevel) {
 							caap.bulkRegex(div, /\s*War: [\w ]+ \(Rank (\d+)\)/, bR, ['warRank']);
 						}
 					},
@@ -173,7 +174,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 					lost:		'warLost',
 					won:		'warWon',
 					general: 	'WarGeneral',
-					minLevel: 	100,
+					startLevel: 	100,
 					pointList: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,6,8,10,12,13,15,16,17,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18],
 					linkF: function(userId) { return 'battle.php?target_id=' + userId + '&action=war';	},
 					winLossRegex: /Cost -(10) Stamina/,
@@ -195,7 +196,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 					mid:		'festival_duelchamp_line.jpg',  //Damn (LEVEL 819) Protector (Rank 7)
 					regex: 		/(.+) \(LEVEL (\d+)\) [\w ]+ \(Rank (\d+)\)/i,
 					stats: 		['name', 'level', 'festRank'],
-					minLevel: 	1,
+					startLevel: 	1,
 					pointList: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,6,8,10,12,13,15,16,17,18,19,20,20,20,20,20,20,20,20,20,20,20,20,20,20],
 					linkF: function(userId) { return 'festival_duel_battle.php?target_id=' + userId + '&action=battle&duel=true';	},
 					checkF: function() { return; },
@@ -216,12 +217,14 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 					kinds:		'conqKinds',
 					when: 		'WhenConquest',
 					maxChain: 	'ConquestMaxChains',
-					min: 	'ConquestMinRank',
-					max: 	'ConquestMaxRank',
+					minRank: 	'ConquestMinRank',
+					maxRank: 	'ConquestMaxRank',
+					minLevel: 	'ConquestMinLevel',
+					maxLevel: 	'ConquestMaxLevel',
 					valid:		'conqValid',
 					reconDelay:	'conqReconDelay',
 					battleDelay:'conqBattleDelay',
-					minLevel: 	80,
+					startLevel: 	80,
 					page:		'conquest_duel',
 					mid:		'war_conquest_mid.jpg',
 					recon:		'conquest',
@@ -283,6 +286,22 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 	};
 	
 	// Calculate an a score based on level, army size, and previous experience for a battle record to pick the best target
+	battle.filterF = function(arr, which) {
+		var	w = battle[which],
+				loose = battle.demisPointsToDo('left') && ['Festival', 'War'].hasIndexOf(which), // Play loose if not reconning for demis
+				minRank = loose ? 0 : battle.minMaxF(w, 'minRank'),
+				maxRank = battle.minMaxF(w, 'maxRank'),
+				minLevel = loose ? 0 : battle.minMaxF(w, 'minLevel'),
+				maxLevel = battle.minMaxF(w, 'maxLevel'),
+				conqLevel = w.conq ? config.getItem('conquestLevels', 'Any').regexd(/(\d+)/, 0) : 0;
+			
+		return arr.filter( function(r) {
+			return r[w.rank] >= minRank && r[w.rank] <= maxRank && !r[w.lost] && r.level <= maxLevel && r.level >= minLevel &&
+				(!w.invade || r.army > 0) && (!w.conq || r.level >= conqLevel);
+		});
+	};
+	
+	// Calculate an a score based on level, army size, and previous experience for a battle record to pick the best target
 	battle.scoring = function(r, which) {
 		var w = battle[which],
 			defBonus = which == 'War' ? 'War' : w.invade ? r.army / stats.army.capped : 1,
@@ -291,23 +310,11 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 		return battle.winChance(r, stats.bonus.api, defBonus) * mult; 
 	};
 	
-	// Calculate an a score based on level, army size, and previous experience for a battle record to pick the best target
-	battle.filterF = function(arr, which) {
-		var	w = battle[which],
-			minRank = battle.demisPointsToDo('left') ? 0 : battle.minMaxRankF(w, 'min'),
-			maxRank = battle.minMaxRankF(w, 'max'),
-			conqLevel = w.conq ? config.getItem('conquestLevels', 'Any').regexd(/(\d+)/, 0) : 0;
-			
-		return arr.filter( function(r) {
-			return r[w.rank] >= minRank && r[w.rank] <= maxRank && !r[w.lost] && (!w.invade || r.army > 0) &&
-				(!w.conq || r.level >= conqLevel);
-		});
-	};
-	
-	// Calculate min or max Rank to fight based on config menu setting
-	battle.minMaxRankF = function(w, minMax) {
-		var conf = $u.setContent(config.getItem(w[minMax], ''), minMax.match(/max/i) ? '1000' : '0');	
-		return conf.toString().match(/[\+\-]/) ? stats.rank[w.myRank] + Number(conf) : conf;
+	// Calculate min or max rank or level to fight based on config menu setting
+	battle.minMaxF = function(w, minMax) {
+		var conf = $u.setContent(config.getItem(w[minMax], ''), minMax.match(/max/i) ? '100000' : '0'),
+			me = minMax.match(/rank/i) ? stats.rank[w.myRank] : stats.level;	
+		return conf.toString().match(/[\+\-]/) ? me + Number(conf) : conf;
 	};
 	
 	battle.init = function() {
@@ -351,6 +358,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				demis = [],
 				minRank,
 				maxRank,
+				minLevel,
+				maxLevel,
 				userId,
 				bR;
 			
@@ -392,8 +401,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			schedule.setItem(w.reconDelay, 5 * 60);
 			battle.readWinLoss(resultsText, w);
 			
-			minRank = battle.minMaxRankF(w, 'min');
-			maxRank = battle.minMaxRankF(w, 'max');
+			minRank = battle.minMaxF(w, 'minRank');
+			maxRank = battle.minMaxF(w, 'maxRank');
+			minLevel = battle.minMaxF(w, 'minLevel');
+			maxLevel = battle.minMaxF(w, 'maxLevel');
 
 			(w.midJQ ? $j(w.midJQ) : $j('#app_body div[style*="' + w.mid + '"]')).each( function() {
 				userId = $j("input[name='target_id']", this).attr('value');
@@ -406,7 +417,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				w.checkF(bR, this);
 				
 				if (bR.newRecord) {
-					if (bR[w.rank] <= maxRank && bR[w.rank] >= minRank) {
+					if (bR[w.rank] <= maxRank && bR[w.rank] >= minRank && bR.level <= maxLevel && bR.level >= minLevel) {
 						window[w.recon].setRecord(bR);
 						state.setItem('wsave_' + w.recon + '_noWarning', true);
 					}
@@ -475,7 +486,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				// What kind of battle?
 				if (!caap.inLevelUpMode() && (demisLeft || general.ZinMisaCheck(w.general))) {
 					battleOrOverride = 'battleOverride';
-					caap.setDivContent('battle_mess', 'Battle: Doing ' + (demisLeft ? 'Demi Points' : 'Zin or Misa'));
+					caap.setDivContent('battle_mess', 'Battle: Doing ' + (demisLeft ? 'Demi Points' : 'Zin-like general'));
 					if (which == 'War') {
 						which = config.getItem('zinDemiType', 'Invade');
 						w = battle[which];
@@ -491,8 +502,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				}
 			}
 			
-            if (stats.level < w.minLevel) {
-                return {action: false, mess: 'Locked until level ' + w.minLevel};
+            if (stats.level < w.startLevel) {
+                return {action: false, mess: 'Locked until level ' + w.startLevel};
             }
 
             staminaReq = which == 'War' ? 10 : 1;
@@ -845,6 +856,14 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 					"Use +/- to indicate relative rank, e.g. +2 to attack opponents up to two ranks over your rank. " +
 					"If no +/-, the number is an absolute rank, e.g. 19 would mean do not attack above rank Prince (19). " +
 					"Leave blank to attack any rank. (Uses Battle Rank for invade and duel, War Rank for wars.)",
+                minLevelInst = "The lowest level that you are willing to spend your stamina on. " +
+					"Use +/- to indicate relative level, e.g. -200 to attack opponents down to 200 levels below your level. " +
+					"If no +/-, the number is an absolute level, e.g. 190 would mean do not attack below level 190. " +
+					"Leave blank to attack any level.",
+                maxLevelInst = "The highest level that you are willing to spend your stamina on. " +
+					"Use +/- to indicate relative level, e.g. +200 to attack opponents up to 200 levels over your level. " +
+					"If no +/-, the number is an absolute level, e.g. 190 would mean do not attack above level 190. " +
+					"Leave blank to attack any level.",
                 plusonekillsInstructions = "Delay 20 seconds between hits to get +1 kills. Takes more time.",
                 raidOrderInstructions = "List of search words that decide which " + "raids to participate in first.  Use words in player name or in " +
                     "raid name. To specify max damage follow keyword with :max token " + "and specifiy max damage values. Use 'k' and 'm' suffixes for " + "thousand and million.",
@@ -855,16 +874,14 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 targetList = ['Freshmeat', 'User ID List', 'Raid'],
                 targetInst = ['Use settings to select a target from the Battle Page', 'Select target from the supplied list of userids', 'Raid Battles'],
                 collectRewardInstructions = "(EXPERIMENTAL) Automatically collect raid rewards.",
-				haveZin = general.hasRecord("Zin"),
-				haveMisa = general.hasRecord("Misa"),
-				who = (haveZin ? 'Zin' : '') + (haveZin && haveMisa ? ' and ' : '') + (haveMisa ? 'Misa' : ''),
+				who = general.zinLike.join('/'),
                 battleList = ['Stamina Available', 'At Max Stamina', 'At X Stamina', 'Stay Hidden', 'Only Demipoints or Zin/Misa', 'Never'],
                 battleInst = [
                     'Stamina Available will battle whenever you have enough stamina',
                     'At Max Stamina will battle when stamina is at max and will burn down all stamina when able to level up',
                     'At X Stamina you can set maximum and minimum stamina to battle',
                     'Stay Hidden uses stamina to try to keep you under 10 health so you cannot be attacked, while also attempting to maximize your stamina use for Monster attacks. YOU MUST SET MONSTER TO "STAY HIDDEN" TO USE THIS FEATURE.',
-                    'Only does Demipoints' + (who ? ' or ' + who : ''),
+                    'Only does Demipoints' + (who.length ? ' or ' + who : ''),
                     'Never - disables player battles'
                 ],
 				subCode = '',
@@ -906,8 +923,10 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			//htmlCode += caap.makeCheckTR("Siege Weapon Assist Raids", 'raidDoSiege', true, dosiegeInstructions);
             htmlCode += caap.makeNumberFormTR("Max Chains", 'maxChain', maxChainInstructions, 4, '', '');
             htmlCode += caap.makeTD("Attack targets that are not:");
-            htmlCode += caap.makeNumberFormTR("Lower Than Rank", 'battleMinRank', minRankInst, '', '', 'text'); // Check +1 works
-            htmlCode += caap.makeNumberFormTR("Higher Than Rank", 'battleMaxRank', maxRankInst, '', '', 'text'); // Check +1 works
+            htmlCode += caap.makeNumberFormTR("Lower Than Rank", 'battleMinRank', minRankInst, '', '', 'text'); 
+            htmlCode += caap.makeNumberFormTR("Higher Than Rank", 'battleMaxRank', maxRankInst, '', '', 'text');
+            htmlCode += caap.makeNumberFormTR("Lower Than Level", 'battleMinLevel', minLevelInst, '', '', 'text');
+            htmlCode += caap.makeNumberFormTR("Higher Than Level", 'battleMaxLevel', maxLevelInst, '', '', 'text');
             htmlCode += caap.makeDropDownTR("Target Type", 'TargetType', targetList, targetInst, '', '', false, false, 62);
             htmlCode += caap.display.start('TargetType', 'is', 'Raid');
             htmlCode += caap.makeCheckTR("Collect Raid Rewards", 'raidCollectReward', false, collectRewardInstructions);

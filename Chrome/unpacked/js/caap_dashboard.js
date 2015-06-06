@@ -139,6 +139,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			worker.dashList.forEach( function(d) {
 				var wO = window[d],
 					dO = $u.extend({}, {buttons : [], tableTemplate: {}, handlers: [], tableEntries: []}, wO.dashboard),
+					rO = window[$u.setContent(dO.records)],
 					i= dO.buttons.indexOf('clear'),
 					bText = [];
 					
@@ -148,20 +149,21 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				if (i >= 0) {
 					dO.buttons[i] = {name: 'Clear ' + dO.name + ' Records',
 						func: function() {
-							window[dO.records].records = [];
-							window[dO.records].save('update');
+							rO.records = [];
+							rO.save('update');
 						}
 					};
 				}
 					
 				dO.tableEntries.forEach( function(e, i) {
+					var name = $u.setContent(e.name, rO.recordIndex);
 					// Add remove buttons
 					if (e.type == 'remove') {
 						e = {name: '&nbsp;', format: 'unsortable',
 							valueF: function(r) {
-								return '<span title="Clicking this link will remove ' + r[$u.setContent(e.name, wO.recordIndex)] +
-								' from CAAP" class="caap_' + dO.records + '_remove ui-icon ui-icon-circle-close" rlink="' +
-								r[wO.recordIndex] + '" onmouseover="this.style.cursor=\'pointer\';" onmouseout="this.style.cursor=\'default\';">X</span>';
+								return '<span title="Clicking this link will remove ' + r[name] +
+								' from CAAP" class="caap_' + rO.records + '_remove ui-icon ui-icon-circle-close" rlink="' +
+								r[rO.recordIndex] + '" onmouseover="this.style.cursor=\'pointer\';" onmouseout="this.style.cursor=\'default\';">X</span>';
 						}};
 						dO.tableEntries[i] = e;
 						dO.handlers.addToList({
@@ -169,8 +171,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 								handleF: function(e) {
 									$j.makeArray(e.target.attributes).some( function(n) {
 										if (n.nodeName === 'rlink') {
-											wO.deleteRecord(n.value);
-											wO.save('update');
+											rO.deleteRecord(n.value);
+											rO.save('update');
 											return true;
 										}
 									});

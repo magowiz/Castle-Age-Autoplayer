@@ -513,7 +513,6 @@ config,con,gm,schedule,state,general,session,monster:true */
 			// Is it alive?
 			if ($u.hasContent(time)) {
 				cM.time = time[0] + time[1] / 60;
-				cM.t2k = monster.t2kCalc(cM);
 				
 				// new siege style
 				tempDiv = $j("#objective_list_section div[style*='mobjective_container']", slice);
@@ -611,6 +610,7 @@ config,con,gm,schedule,state,general,session,monster:true */
 						cM.life = ((mains.reduce(function(a, b) { return a + b; }, 0) + arms.reduce(function(a, b) { return a + b; }, 0) / 5)	/ (mains.length + arms.length / 5)).dp(2);
 					}
 				}
+				cM.t2k = monster.t2kCalc(cM);
 					
 				// Check public and priority monster.parseCondition("s", cM.conditions)
 				cM.canPri = !cM.link.hasIndexOf(stats.FBID) ? false : $u.hasContent(caap.checkForImage('pri_btn_priority.gif'));
@@ -1057,13 +1057,13 @@ config,con,gm,schedule,state,general,session,monster:true */
 					if (conquestCollect && (/:collect\b/.test(cM.conditions) ||
 						(/:collectsmall\b/.test(cM.conditions) && cM.damage < 200000) ||
 						(!/:!collect\b/.test(cM.conditions) && config.getItem('monsterCollectReward', false)))) {
+						message = 'Collecting ';
 						if (general.Select('CollectGeneral')) {
+							result = {mlog: message + (i + 1) + '/' + monster.records.length + ' ' + cM.name};;
 							return true;
 						}
 
 						link += '&action=collectReward' + cM.rix;
-						con.log(2, 'Collecting reward on ' + cM.name, cM);
-						message = 'Collecting ';
 					}
 
 				} else if (cM.state == 'Done') {
@@ -1624,6 +1624,9 @@ config,con,gm,schedule,state,general,session,monster:true */
         },
         'Azriel': {
             ach: 8000000
+        },
+        'Kraken': {
+            achTitle : "Kraken"
         },
         'Alpha Mephistopheles': {
             ach: 12000000
