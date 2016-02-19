@@ -151,6 +151,10 @@ chores,town,general,session,monster:true */
 			var matched = false,
 				conditions;
 			
+			if (cM.damage > 0) {
+				return false;
+			}
+			
 			config.getItem('feedFilter', 'all').split('\n').some( function(item) {
 				item = item.trim();
 				if (item.length && 

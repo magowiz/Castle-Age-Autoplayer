@@ -4009,8 +4009,8 @@ gb,essence,gift,chores,quest */
 	
 	caap.gameDay = function(offsetSeconds, time) {
 		time = new Date($u.setContent(time, Date.now()));
-		offsetSeconds = $u.setContent(offsetSeconds, 0); 				// Need to adjust from 7 to 8 when daylight savings time changes
-		return caap.weekdays[new Date(time.getTime() + ((time.getTimezoneOffset() / 60 - 7) * 3600 + offsetSeconds) * 1000).getDay()];
+		offsetSeconds = $u.setContent(offsetSeconds, 0); 	// Need to adjust from 7 to 8 when daylight savings time changes in winter
+		return caap.weekdays[new Date(time.getTime() + ((time.getTimezoneOffset() / 60 - 8) * 3600 + offsetSeconds) * 1000).getDay()];
 	};
 	
     caap.getStatusNumbers = function (text, record) {

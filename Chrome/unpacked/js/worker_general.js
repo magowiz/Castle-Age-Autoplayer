@@ -390,7 +390,7 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
             return false;
         }
     };
-
+	
 	worker.addAction({worker : 'general', priority : 100000, description : 'Checking current general'});
 	general.worker = function(newpage, generalBox, loadoutsDiv) {
 		try {
@@ -957,7 +957,12 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
 					}
 					if (text.match(/EQUIPMENT ATK: 0 DEF: 0/)) {
 						// player_loadouts.php?selection=3&loadout=1&action=select_loadout_class_item_equipment&item_500=1_1511&item_600=1_1509&item_700=1_1508&item_800=1_1193&item_900=1_1247&item_1000=1_1150&item_1100=1_1248&item_1200=1_1249
-						caap.ajaxLink('player_loadouts.php?selection=3&action=select_loadout_class_item_equipment&' + g.items + 'loadout=' + g.value);
+						text = g.items;
+						['5', '6', '7', '8', '9', '10', '11', '12', '13'].forEach( function(n) {
+							text = text + (text.hasIndexOf('item_' + n + '00=') ? '' : 'item_' + n + '00=unset&');
+						});
+						caap.ajaxLink('player_loadouts.php?selection=3&action=select_loadout_class_item_equipment&' + text +
+							'loadout=' + g.value);
 						click = true;
 						return true;
 					}

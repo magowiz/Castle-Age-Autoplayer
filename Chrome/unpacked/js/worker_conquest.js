@@ -106,7 +106,7 @@ schedule,state,general,session,monster */
                 return {action: false, mess: ''};
             }
 
-			if (stats.guildTokens.num > stats.guildTokens.max && caap.navigateTo('conquest_duel')) {
+			if (stats.guildTokens.num > stats.guildTokens.max && caap.navigate2('ajax:guildv2_conquest_command.php?tier=3')) {
 				return {mlog: 'Checking coins'};
 			}
 
@@ -188,13 +188,21 @@ schedule,state,general,session,monster */
 				return false;
 			}
 			
-            var result = false,
+            var result = conquest.hunterCombos('link'),
 				collectTime = false,
 				message = [], 
 				pts = 0,
 				when,
 				vals = [0, 1000, 3000];
 		
+			// Check if have enough points to collect for conquest monsters
+			if (result) {
+				caap.navigate2("ajax:" + result + '&action=collectReward');
+				stats.conquest.Hunter += monster.getRecordVal(result, 'spentStamina');
+				return {mlog: 'Collecting conquest monsters'};
+			}
+			
+			// Check for other collects
 			collectTime = ['Conqueror','Guardian','Engineer'].every( function(category) {
 				when = config.getItem('When' + category, 'Never');
 				if (when == 'Never') {
@@ -216,20 +224,15 @@ schedule,state,general,session,monster */
 				}
 			});
 			
-			if (collectTime && (message.length || (stats.conquest.Conqueror <= 150 && stats.conquest.Guardian <= 150 && stats.conquest.Engineer == 0))) {
-				result = conquest.hunterCombos('link');
-				if (result) {
-					caap.navigate2("ajax:" + result + '&action=collectReward');
-					stats.conquest.Hunter += monster.getRecordVal(result, 'spentStamina');
-					return {mlog: 'Collecting conquest monsters'};
-				} 
-				when = config.getItem('WhenHunter', 'Never');
-				if (when != 'Never' && stats.conquest.Hunter >= when) {
-					message.push('Hunter points at ' + stats.conquest.Hunter + ' over ' + when);
-				}
+			// Check for hunter collect 
+			when = config.getItem('WhenHunter', 'Never');
+			if (when != 'Never' && stats.conquest.Hunter >= when) {
+				message.push('Hunter points at ' + stats.conquest.Hunter + ' over ' + when);
+				collectTime = (stats.conquest.Conqueror <= 150 && stats.conquest.Guardian <= 150 && stats.conquest.Engineer == 0) || collectTime;
 			}
 				
-			if (collectTime && message.length) {
+			// If all CGE conditions are met or Hunter collect ready and no other points, collect
+			if (message.length && collectTime) {
 				result = caap.navigate3('guildv2_conquest_command.php?tier=3','conquest_path_shop.php?action=report_collect&ajax=1');
 				if (result) {
 					if (result == 'done') {

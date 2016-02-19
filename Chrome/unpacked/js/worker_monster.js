@@ -1285,6 +1285,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 						// If too close to levelling for a power attack, do max attack to carry over xp
 						setGeneralVarsFunc(levelUpGen, stat);
 						statRequire = statRequireBig;
+						statAvailable = statRequire;
 					}
 					if (statRequire > 0) {
 						con.log(2, 'Hitting for ' + statRequire + ' Big ' + statRequireBig + ' Stamina ' + stats.stamina.num + ' with ' +

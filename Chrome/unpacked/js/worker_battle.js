@@ -156,12 +156,15 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 					linkF: function(userId, deity) {
 						return 'battle.php?symbol_id=' + deity + '&target_id=' + userId + '&action=battle&duel=true';
 					},
-					winLossRegex: /.*\d+(.*) fought with.*You have (won|lost) (\d+) Battle Points.*\$([,\d]+)?/i,
-					regexVars: ['name', 'wl', 'points', 'gold'],
+					winLossRegex: /([\+\-\d]+) Battle Points.*? ([\+\d]+ XP)?.*\$([,\d]+)?/i,
+					regexVars: ['points', 'wl', 'gold'],
 					winLossF: function(r) {
-						r.att = stats.bonus.api;
+						r.att = stats.bonus.api;  //conqduel_defeat2 conqduel_victory2
+						r.wl = $u.hasContent(r.wl) ? 'won' : 'lost';
 						r.gold = r.gold ? r.gold.numberOnly() : 0;
 						r.points = (r.wl == 'won' ? 1 : -1) * r.points;
+						r.name = r.wl == 'won' ? caap.resultsText.regex(/[\+\-\d]+ Demi Points (.*) [\+\-\d]+ Battle Points/i) 
+							: caap.resultsText.regex(/[\+\-\d]+ Money (.*) [\+\-\d]+ Battle Points/i);
 					},
 					other: 'War' // Check War for win loss if no match for duel
 				};
@@ -288,8 +291,8 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 	// Calculate an a score based on level, army size, and previous experience for a battle record to pick the best target
 	battle.filterF = function(arr, which) {
 		var	w = battle[which],
-				 // Play loose if not reconning for demis
-				loose = battle.demisPointsToDo('left') && ['Festival', 'War'].hasIndexOf(config.getItem('battleWhich', 'Invade')),
+				 // Play loose if reconning for demis
+				loose = battle.demisPointsToDo('left') && !['Festival', 'War'].hasIndexOf(config.getItem('battleWhich', 'Invade')),
 				minRank = loose ? 0 : battle.minMaxF(w, 'minRank'),
 				maxRank = battle.minMaxF(w, 'maxRank'),
 				minLevel = loose ? 0 : battle.minMaxF(w, 'minLevel'),
@@ -379,7 +382,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				w = battle.Invade;  // battle.duel is possible as well, but battle.Invade has all the commands we need on this page, and is the start of the win/loss checks
 				
 				// Check demi points
-				demis = $u.setContent($j('#app_body div[style*="battle_top.jpg"]').text().trim().innerTrim(), '').regex(/(\d+) \/ (\d+)/g);
+				demis = $u.setContent($j('#app_body div[style*="battle_top1.jpg"]').text().trim().innerTrim(), '').regex(/(\d+) \/ (\d+)/g);
 				if ($u.hasContent(demis) && demis.length == 5) {
 					['ambrosia', 'malekus', 'corvintheus', 'aurora', 'azeron'].forEach(function (d) {
 						caap.demi[d].daily = caap.getStatusNumbers(demis.shift().join('/'));
@@ -399,7 +402,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				return;
 			}
 			
-			schedule.setItem(w.reconDelay, 5 * 60);
+			schedule.setItem(w.reconDelay, 0);
 			battle.readWinLoss(resultsText, w);
 			
 			minRank = battle.minMaxF(w, 'minRank');
@@ -536,9 +539,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				arenaTokens = 0, // Need to move this out of here eventually
 				gen,
 				cM = {},
-				battleReconTimer = schedule.getItem("battleRecon"),
-				rejoinSecs = !$u.isDefined(battleReconTimer) ? 0 : ((battleReconTimer.next - Date.now()) / 1000).dp() + ' secs',
-                bR = {}, // Battle Record
+	            bR = {}, // Battle Record
                 idList = $u.hasContent(w.idList) ? config.getList(w.idList, []) : [],
 				randomNum = Math.random() * 100,
 				valid,
@@ -554,11 +555,12 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 						r.score = battle.scoring(r, which);
 					});
 					if (!targets.length) {
-						if (schedule.check(w.reconDelay, 5 * 60)) { 
+						if (schedule.since(w.reconDelay, 5 * 60)) { 
 							caap.ajaxLink(w.page);
 							return {mlog: 'Looking for ' + type + ' targets on ' + w.page};
 						}
-						return {action: false, mess: 'Recon for targets in ' + rejoinSecs};
+						return {action: false, mess: 'Recon for targets in ' +
+							$u.makeTime((schedule.getItem(w.reconDelay).next + 5 * 60 * 1000 - Date.now()), 'i:s')};
 					}
 					bR = targets.sort($u.sortBy(false, 'score')).pop();
 					state.setItem('wsave_battle_noWarning', true);
