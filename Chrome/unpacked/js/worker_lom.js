@@ -131,7 +131,7 @@ schedule,state,general,session,battle:true */
 					
 				} else {
 					
-					$j('div[id^="special_defense_button"] form input[type="image"]').each( function() {
+					$j('div[id^="special_defense_button"] form input[type="image"], div[id^="action_panel"] form input[type="image"]').each( function() {
 						powers.addToList($j(this).attr('src').regex(/.*\/(\w+\.\w+)/));
 					});
 					

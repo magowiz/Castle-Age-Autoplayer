@@ -432,12 +432,6 @@ regexp: true, eqeq: true, newcap: true, forin: false */
 			}
 			
 			options = $u.setContent(options, {});
-			if (caap.page != toPage.replace(/\.php.*/, '') || !caap.clickUrl.hasIndexOf(toPage)) {
-				caap.ajaxLink(toPage);
-				con.log(2, 'Navigate3: Go to ajax link '+ toPage, caap.page, caap.clickUrl);
-				return true;
-			}
-			
 			if (!$u.setContent(options.check, true) || $u.hasContent($j('[href*="' + click + '"]'))) {
 				caap.ajaxLink(click);
 				con.log(2, 'Navigate3: Clicking link '+ click);
@@ -461,6 +455,13 @@ regexp: true, eqeq: true, newcap: true, forin: false */
 				con.log(2, 'Navigate3: Clicking form link '+ click);
 				return 'done';
 			}
+
+			if (caap.page != toPage.replace(/\.php.*/, '') || !caap.clickUrl.hasIndexOf(toPage)) {
+				caap.ajaxLink(toPage);
+				con.log(2, 'Navigate3: Go to ajax link '+ toPage, caap.page, caap.clickUrl);
+				return true;
+			}
+			
 			con.warn('Navigate3: ' + click + ' link type not found on page ' + toPage);
 			caap.bad3.push(toPage + ':' + click);
 			caap.scrapeLinks();

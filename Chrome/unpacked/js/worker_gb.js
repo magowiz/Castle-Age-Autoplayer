@@ -881,7 +881,7 @@ schedule,state,general,session,battle:true */
 								case '10v10' :		tf = gf.name.toLowerCase() == key;									break;
 								case 'easy' :		tf = fR.easy;														break;
 								case 'easyc' :		tf = fR.easy && mR.mclass == 'cleric';								break;
-								case mR.target_id.toString() : tf = true;															break;
+								case mR.target_id.toString() : tf = true;												break;
 								case 'simtis' :		tf = fR.simtis;														break;
 								case 'unstunned' :	tf = mR.healthNum > 200;											break;
 								case 'meshout' :	tf = fR.me.shout;													break;
@@ -907,8 +907,8 @@ schedule,state,general,session,battle:true */
 
 							args = text.match(new RegExp('(!?)' + key + ':(\\*?)(-?)([\\.\\d]+)'));
 							
-							// Deliberate avoidance of "tf !==" to catch 0 or undefined, etc.
 							notArg = (args[1] == '!');
+							tf = !(!tf);
 							if (args && args.length == 5 && tf !== notArg) { 
 								normal[args[2] == '*' ? 't' : 'p'] += args[3] == '-' ? -args[4].parseFloat() : args[4].parseFloat();
 							}
