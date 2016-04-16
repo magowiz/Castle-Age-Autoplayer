@@ -29,6 +29,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
             fortify: -1,
             time: 168,
             t2k: 168,
+            etf: 0, // Estimated time of fleeing
             phase: -1,
             miss: 0,
             rix: -1,
@@ -189,13 +190,18 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				case 3:				mR.state = 'Attack';											break;
 				case 4:				feed.checkDeath(mR);			mR.state = 'Dead';				break;
 				case 'view':		mR.state = 'Dead';												break;
-				case 'atk':			mR.state = $u.setContent(mR.state, 'Attack');					break;
+				case 'atk':			mR.state = mR.state == 'Join' ? 'Join' : 'Attack';				break;
 				case 'join':	
 				case 'joinmonster':	mR.state = $u.setContent(mR.state, 'Join');						break;
 				case 'collect':		feed.checkDeath(mR);
 									mR.state = mR.state == 'Attack' ? 'Dead or fled' : $u.setContent(mR.state, 'Dead or fled');
 									break;
 				default:			con.warn("Unknown engageButtonName state for " + mR.name);		break;
+				}
+				
+				if (mR.state == 'Attack' && mR.etf > 0 && Date.now() > mR.etf) {
+					mR.staminaSpent = 0;
+					mR.energySpent = 0;
 				}
 				
 				mR.color = ['Dead', 'Collect', 'Dead or fled'].hasIndexOf(mR.state) ? 'grey' : mR.state == 'Attack' && mR.color == 'grey' ? 'black' : mR.color;
@@ -238,7 +244,6 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				partsDiv = $j(),
 				partsElem = $j(),
 				armsList = [],
-				target,
 				tStr = '',
 				partsHealth = [],
 				arms = [],
@@ -518,12 +523,16 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 			// Is it alive?
 			if ($u.hasContent(time)) {
 				cM.time = (time[0] + time[1] / 60).dp(2);
+				if (cM.etf != 0 && Date.now() > cM.etf) {
+					cM.spentStamina = 0;
+					cM.spentEnergy = 0;
+				}
+				cM.etf = Date.now() + cM.time * 3600 * 1000;
 				
 				// new siege style
 				tempDiv = $j("#objective_list_section div[style*='mobjective_container']", slice);
 				if ($u.hasContent(tempDiv)) {
 					cM.phase = tempDiv.length;
-					cM.miss = $u.setContent($u.setContent($j("div[style*='monster_layout'],div[style*='nm_bottom'],div[style*='raid_back']", slice).text(), '').trim().innerTrim().regex(/Need (\d+) more/i), 0);
 				} else { // old style
 					tempDiv = $j("div[style*='monster_layout_2.jpg'] div[style*='alpha']", slice);
 					if (tempDiv.length) {
@@ -531,7 +540,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 					}
 				}
 				if (cM.phase > 0) {
-					cM.miss = $u.setContent($u.setContent($j("div[style*='monster_layout'],div[style*='nm_bottom'],div[style*='raid_back']", slice).text(), '').trim().innerTrim().regex(/Need (\d+) more/i), 0);
+					cM.miss = $u.setContent($u.setContent($j("div[style*='monster_layout'],div[style*='nm_bottom'],div[style*='raid_back'],div[style*='stance_plate_bottom.jpg']", slice).text(), '').trim().innerTrim().regex(/Need (\d+) more/i), 0);
 				}
 				
 				if (style == 'class') {
@@ -544,6 +553,8 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 							if ($u.hasContent(tStr)) {
 								cM.charClass = tStr;
 								con.log(4, "character", cM.charClass);
+							} else if (tempText.hasIndexOf('TARGET NUMBER')) {
+								cM.charClass = false;
 							} else {
 								con.warn("Can't get character", tempText);
 							}
@@ -561,7 +572,6 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				// if the monster has parts, hit the weakest minion first, and then hit the part with the least health next
 				partsDiv = $j("#app_body div[id^='monster_target_']");
 				if ($u.hasContent(partsDiv)) {
-					cM.targetPart = 0;
 					cM.mainOnly = true;
 					partsHealth = [];
 					//con.log(2, "The monster has " + partsDiv.length + " parts");
@@ -597,10 +607,20 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 					});
 					//con.log(2, 'parts list', minions, arms, mains);
 					
-					target = partsHealth.lastIndexOf(minions.length ? caap.minMaxArray(minions, 'min', 0)
-						: Math.min((arms.length ? caap.minMaxArray(arms, 'min', 0) : 100), caap.minMaxArray(mains, 'min', 0))) + 1;
+					// Vargulis or Samael three main, no arm type
+					if (mains.length == 3 && arms.length == 0) {
+						// if current target is within 5% health of healthiest part, keep attacking, otherwise 
+						// switch to healthiest part    80 60 77
+						cM.targetPart = cM.targetPart == 0 ? 1 : cM.targetPart;
+						cM.targetPart = (mains[cM.targetPart - 1] >= caap.minMaxArray(mains, 'max', 0, 101) - 5 
+							&& mains[cM.targetPart - 1] > 0) ? cM.targetPart 
+							: mains.lastIndexOf(caap.minMaxArray(mains, 'max', 0, 101)) + 1;
+					} else {
+						cM.targetPart = partsHealth.lastIndexOf(minions.length ? caap.minMaxArray(minions, 'min', 0)
+							: Math.min((arms.length ? caap.minMaxArray(arms, 'min', 0) : 100), caap.minMaxArray(mains, 'min', 0))) + 1;
+					}
 						
-					cM.mainOnly = armsList.hasIndexOf(target) ? false : cM.mainOnly;
+					cM.mainOnly = armsList.hasIndexOf(cM.targetPart) ? false : cM.mainOnly;
 					// Define if use user or default order parts
 					if (/:po/i.test(cM.conditions)) {
 						tempArr = cM.conditions.substring(cM.conditions.indexOf('[') + 1, cM.conditions.lastIndexOf(']')).split(".");
@@ -612,8 +632,6 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 						});
 					} 
 					
-					cM.targetPart = cM.targetPart > 0 ? cM.targetPart : target;
-
 					// If one of the mains is more damaged that most damaged hinderer and arms > 80% health, assume headless
 					if (arms.length && caap.minMaxArray(mains, 'min', 0) < caap.minMaxArray(arms, 'min', 0) &&
 						caap.minMaxArray(arms, 'min', 0) > 80) {
@@ -1070,14 +1088,14 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
                     monster.setRecord(cM);
                 }
 
-				time = (cM.state === 'Attack' ? (monster.parseCondition('mnt', cM.conditions) || 60) : 12 * 60) * 60;
+				time = (['Attack', 'Dead or fled'].hasIndexOf(cM.state) ? (monster.parseCondition('mnt', cM.conditions) || 60) : 12 * 60) * 60;
 
 				link = cM.link;
 
 				if (['Collect', 'Dead or fled'].hasIndexOf(cM.state)) {
 					conquestCollect = !monster.isConq(cM) || hunterPts == 'Never' || stats.conquest.Hunter < hunterPts;
 					if (conquestCollect && (/:collect\b/.test(cM.conditions) ||
-						(/:collectsmall\b/.test(cM.conditions) && cM.damage < 200000) ||
+						(/:collectsmall\b/.test(cM.conditions) && cM.damage < 400000) ||
 						(!/:!collect\b/.test(cM.conditions) && config.getItem('monsterCollectReward', false)))) {
 						message = 'Collecting ';
 						if (general.Select('CollectGeneral')) {
@@ -1107,7 +1125,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 					}
 
 					if (doSiege) {
-						click = caap.linkMatch(/assist/i) || true;
+						click = caap.linkMatch(/assist/i) || link;
 						message = 'Sieging ';
 					} else if (cM.canPri && monster.parseCondition("pri", cM.conditions) &&
 						monster.parseCondition("pri", cM.conditions) > cM.time && schedule.check('monsterPriorityWait')) {

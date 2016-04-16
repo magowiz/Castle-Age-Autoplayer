@@ -49,6 +49,9 @@ gb,essence,gift,chores */
         try {
 			var lR = {};
 			
+			// in results text The excavation quest timer has expired. Collect your reward now!
+			//quests.php?excavation=10010&do_collect=10010&bqh=414986b7dd2bd6e69a24adc401aa2023&ajax=1
+			
 			switch (page) {
 			case 'symbolquests' :
 				lR = questLand.getRecord('symbolquests');

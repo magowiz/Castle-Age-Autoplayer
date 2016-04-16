@@ -3,7 +3,7 @@
 // @namespace      caap
 // @description    Auto player for Castle Age
 // @version        141.0.0
-// @dev			287
+// @dev    287
 // @license        GPL version 3 or any later version; http://www.gnu.org/copyleft/gpl.html
 // ==/UserScript==
 
@@ -102,6 +102,12 @@ Array.prototype.sum = function() {
 	return this.reduce(function(a,b) {
 		return a+b;
 	}, 0);
+};
+
+Array.prototype.sumsList = function() {
+	return this.map( function(a) {
+		return a.sum();
+	});
 };
 
 Array.prototype.removeFromList = function(v) {

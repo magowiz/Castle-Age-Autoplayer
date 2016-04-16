@@ -86,6 +86,11 @@ schedule,state,general,session,battle:true */
 				which = guild_id == stats.guild.id ? 'your' : 'enemy';
 				fR = gb.getRecord('loe');
 				session.setItem('gbWhich', fR.label);
+				if (resultsText.regex(/Your guild is too (\w+) level to engage in this battle/)) {
+					fR.state = 'No battle';
+					gb.setRecord(fR);
+					return;
+				}
 				battle.readWinLoss(resultsText, gb.winLoss);
 				
 				towerDivs = which == 'enemy' ? $j('#hover_tab_1_1').closest('.tower_tab').find('div[onmouseover*="hover_tab_1_"]') :
@@ -174,12 +179,11 @@ schedule,state,general,session,battle:true */
 				stun = 'unstunned',
 				mess = 'conquest_mess',
 				stateMsg = '',
-				path,
 				t = {score : 0},
 				result = false,
 				seal = fR[which].seal ? 'seal' : 'normal',
-				doLand = which == 'your' && stats.conquest.Guardian >= whenGuard ? false : isloe ?
-					whenLoE != 'Never' && (whenLoE != 'Blue Crystals' || loe.blueDay()) : fR.state == 'Active';
+				doLand = (fR.state == 'Active' || (which == 'enemy' && isloe)) && (which != 'your' || stats.conquest.Guardian < whenGuard) 
+					&& (!isloe || (whenLoE != 'Never' && (whenLoE != 'Blue Crystals' || loe.blueDay())));
 				
 			if (!stats.guildTokens.num || !doLand) {
 				return false;
@@ -222,12 +226,12 @@ schedule,state,general,session,battle:true */
 			
 			caap.setDivContent(mess, stateMsg + t.attack + ' on ' + t.team + ' T' + t.tower + ' ' + t.name);
 			con.log(2,  stateMsg + t.attack + ' on ' + t.team + ' T' + t.tower + ' ' + t.name, t);
-			//n = t.tower.toString().replace(/.*:/,'');
-			//path = ',clickjq:div[onclick^="towerTabClick(' + "'" + n + "'" + ')"]:visible,jq:#tower_' +
-			//	n + ':visible,clickjq:.action_panel_' + t.id + ' input[src*="' + t.attack + '.jpg"]';
-			path = isloe ? ',clickjq:.action_panel_' + t.id + ' input[src*="' + t.attack + '.jpg"]' :
-				',clickjq:#special_defense_1_' + t.id + ' input[src*="' + t.attack + '.gif"]';
-			result = caap.navigate2(t.general + ',' + gb.makePath(gf, t.team, t.tower) + path);
+
+			//path = isloe ? ',clickjq:.action_panel_' + t.id + ' input[src*="' + t.attack + '.jpg"]' :
+			//	',clickjq:#special_defense_1_' + t.id + ' input[src*="' + t.attack + '.gif"]';
+			
+			result = caap.navigate2(t.general + ',' + gb.makePath(gf, t.team, t.tower) + ',clickjq:.action_panel_' + t.id
+				+ ' input[src*="' + t.attack + '.jpg"]');
 			if (result == 'fail') {
 				con.warn(stateMsg + t.attack + ' failed on ' + t.team + ' T' + t.tower + ' ' + t.name + ' Check ' + general.current + ' has ' + t.attack + ', reloading page', general.current, general.loadout);
 				caap.setDivContent(mess, stateMsg + t.attack + ' failed on ' + t.team + ' T' + t.tower + ' ' + t.name + ' Check ' + general.current + ' has ' + t.attack);

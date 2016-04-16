@@ -277,6 +277,9 @@ chores,town,general,session,monster:true */
 					} else {
 						link += ",clickimg:battle_enter_battle.gif";
 					}
+				} else {
+					link += tR.targetPart > 0 ? (",clickjq:#app_body #monster_target_" +
+				tR.targetPart + " img[src*='multi_selectbtn.jpg'],jq:#app_body #expanded_monster_target_" + tR.targetPart + ":visible") : ''
 				}
 				
 				if (general.Select('MonsterGeneral')) {

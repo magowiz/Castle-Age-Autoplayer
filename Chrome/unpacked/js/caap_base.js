@@ -4010,7 +4010,7 @@ gb,essence,gift,chores,quest */
 	caap.gameDay = function(offsetSeconds, time) {
 		time = new Date($u.setContent(time, Date.now()));
 		offsetSeconds = $u.setContent(offsetSeconds, 0); 	// Need to adjust from 7 to 8 when daylight savings time changes in winter
-		return caap.weekdays[new Date(time.getTime() + ((time.getTimezoneOffset() / 60 - 8) * 3600 + offsetSeconds) * 1000).getDay()];
+		return caap.weekdays[new Date(time.getTime() + ((time.getTimezoneOffset() / 60 - 7) * 3600 + offsetSeconds) * 1000).getDay()];
 	};
 	
     caap.getStatusNumbers = function (text, record) {
@@ -4236,8 +4236,28 @@ gb,essence,gift,chores,quest */
 			if (result) {
 				return true;
 			}
+			
+			if (stats.energy.num >= caap.maxStatCheck('energy')) {
+				result = caap.passThrough(quest.worker());
+				if (result) {
+					return result;
+				}
+			}
 
-			return stats.energy.num >= caap.maxStatCheck('energy') ? quest.worker() : false;
+			if (stats.stamina.num >= caap.maxStatCheck('stamina')) {
+				result = caap.passThrough(battle.worker());
+				if (result) {
+					return result;
+				}
+				result = caap.passThrough(monster.worker());
+				if (result) {
+					return result;
+				}
+				result = caap.passThrough(battle.monsterWait());
+				if (result) {
+					return result;
+				}
+			}
         } catch (err) {
             con.error("ERROR in maxStatsCheck: " + err.stack);
             return undefined;

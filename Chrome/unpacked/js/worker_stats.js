@@ -130,6 +130,7 @@ gm,hiddenVar,battle,general */
 				Engineer: 0,
 				dif : 0,
 				collectOk: true,
+				checkPoints : false
 			},
 			LoMland: -1,
 			other: {
