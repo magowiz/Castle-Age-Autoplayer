@@ -339,7 +339,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			battle.RaidDuel = $j.extend({}, battle.Duel, battle.RaidDuel);
 
 			battle.records = battle.records.filter( function(r) {
-				foughtRecently = !schedule.since(r.wonTime, 4 * 7 * 24 * 3600) || !schedule.since(r.lostTime,  4 * 7 * 24 * 3600);
+				foughtRecently = !schedule.since(r.wonTime, 2 * 7 * 24 * 3600) || !schedule.since(r.lostTime,  3 * 7 * 24 * 3600);
 				newbie = !schedule.since(r.deadTime, 24 * 3600);
 				if (foughtRecently || newbie) {
 					return true;
@@ -459,7 +459,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 	            staminaReq = 0,
                 whenMonster = config.getItem('WhenMonster', 'Never'),
 				whenBattle = config.getItem(w.when, 'Never'),
-	            targetMonster = state.getItem('targetFrombattle_monster', ''),
+	            targetMonster = state.getItem('targetFromMonster', ''),
                 monsterObject = $u.hasContent(targetMonster) ? monster.getRecord(targetMonster) : {},
 				demisLeft = battle.demisPointsToDo('left'),
 				battleOrOverride = 'Battle';
