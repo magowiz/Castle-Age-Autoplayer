@@ -200,7 +200,7 @@ schedule,state,general,session,battle:true */
 					myLand = conquestLands.records[myIndex];
 					// If I can move, and there is an enter-able land with enough time for me to join it and get back to my land, then join.
 					if (myLand.status == 'enter' && nextLand.index !== myIndex && myLand.phaseLeft > Math.min(nextLand.phaseLeft + 24, nextLand.timeLeft) + 2) {
-						result = caap.navigate2('ajax:guildv2_conquest_command.php?tier=3,clickimg:_smallX.jpg');
+						result = caap.navigate2("ajax:guildv2_conquest_command.php?tier=3,clickjq:form[onsubmit*='guildv2_conquest_command.php'] > div[class='imgButton'] > img[src*='_smallX.jpg']");
 						stats.LoMland = result == 'done' ? -1 : stats.LoMland;
 					}
 				}

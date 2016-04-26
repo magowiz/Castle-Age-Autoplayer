@@ -87,11 +87,11 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 highest = 0;
 
             caap.setDivContent('heal_mess', '');
-            minToHeal = config.getItem('MinToHeal', 0);
+            minToHeal = eval(config.getItem('MinToHeal', 0));
             if (minToHeal === "" || minToHeal < 0 || !$u.isNumber(minToHeal)) {
                 return false;
             }
-            minStamToHeal = config.getItem('MinStamToHeal', 0);
+            minStamToHeal = eval(config.getItem('MinStamToHeal', 0));
             if (minStamToHeal === "" || minStamToHeal < 0 || !$u.isNumber(minStamToHeal)) {
                 minStamToHeal = 0;
             }

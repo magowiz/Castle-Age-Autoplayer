@@ -792,6 +792,11 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 	
 	// Calculate the chance of winning
     battle.winChance = function(bR, att, defBonus) {
+    	
+		// Never hit my guild mates
+		if (stats.guild.ids.indexOf(bR.userId)>=0) {
+			return 0;
+		}
 		
 		if (defBonus == 'War') {
 			if (bR.warLost) {
