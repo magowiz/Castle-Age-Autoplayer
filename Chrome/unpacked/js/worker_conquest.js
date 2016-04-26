@@ -165,6 +165,8 @@ schedule,state,general,session,monster */
 						return {action: false, mess: 'Waiting for Coins ' + stats.guildTokens.num + '/1'};
 					}
 					break;
+				default:
+					return {action: false, mess: 'Parameter "when conquest" not understood'};
 				}
 			}
 
