@@ -109,7 +109,8 @@ schedule,state,general,session,battle:true */
 		collectHours: 1.5,
 		minHealth: 200,
 		scoring : 'guild_battle_scoring',
-		basePath: 'tenxten_gb_formation,hundred_battle,clickimg:sort_btn_joinbattle.gif,hundred_battle_view'
+		//basePath: 'tenxten_gb_formation,hundred_battle,clickimg:sort_btn_joinbattle.gif,hundred_battle_view'
+		basePath: 'index,clickjq:a[href*="hundred_battle_view.php"] > img[src*="news_btn_enter.gif"],hundred_battle_view'
 	};
 		
 	gb.gbClassic = {
