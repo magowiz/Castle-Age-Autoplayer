@@ -3,7 +3,7 @@ nomen: true, bitwise: true, plusplus: true,
 regexp: true, eqeq: true, newcap: true, forin: false */
 /*global window,escape,stats,$j,rison,chores,feed,spreadsheet,ss,
 $u,hyper,worker,self,caap,config,con,gm,guilds,profiles,town,
-conquest,battle,guild_battle,stats,statsFunc,
+conquest,battle,guild_battle,stats,statsFunc,essence,
 schedule,gifting,state,army, general,session,monster,guild_monster */
 /*jslint maxlen: 256 */
 
@@ -231,11 +231,29 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         }
     };
 
-	caap.passThrough = function(result)  {
-		if (result && (!$u.isObject(result) || $u.setContent(result.action, true))) {
-			return result;
+	caap.passThrough = function(result, workerLC)  {
+		if ($u.isObject(result) && $u.isDefined(workerLC)) {
+			var workerUC = workerLC.ucWords(),
+				message = $u.isDefined(result.mess) ? result.mess : $u.isDefined(result.mlog) ? result.mlog :
+					$u.isDefined(result.mess) ? result.mwarn : false,
+				logText = $u.isDefined(result.log) ? result.log : $u.isDefined(result.mlog) ? result.mlog : false,
+				warnText = $u.isDefined(result.mwarn) ? result.mwarn : false;
+			
+			// Add a prefix for the message div if the name starts with a number, like 100v100 for guild battles
+			if (workerLC.slice(0,1).match(/\d/)) {
+				workerLC = 'n' + workerLC;
+			}
+			if (message !== false) {
+				caap.setDivContent(workerLC + '_mess', $u.hasContent(message) ? workerUC + ': ' + message : '');
+			}
+			if (logText !== false) {
+				con.log($u.setContent(result.level, 1), workerUC + ': ' + logText);
+			}
+			if (warnText !== false) {
+				con.warn(workerUC + ': ' + warnText);
+			}
 		}
-		return false;
+		return result && (!$u.isObject(result) || $u.setContent(result.action, true));
 	};
 	
     caap.mainLoop = function () {
@@ -246,11 +264,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				releaseControl = true,
 				result = false,
 				returnObj = {}, // Used to hold an object return for console logging or div setting
-                dmc = 0,
-				ucName,
-				message,
-				logText,
-				warnText;
+                dmc = 0;
 
             // assorted errors...
             if (caap.errorCheck()) {
@@ -358,23 +372,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             result = actionsListCopy.some( function(action) {
 				session.setItem('ThisAction', action.fName);
 				returnObj = window[action.worker][action.functionName]();
-				if ($u.isObject(returnObj)) {
-					ucName = action.worker.ucWords();
-					message = $u.isDefined(returnObj.mess) ? returnObj.mess : $u.isDefined(returnObj.mlog) ? returnObj.mlog :
-						$u.isDefined(returnObj.mess) ? returnObj.mwarn : false;
-					logText = $u.isDefined(returnObj.log) ? returnObj.log : $u.isDefined(returnObj.mlog) ? returnObj.mlog : false;
-					warnText = $u.isDefined(returnObj.mwarn) ? returnObj.mwarn : false;
-					if (message !== false) {
-						caap.setDivContent(action.worker + '_mess', $u.hasContent(message) ? ucName + ': ' + message : '');
-					}
-					if (logText !== false) {
-						con.log($u.setContent(returnObj.level, 1), ucName + ': ' + logText);
-					}
-					if (warnText !== false) {
-						con.warn(ucName + ': ' + warnText);
-					}
-				}
-                if (caap.passThrough(returnObj)) {
+                if (caap.passThrough(returnObj, action.worker)) {
                     caap.checkLastAction(action);
 					return true;
                 }
@@ -419,8 +417,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             var rc = session.incItem("reloadCounter"),
                 mc = session.getItem("messageCount", 0),
 				suffix = '';
-
-            if (!force && rc < 20 && mc > 0) {
+			
+			// If we have messages waiting in the queue, wait up to 20 X 100ms times
+            if (rc < 20 && mc > 0) {
                 con.log(1, 'Reload waiting ' + mc + ' message' + $u.plural(mc) + ' ...', rc);
                 window.setTimeout(function () {
                     doit();
@@ -432,12 +431,12 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
             if (force || (!config.getItem('Disabled') && state.getItem('caapPause') === 'none')) {
                 // better than reload... no prompt on forms!
                 con.log(1, 'Reloading now!');
-				if (caap.checkForImage('header_persist_background.jpg').length && typeof hyper != 'undefined' && $u.isArray(hyper.getItem('logons',false)) && hyper.getItem('logons',false).length > 1) {
+				if (caap.checkForImage('header_persist_background.jpg').length && window.hyper !== undefined && $u.isArray(hyper.getItem('logons',false)) && hyper.getItem('logons',false).length > 1) {
 					suffix = '/connect_login.php?platform_action=CA_web3_logout';
 				} else if (caap.domain.which === 0 || caap.domain.which === 2) {
 					suffix = '/keep.php';
 				}
-				caap.visitUrl(caap.domain.altered + suffix);
+				caap.visitUrl(caap.domain.altered + suffix, 1000);
             }
         }
 
@@ -452,19 +451,24 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
     caap.reloadOccasionally = function () {
         try {
-            var reloadMin = config.getItem('ReloadFrequency', 8);
-
+			var reloadMin = config.getItem('ReloadFrequency', 8);
             reloadMin = $u.isNumber(reloadMin) ? Math.max(reloadMin, 2) : 2;
-			if (state.getItem('caapPause', 'none') == 'none') {
-				if (schedule.since("clickedOnSomething", 300) || session.getItem("pageLoadCounter", 0) > 40
-						|| (caap.hyper && schedule.since("hyperTimer", reloadMin * 60))) {
-					con.log(1, 'Reloading after inactivity');
+			
+			if (!config.getItem('Disabled') && state.getItem('caapPause', 'none') == 'none') {
+				if (schedule.since("clickedOnSomething", 300)) {
+					con.log(1, 'Reloading after no response from click');
+					session.setItem("flagReload", true);
+				} else if (session.getItem("workerRepeats", 0) > 50) {
+					con.log(1, 'Reloading after fifty or more actions by only one or two workers');
+					session.setItem("flagReload", true);
+				} else if (caap.hyper && schedule.since("hyperTimer", reloadMin * 60)) {
+					con.log(1, 'Reloading to allow another toon time');
 					session.setItem("flagReload", true);
 				}
 			}
             window.setTimeout(function () {
                 caap.reloadOccasionally();
-            }, reloadMin * 60000 * (1 + Math.random()));
+            }, 60000 * (1 + Math.random()));
 
             return true;
         } catch (err) {

@@ -324,7 +324,7 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
 				}
 
 				break;
-			case 'keep' : 
+			case 'keep' : // I think this is here as a high priority part of the finder check on keep items
 				if (!$u.hasContent($j('#equipmentItemsSection img[src*="keep_plus.jpg"][onclick*="Items"]:visible'))) {
 					state.setItem('generalKeep', false);
 					$j('#equipmentItemsSection div[id^="equipmentItems_hover_info_"]').each( function() {
@@ -917,10 +917,7 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
             // Confirm loadout is ok
 			if (stats.level > 100) {
 				
-
-				/*-------------------------------------------------------------------------------------\
-												Rebuild reset loadouts
-				\-------------------------------------------------------------------------------------*/
+				// I think this is part of the finder logic to check keep items
 				if (state.getItem('generalKeep', true) && !returnNametf) {
 					if (caap.navigateTo('keep')) {
 						return true;
@@ -932,6 +929,9 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
 					return true;
 				}
 				
+				/*-------------------------------------------------------------------------------------\
+												Rebuild reset loadouts
+				\-------------------------------------------------------------------------------------*/
 				general.records.some( function(g) {
 					if (!general.isLoadout(g.name) || returnNametf) {
 						return true;
@@ -941,7 +941,7 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
 						return false;
 					}
 					
-					con.log(2, 'Houston, we have a problem. Loadout ' + g.nameBeforeReset + ' appears to be reset. Attempting to rebuild');
+					con.log(2, 'Loadout ' + g.nameBeforeReset + ' appears to be reset. Attempting to rebuild');
 					if (caap.page != 'player_loadouts' || !caap.clickUrl.hasIndexOf('loadout=' + g.value)) {
 						caap.ajaxLink('player_loadouts.php?item_id=' + general.getRecordVal(g.general, 'item', false) + '&item_category=' +
 						general.getRecordVal(g.general, 'itype', false) + '&action=select_loadout_general&selection=1&loadout=' + g.value);
@@ -1030,7 +1030,6 @@ schedule,gifting,state,stats,general,session,monster,worker,guild_monster */
 				return resultFalse;
 			}
 			
-            caap.waitMilliSecs = caap.waitTime;
             window.location.href = caap.jss + ":void(doHotSwapGeneral('" + gR.item + "', '" + gR.itype + "', false))";
 			return resultTrue;
         } catch (err) {

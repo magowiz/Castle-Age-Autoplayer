@@ -33,7 +33,7 @@ gb,essence,gift,chores,quest */
 
     caap.documentTitle = '';
 //
-    caap.newVersionAvailable = typeof CAAP_SCOPE_RUN !== "undefined" ? (devVersion !== '0' ? (CAAP_SCOPE_RUN[1] > caapVersion || (CAAP_SCOPE_RUN[1] >= caapVersion && CAAP_SCOPE_RUN[2] > devVersion)) : (CAAP_SCOPE_RUN[1] > caapVersion)) : false;
+    caap.newVersionAvailable = window.CAAP_SCOPE_RUN !== undefined ? (devVersion !== '0' ? (CAAP_SCOPE_RUN[1] > caapVersion || (CAAP_SCOPE_RUN[1] >= caapVersion && CAAP_SCOPE_RUN[2] > devVersion)) : (CAAP_SCOPE_RUN[1] > caapVersion)) : false;
 
     caap.fbIframeDiv = {};
 
@@ -65,36 +65,9 @@ gb,essence,gift,chores,quest */
         inIframe: false
     };
 
-    caap.setDomWaiting = function (url) {
-        con.log(3, "setDomWaiting", url, session.getItem('clickUrl', ''));
-        var update = $u.hasContent(url) && !session.getItem('clickUrl', '').hasIndexOf(url);
-
-        con.log(3, "setDomWaiting update", update);
-        if (update) {
-            con.log(3, "setDomWaiting clickUrl", url);
-            session.setItem('clickUrl', url);
-        }
-
-        if (update || !session.getItem("waitingForDomLoad", false)) {
-            con.log(3, "waitingForDomLoad", session.getItem('clickUrl', ''));
-            schedule.setItem("clickedOnSomething", 0);
-            session.setItem("waitingForDomLoad", true);
-        }
-    };
-
-    caap.getDomWaiting = function () {
-        return session.getItem("waitingForDomLoad", false);
-    };
-
-    caap.clearDomWaiting = function () {
-        con.log(3, "clearDomWaiting");
-        schedule.setItem("clickedOnSomething", 3600);
-        session.setItem("waitingForDomLoad", false);
-    };
-
     caap.sessionVarsInit = function () {
         session.setItem("lastReload", Date.now());
-        session.setItem("pageLoadCounter", 0);
+        session.setItem("workerRepeats", 0);
         session.setItem("flagReload", false);
         session.setItem("delayMain", false);
         session.setItem("pageLoadOK", true);
@@ -1256,7 +1229,7 @@ gb,essence,gift,chores,quest */
 				});
 			}
 
-			if (typeof hyper !== 'undefined' && $u.isArray(hyper.getItem('logons', false)) && hyper.getItem('logons', false).length > 1) {
+			if ( window.hyper !== undefined && $u.isArray(hyper.getItem('logons', false)) && hyper.getItem('logons', false).length > 1) {
 				caap.hyper = true;
 				schedule.setItem("hyperTimer", 0);
 				con.log(1, 'Multiple accounts configured, so enabling hyper visor functions!', caap.hyper);
@@ -1688,15 +1661,6 @@ gb,essence,gift,chores,quest */
         }
     };
 
-    caap.incrementPageLoadCounter = function () {
-        try {
-            return session.incItem("pageLoadCounter");
-        } catch (err) {
-            con.error("ERROR in incrementPageLoadCounter: " + err.stack);
-            return undefined;
-        }
-    };
-
     caap.initial = function () {
         function chatListener(event) {
             if (event.target.className === "fbDockWrapper fixed_always fbDockWrapperRight") {
@@ -1871,7 +1835,7 @@ gb,essence,gift,chores,quest */
 					div.textContent : $u.setContent(div.text(), '')).trim().innerTrim(),
 				args = text.regex(regex);
 			
-			if (typeof record == 'undefined' && typeof array == 'undefined') {
+			if (record === undefined && array === undefined) {
 				return args;
 			}
 			args = $u.isDefined(args) &&  !$u.isArray(args) ? [args] : args;
@@ -2081,9 +2045,9 @@ gb,essence,gift,chores,quest */
         'battle_mess': "",
         'conquest_mess': "",
         'monster_mess': "",
-        'gb10_mess': "",
-        'gb100_mess': "",
-        'gbClassic_mess': "",
+        'n10v10_mess': "",
+        'n100v100_mess': "",
+        'classic_mess': "",
         'guild_monster_mess': "",
         'fortify_mess': "",
         'heal_mess': "",
@@ -2453,8 +2417,7 @@ gb,essence,gift,chores,quest */
             htmlCode += caap.display.start('AdvancedOptions');
             htmlCode += caap.makeCheckTR('Enable Level Up Mode', 'EnableLevelUpMode', true, levelupModeInstructions, true);
             htmlCode += caap.makeCheckTR('Serialize Raid and Monster', 'SerializeRaidsAndMonsters', false, serializeInstructions, true);
-            //htmlCode += caap.makeCheckTR('Bookmark Mode', 'bookmarkMode', false, bookmarkModeInstructions, true);
-            htmlCode += caap.makeNumberFormTR("Reload Frequency", 'ReloadFrequency', 'Changing this will cause longer/shorter refresh rates. Minimum is 2 minutes.', 8, '', '', true, false);
+            htmlCode += caap.makeNumberFormTR("Reload Frequency", 'ReloadFrequency', 'Only used if multiple logons using hyper in this window. Changing this will cause longer/shorter refresh rates. Minimum is 2 minutes.', 8, '', '', true, false);
             htmlCode += caap.makeNumberFormTR("Log Level", 'DebugLevel', '', 1, '', '', true, false);
 /*           htmlCode += caap.startTR();
             htmlCode += caap.makeTD("<input type='button' id='caap_ActionList' value='Modify Action Order' style='padding: 0; font-size: 10px; height: 18px' />");
@@ -3625,6 +3588,8 @@ gb,essence,gift,chores,quest */
                 $j(document).on('DOMNodeInserted', '#globalContainer', function (event) {
                     var tId = $u.hasContent(event.target.id) ? event.target.id.replace('app46755028429_', '') : event.target.id,
                         page = $j('#globalContainer .game').eq(0).attr("id"),
+						lastAction = session.getItem('ThisAction', 'caap.idle'),
+						recentWorkers = session.getItem('recentWorkers', []),
                         caap_topXY;
 
                     // Uncomment this to see the id of domNodes that are inserted
@@ -3639,7 +3604,13 @@ gb,essence,gift,chores,quest */
                         session.setItem('page', page);
                         con.log(3, "DOM load target matched", tId, page);
                         caap.clearDomWaiting();
-                        caap.incrementPageLoadCounter();
+						if (recentWorkers.hasIndexOf(lastAction) && lastAction != 'caap.idle') {
+							session.incItem("workerRepeats");
+						} else {
+							session.setItem('workerRepeats', 0);
+						}
+						recentWorkers.removeFromList(lastAction);
+						session.setItem('recentWorkers', [lastAction].concat(recentWorkers).slice(0, 2));
                         if (caap.domain.which === 3) {
                             if (config.getItem('scrollToTop', false)) {
                                 caap.messaging.scrollToTop();
@@ -4009,8 +3980,11 @@ gb,essence,gift,chores,quest */
 	
 	caap.gameDay = function(offsetSeconds, time) {
 		time = new Date($u.setContent(time, Date.now()));
-		offsetSeconds = $u.setContent(offsetSeconds, 0); 	// Need to adjust from 7 to 8 when daylight savings time changes in winter
-		return caap.weekdays[new Date(time.getTime() + ((time.getTimezoneOffset() / 60 - 7) * 3600 + offsetSeconds) * 1000).getDay()];
+		offsetSeconds = $u.setContent(offsetSeconds, 0); 	
+		// For adjusting from 7 to 8 when daylight savings time changes in winter
+		var hours = time.getTimezoneOffset() < time.stdTimezoneOffset() ? 7 : 8;
+
+		return caap.weekdays[new Date(time.getTime() + ((time.getTimezoneOffset() / 60 - hours) * 3600 + offsetSeconds) * 1000).getDay()];
 	};
 	
     caap.getStatusNumbers = function (text, record) {
@@ -4238,24 +4212,24 @@ gb,essence,gift,chores,quest */
 			}
 			
 			if (stats.energy.num >= caap.maxStatCheck('energy')) {
-				result = caap.passThrough(quest.worker());
-				if (result) {
-					return result;
+				result = quest.worker();
+				if (caap.passThrough(result, 'quest')) {
+					return true;
 				}
 			}
 
 			if (stats.stamina.num >= caap.maxStatCheck('stamina')) {
-				result = caap.passThrough(battle.worker());
-				if (result) {
-					return result;
+				result = battle.worker();
+				if (caap.passThrough(result, 'battle')) {
+					return true;
 				}
-				result = caap.passThrough(monster.worker());
-				if (result) {
-					return result;
+				result = monster.worker();
+				if (caap.passThrough(result, 'monster')) {
+					return true;
 				}
-				result = caap.passThrough(battle.monsterWait());
-				if (result) {
-					return result;
+				result = battle.monsterWait();
+				if (caap.passThrough(result, 'battle')) {
+					return true;
 				}
 			}
         } catch (err) {

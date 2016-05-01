@@ -21,7 +21,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
 var caapjQuery = "1.8.3",
     caapjQueryUI = "1.9.2",
-    caapjQueryDataTables = "1.9.4",
+    caapjQueryDataTables = "1.10.11",
     caapVersion = "141.0.0",
     devVersion = "287",
     hiddenVar = true,
@@ -48,7 +48,14 @@ var caapjQuery = "1.8.3",
     conquestLands = {},
     guilds = {},
     retryDelay = 1000;
-	
+
+// For daylight savings time calc
+Date.prototype.stdTimezoneOffset = function() {
+	var jan = new Date(this.getFullYear(), 0, 1),
+		jul = new Date(this.getFullYear(), 6, 1);
+	return Math.max(jan.getTimezoneOffset(), jul.getTimezoneOffset());
+};
+
 String.prototype.stripCaap = function() {
     return this.replace(/caap_/i, '');
 };

@@ -13,6 +13,33 @@ regexp: true, eqeq: true, newcap: true, forin: false */
 
     caap.waitTime = 5000;
 
+    caap.setDomWaiting = function (url) {
+        con.log(3, "setDomWaiting", url, session.getItem('clickUrl', ''));
+        var update = $u.hasContent(url) && !session.getItem('clickUrl', '').hasIndexOf(url);
+
+        con.log(3, "setDomWaiting update", update);
+        if (update) {
+            con.log(3, "setDomWaiting clickUrl", url);
+            session.setItem('clickUrl', url);
+        }
+
+        if (update || !session.getItem("waitingForDomLoad", false)) {
+            con.log(3, "waitingForDomLoad", session.getItem('clickUrl', ''));
+            schedule.setItem("clickedOnSomething", 0);
+            session.setItem("waitingForDomLoad", true);
+        }
+    };
+
+    caap.getDomWaiting = function () {
+        return session.getItem("waitingForDomLoad", false);
+    };
+
+    caap.clearDomWaiting = function () {
+        con.log(3, "clearDomWaiting");
+        schedule.setItem("clickedOnSomething", 3600);
+        session.setItem("waitingForDomLoad", false);
+    };
+
     caap.visitUrl = function (url, loadWaitTime) {
         try {
             /*
@@ -94,6 +121,7 @@ regexp: true, eqeq: true, newcap: true, forin: false */
             if (!$u.hasContent(link)) {
                 throw 'No link passed to ajaxLink';
             }
+			// Move to mainloop?
 			if (caap.oneMinuteUpdate('ajaxSend') && caap.checkForImage('web3splash.jpg').length) {
 				con.warn('On splash page, so reloading');
 				location = location;
@@ -101,6 +129,8 @@ regexp: true, eqeq: true, newcap: true, forin: false */
 			}
 			
 			link += !link.hasIndexOf('.php') ? '.php' : '';
+			
+			con.log(1, 'Sending ajax link, ' + link);
 
             caap.waitMilliSecs = $u.setContent(loadWaitTime, caap.waitTime);
             caap.setDomWaiting(link);
@@ -108,21 +138,6 @@ regexp: true, eqeq: true, newcap: true, forin: false */
             return true;
         } catch (err) {
             con.error("ERROR in caap.ajaxLink: " + err);
-            return false;
-        }
-    };
-
-    caap.clickGetCachedAjax = function (link) {
-        try {
-            if (!$u.hasContent(link)) {
-                throw 'No link passed to clickGetCachedAjax';
-            }
-
-            caap.setDomWaiting(link);
-            window.location.href = caap.jss + ":void(get_cached_ajax('" + link + "', 'get_body'))";
-            return true;
-        } catch (err) {
-            con.error("ERROR in caap.clickGetCachedAjax: " + err);
             return false;
         }
     };
@@ -262,6 +277,7 @@ regexp: true, eqeq: true, newcap: true, forin: false */
 	// image: for a signature image name to check for before continuing to next step
 	// clickimg: for an image to click
 	// ajax: for an ajax URL click
+	// ajaxF: to hit an ajax URL click, even if already on that page
 	// @general, used to require a specific general or category loadout. Can only be used in first step.
 	
 	// Return values are 'true' for moving along the path
@@ -312,16 +328,17 @@ regexp: true, eqeq: true, newcap: true, forin: false */
 								con.warn('Unable to find path to page: ' + step, path);
 							}
 							//con.log(2,'Navigate2: Not on page ' + step + ', so going back another step', path, s, caap.pageList[step]);
-						} else if (s == lastStep) {
-							con.log(5,'Navigate2: Already on destination page', step, s, path, caap.pageList[step]);
-							return false;
 						} else {
+							if (s == lastStep) {
+								con.log(5,'Navigate2: Already on destination page', step, s, path, caap.pageList[step]);
+								return false;
+							}
 							con.log(5,'Navigate2: Found signature pic for page', step, s, path, caap.pageList[step]);
 							s += 1;
 							break;
 						}
-					} else if (action == 'ajax') {
-						if (session.getItem('clickUrl', '').replace(/.*\//,'') !== text) {
+					} else if (['ajax', 'ajaxF'].hasIndexOf(action)) {
+						if (session.getItem('clickUrl', '').replace(/.*\//,'') !== text || action == 'ajaxF') {
 							result = caap.ajaxLink(text,2000);
 							con.log(2, 'Navigate2: Go to ajax link '+ text, result, jq, step, path, s);
 							return s == lastStep ? 'done' : caap.navigate2RepeatCheck(true, path, s);
@@ -411,7 +428,7 @@ regexp: true, eqeq: true, newcap: true, forin: false */
             con.warn('Navigate2: Unable to Navigate2', step, path, s);
             return false;
         } catch (err) {
-            con.error("ERROR in caap.navigate2: " + err.stack, path, step, s);
+            con.error("ERROR in caap.navigate2: " + err.stack);
             return undefined;
         }
     };
