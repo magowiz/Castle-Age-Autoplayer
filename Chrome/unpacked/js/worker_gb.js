@@ -336,6 +336,9 @@ schedule,state,general,session,battle:true */
 
 			switch (page) {
 			case 'index' :
+				if (caap.clickUrl != 'index.php') {
+					break;
+				}
 				schedule.setItem("page_index", 3600);
 				gb.setRecord(gb.onTop(gb.gb10));
 				gb.setRecord(gb.onTop(gb.gb100));
