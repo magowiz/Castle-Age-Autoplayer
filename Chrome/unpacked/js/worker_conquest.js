@@ -141,7 +141,7 @@ schedule,state,general,session,monster */
 				}
 			}
 
-			if (stats.guildTokens.num < stats.conquest.dif || stats.guildTokens.num == 0){ // Burn tokens if able to level up
+			if (stats.conquest.dif > stats.guildTokens.num) { // Skip these limits to burn tokens if able to level up
 				switch (whenconquest) {
 				case 'At Max Coins' :
 					if (stats.guildTokens.max >= 10 && stats.guildTokens.num !== stats.guildTokens.max) {
@@ -165,6 +165,8 @@ schedule,state,general,session,monster */
 						return {action: false, mess: 'Waiting for Coins ' + stats.guildTokens.num + '/1'};
 					}
 					break;
+				default:
+					return {action: false, mess: 'Parameter "when conquest" not understood'};
 				}
 			}
 
