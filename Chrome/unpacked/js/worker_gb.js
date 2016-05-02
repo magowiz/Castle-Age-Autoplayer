@@ -1092,14 +1092,16 @@ schedule,state,general,session,battle:true */
 					config.getItem(gb[label].name + '_ClassGeneral', 'Use Current') != 'Use Current' ||
 					config.getItem(label + 'collect', false);
 					
-				fR = gb.getRecord(label);
-				result = caap.passThrough(gb.workCommon(fR), gb[label].name.toLowerCase());
-				gb.setRecord(fR);
-				if (gb[label].name == 'Classic') {
-					state.setItem('GB_Active', result);
-				}
-				if (configSet && result) {
-					return true;
+				if (configSet) {
+					fR = gb.getRecord(label);
+					result = caap.passThrough(gb.workCommon(fR), gb[label].name.toLowerCase());
+					gb.setRecord(fR);
+					if (gb[label].name == 'Classic') {
+						state.setItem('GB_Active', result);
+					}
+					if (result) {
+						return true;
+					}
 				}
 
 			});
