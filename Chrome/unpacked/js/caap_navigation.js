@@ -1,7 +1,7 @@
 /*jslint white: true, browser: true, devel: true,
 nomen: true, bitwise: true, plusplus: true,
 regexp: true, eqeq: true, newcap: true, forin: false */
-/*global window,$j,$u,caap,con,schedule, general,session */
+/*global window,$j,$u,caap,con,schedule, general,session,worker,page */
 /*jslint maxlen: 256 */
 
 /////////////////////////////////////////////////////////////////////
@@ -10,21 +10,55 @@ regexp: true, eqeq: true, newcap: true, forin: false */
 
 (function () {
     "use strict";
+	
+	// Adding this page for a future improved and standardized navigation function as well as page information
+	worker.add('page');
+	
+	caap.optionCheck = function(o, t) {
+		return $u.isObject(o) ? o[t] : $u.isDefined(o) ? o.hasIndexOf(t) : false;
+	};
+
+	// Send an ajax link. Add ".php" if passed a link without it, like "index"
+	// Gen argument is the general name. Can be '' for none.
+	// o argument is the options. Can be passed as a string if only one option, or an object for more options
+	page.ajax = function(link, gen, o) {
+        try {
+            if (!$u.hasContent(link) || !$u.isString(link)) {
+                throw 'Invalid link passed to ajaxLink';
+            }
+			
+			if (general.Select($u.setContent(gen, 'Use Current'))) {
+				return true;
+			}
+			
+			link += !link.hasIndexOf('.php') ? '.php' : '';
+			link += caap.optionCheck(o, 'bqh') ? '&bqh=' + caap.bqh + '&ajax=1' : '';
+			link += caap.optionCheck(o, 'ajax') ? '&ajax=1' : '';
+				
+			if (!caap.optionCheck(o, 'silent')) {
+				con.log(1, 'Sending ajax link, ' + link);
+			}
+
+            caap.setDomWaiting(link);
+            window.location.href = caap.jss + ":void(ajaxLinkSend('globalContainer', '" + link + "'))";
+			return true;
+        } catch (err) {
+            con.error("ERROR in page.ajax: " + err);
+            return false;
+        }
+	};
 
     caap.waitTime = 5000;
 
     caap.setDomWaiting = function (url) {
-        con.log(3, "setDomWaiting", url, session.getItem('clickUrl', ''));
+		// Maybe better to update if clickUrl != URL, but would then need to check for removing bqh values and changed order of url arguments
         var update = $u.hasContent(url) && !session.getItem('clickUrl', '').hasIndexOf(url);
 
-        con.log(3, "setDomWaiting update", update);
         if (update) {
-            con.log(3, "setDomWaiting clickUrl", url);
             session.setItem('clickUrl', url);
         }
 
         if (update || !session.getItem("waitingForDomLoad", false)) {
-            con.log(3, "waitingForDomLoad", session.getItem('clickUrl', ''));
             schedule.setItem("clickedOnSomething", 0);
             session.setItem("waitingForDomLoad", true);
         }
@@ -121,13 +155,6 @@ regexp: true, eqeq: true, newcap: true, forin: false */
             if (!$u.hasContent(link)) {
                 throw 'No link passed to ajaxLink';
             }
-			// Move to mainloop?
-			if (caap.oneMinuteUpdate('ajaxSend') && caap.checkForImage('web3splash.jpg').length) {
-				con.warn('On splash page, so reloading');
-				location = location;
-				return true;
-			}
-			
 			link += !link.hasIndexOf('.php') ? '.php' : '';
 			
 			con.log(1, 'Sending ajax link, ' + link);
@@ -448,6 +475,12 @@ regexp: true, eqeq: true, newcap: true, forin: false */
 				return true;
 			}
 			
+			if (caap.page != toPage.replace(/\.php.*/, '') || !caap.clickUrl.hasIndexOf(toPage)) {
+				caap.ajaxLink(toPage);
+				con.log(2, 'Navigate3: Go to base page '+ toPage);
+				return true;
+			}
+			
 			options = $u.setContent(options, {});
 			if (!$u.setContent(options.check, true) || $u.hasContent($j('[href*="' + click + '"]'))) {
 				caap.ajaxLink(click);
@@ -473,12 +506,6 @@ regexp: true, eqeq: true, newcap: true, forin: false */
 				return 'done';
 			}
 
-			if (caap.page != toPage.replace(/\.php.*/, '') || !caap.clickUrl.hasIndexOf(toPage)) {
-				caap.ajaxLink(toPage);
-				con.log(2, 'Navigate3: Go to ajax link '+ toPage, caap.page, caap.clickUrl);
-				return true;
-			}
-			
 			con.warn('Navigate3: ' + click + ' link type not found on page ' + toPage);
 			caap.bad3.push(toPage + ':' + click);
 			caap.scrapeLinks();

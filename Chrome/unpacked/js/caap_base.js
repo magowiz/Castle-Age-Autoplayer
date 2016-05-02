@@ -2040,6 +2040,8 @@ gb,essence,gift,chores,quest */
     caap.messDivs = {
         'banner': "",
         'activity_mess': "",
+        'last_mess': "",
+        'general_mess': "",
         'idle_mess': "",
         'quest_mess': "",
         'battle_mess': "",
@@ -2198,7 +2200,8 @@ gb,essence,gift,chores,quest */
                 }
             }
 
-            caap.checkLastAction(state.getItem('LastAction', 'caap.idle'));
+            caap.passThrough(true, state.getItem('LastAction', 'caap.idle'));
+			$j('#caap_general_mess').after( '<br />' );
             return true;
         } catch (err) {
             con.error("ERROR in addControl: " + err.stack);

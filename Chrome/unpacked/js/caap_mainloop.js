@@ -16,22 +16,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 (function () {
     "use strict";
 
-    caap.checkLastAction = function (thisAction) {
-        try {
-            var lastAction = state.getItem('LastAction', 'caap.idle');
-			
-			thisAction = $u.isString(thisAction) ? worker.actionsList.getObjByField('fName', thisAction) : thisAction;
-
-            caap.setDivContent('activity_mess', 'Activity: ' + thisAction.description);
-            if (lastAction !== thisAction.fName) {
-                con.log(1, 'Changed from doing ' + lastAction + ' to ' + thisAction.fName);
-                state.setItem('LastAction', thisAction.fName);
-            }
-        } catch (err) {
-            con.error("ERROR in checkLastAction:" + err);
-        }
-    };
-
     caap.makeActionsList = function () {
         try {
             if ($u.hasContent(caap.actionsList)) {
@@ -231,29 +215,64 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         }
     };
 
-	caap.passThrough = function(result, workerLC)  {
-		if ($u.isObject(result) && $u.isDefined(workerLC)) {
-			var workerUC = workerLC.ucWords(),
-				message = $u.isDefined(result.mess) ? result.mess : $u.isDefined(result.mlog) ? result.mlog :
-					$u.isDefined(result.mess) ? result.mwarn : false,
-				logText = $u.isDefined(result.log) ? result.log : $u.isDefined(result.mlog) ? result.mlog : false,
-				warnText = $u.isDefined(result.mwarn) ? result.mwarn : false;
+	// Takes a true/false result and an action name or object, and provides config 
+	caap.passThrough = function(result, actor)  {
+        try {
+			// Convert text actors to worker objects
 			
-			// Add a prefix for the message div if the name starts with a number, like 100v100 for guild battles
-			if (workerLC.slice(0,1).match(/\d/)) {
-				workerLC = 'n' + workerLC;
+			actor = !$u.isDefined(actor) ? session.getItem('ThisAction', 'None') : actor;
+			
+			var fName = actor + (!actor.hasIndexOf('.') ? '.worker' : ''),
+				mName = actor.replace(/\..*/, ''),
+				mPrefix = mName.ucWords() + ': ',
+				fObj = worker.actionsList.getObjByField('fName', actor),
+				description,
+				lastAction = state.getItem('LastAction', 'caap.idle'),
+				message,
+				logText,
+				warnText,
+				resultTf = result && (!$u.isObject(result) || $u.setContent(result.action, true));
+								
+			fObj = !$u.isObject(fObj) ? worker.actionsList.getObjByField('fName', session.getItem('ThisAction', 'None')) : fObj;
+			description = $u.isObject(fObj) ? fObj.description : 'Unknown';
+			
+            if (resultTf && lastAction != fName) {
+                con.log(1, 'Changed from doing ' + lastAction + ' to ' + fName);
+                state.setItem('LastAction', fName);
+				caap.setDivContent('activity_mess', 'Activity: ' + description);
+            }
+
+			if ($u.isObject(result)) {
+				message = $u.isDefined(result.mess) ? result.mess : $u.isDefined(result.mlog) ? result.mlog :
+					$u.isDefined(result.mwarn) ? result.mwarn : false;
+				logText = $u.isDefined(result.log) ? result.log : $u.isDefined(result.mlog) ? result.mlog : false;
+				warnText = $u.isDefined(result.mwarn) ? result.mwarn : false;
+				
+				// Add a prefix for the message div if the name starts with a number, like 100v100 for guild battles
+				if (mName.slice(0,1).match(/\d/)) {
+					mName = 'n' + mName;
+				}
+				if (message !== false) {
+					if (resultTf) {
+						caap.setDivContent('last_mess', 'Last: ' + ($u.hasContent(message) ? mPrefix + message : ''));
+						caap.setDivContent(mName + '_mess', '');
+					} else {
+						caap.setDivContent(mName + '_mess', $u.hasContent(message) ? mPrefix + message : '');
+					}
+				}
+				if (logText !== false) {
+					con.log($u.setContent(result.level, 1), mPrefix + logText);
+				}
+				if (warnText !== false) {
+					con.warn(mPrefix + warnText);
+				}
+			} else if (resultTf) {
+				caap.setDivContent('last_mess', '');
 			}
-			if (message !== false) {
-				caap.setDivContent(workerLC + '_mess', $u.hasContent(message) ? workerUC + ': ' + message : '');
-			}
-			if (logText !== false) {
-				con.log($u.setContent(result.level, 1), workerUC + ': ' + logText);
-			}
-			if (warnText !== false) {
-				con.warn(workerUC + ': ' + warnText);
-			}
-		}
-		return result && (!$u.isObject(result) || $u.setContent(result.action, true));
+			return resultTf;
+        } catch (err) {
+            con.error("ERROR in caap.passThrough:" + err);
+        }
 	};
 	
     caap.mainLoop = function () {
@@ -263,7 +282,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 actionsListCopy = [],
 				releaseControl = true,
 				result = false,
-				returnObj = {}, // Used to hold an object return for console logging or div setting
                 dmc = 0;
 
             // assorted errors...
@@ -302,6 +320,12 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 caap.stsPoll();
             }
 
+			if (caap.oneMinuteUpdate('splashCheck') && caap.checkForImage('web3splash.jpg').length) {
+				con.warn('On splash page, so reloading');
+				caap.reloadCastleAge();
+				return true;
+			}
+			
             if (config.getItem('Disabled', false)) {
                 caap.waitMainLoop();
                 return true;
@@ -358,24 +382,18 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 
             session.setItem("delayMainCnt", 0);
 
-            if (chores.income()) {
-                caap.checkLastAction('chores.income');
-                caap.waitMainLoop();
-                return true;
-            }
-
             actionsListCopy = worker.actionsList.slice();
 			releaseControl = session.getItem('ReleaseControl', true);
 			if (!releaseControl) {
 				actionsListCopy.unshift(worker.actionsList.getObjByField('fName', state.getItem('LastAction', 'caap.idle')));
 			}
+
+			// Income general always first. Remember when this was super important and the highest priority?
+			actionsListCopy.unshift(worker.actionsList.getObjByField('fName', 'chores.income'));
+			
             result = actionsListCopy.some( function(action) {
 				session.setItem('ThisAction', action.fName);
-				returnObj = window[action.worker][action.functionName]();
-                if (caap.passThrough(returnObj, action.worker)) {
-                    caap.checkLastAction(action);
-					return true;
-                }
+				return caap.passThrough(window[action.worker][action.functionName](), action.fName);
             });
 			
 			if (!releaseControl && result) {

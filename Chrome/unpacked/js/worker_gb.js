@@ -1,7 +1,7 @@
 /*jslint white: true, browser: true, devel: true,
 nomen: true, bitwise: true, plusplus: true,
 regexp: true, eqeq: true, newcap: true, forin: false */
-/*global $j,gb,stats,worker,$u,caap,config,con,ignoreJSLintError,gb100Dash,gb10Dash,
+/*global $j,gb,stats,worker,$u,caap,config,con,ignoreJSLintError,gb100Dash,gb10Dash,page,
 schedule,state,general,session,battle:true */
 /*jslint maxlen: 256 */
 
@@ -469,11 +469,7 @@ schedule,state,general,session,battle:true */
 				infoDiv = $j("#app_body #newsFeedSection div[style*='news_topcontainer.jpg']").has("img[src$='achivement_tabicons_" + gf.infoDiv + ".gif']"),
 				text = infoDiv.text().trim();
 			
-			if (!$u.hasContent(infoDiv)) {
-				return fR; // Can happen when looking at Allies or Monster newsfeeds
-			}
-			
-			if (gf.name == '100v100' || gf.name == '10v10') {
+			if ($u.hasContent(infoDiv) && (gf.name == '100v100' || gf.name == '10v10')) {
 				fR.battle_id = $j('a', infoDiv).attr('href').regexd(/\=([\d_]+)/, '');
 			}
 			
@@ -1069,10 +1065,10 @@ schedule,state,general,session,battle:true */
 				configSet = false;
 			
 			stats.battleIdle = 'Use Current';
-			['gb100', 'gb10', 'gbClassic'].every( function(label) {
+			['gb100', 'gb10', 'gbClassic'].forEach( function(label) {
 				var gbName = gb[label].name;
 				fR = gb.getRecord(label);
-				if (config.getItem(gbName + '_ClassGeneral','Use Current') == 'Use Current' && 
+				if (config.getItem(gbName + '_ClassGeneral','Use Current') != 'Use Current' && 
 					((schedule.since(fR.startTime, -11 * 60) && !schedule.since(fR.startTime, -1 * 60))
 						|| fR.state == 'Auto-match')) {
 					stats.priorityGeneral = config.getItem(gbName + '_ClassGeneral','Use Current');
@@ -1135,7 +1131,7 @@ schedule,state,general,session,battle:true */
 			case 'Collect' :
 				if (message.hasIndexOf('Uncollected') && config.getItem(gf.label + 'collect',false) && !(caap.gameDay(-2 * 60) == 'Mon' &&
 					caap.gameDay(gf.collectHours * 3600, (gf.name == 'Classic' ? fR.lastBattleTime : fR.endTime)) == 'Tue')) {
-					caap.navigate2((stats.exp.dif < 60 ? '@Level_UpGeneral,ajax:' : 'ajax:') + gb.path(fR, '&action=collect_battle'));
+					page.ajax(gb.path(fR, '&action=collect_battle'), stats.exp.dif < 60 ? 'Level_UpGeneral' : '');
 					return {mlog: 'Collecting'};
 				}
 				break;
@@ -1144,7 +1140,7 @@ schedule,state,general,session,battle:true */
 				break;
 				
 			case 'Check ID' :
-				caap.ajaxLink(gf.name == 'Classic' ? 'guildv2_battle' : 'index');
+				page.ajax(gf.name == 'Classic' ? 'guildv2_battle' : 'index');
 				return {mlog: 'Checking index page battle status'};
 				
 			case 'Start' :  // Only true for Classic battles
@@ -1152,35 +1148,34 @@ schedule,state,general,session,battle:true */
 					return {mlog: 'Clicking button for auto-match'};
 				} 
 				if (config.getItem('Classic_ClassGeneral', 'Use Current') != 'Use Current' && schedule.since(fR.nextTopReview, 5 * 60)) {
-					caap.ajaxLink('guildv2_battle');
+					page.ajax('guildv2_battle');
 					return {mlog:'Checking for auto-match to set general'};
 				}
 				message += 'ready to start next battle, ';
 				break;
 				
 			case 'Auto-match' :
-				message += 'and auto-match button pushed!';
+				message += 'auto-match button pushed, ';
 				break;
 				
 			case 'Active' :
-				message = schedule.since(fR.lastBattleTime, gf.waitHours * 60 * 60) ? 'Not entered' 
+				message = schedule.since(fR.lastBattleTime, gf.waitHours * 60 * 60) ? 'Not entered, ' 
 					: fR.tokens + '/10 ' + fR.me.status + ', ';
 				if (gf.name != 'Classic' && state.getItem('GB_Active', false) && !priority) {
 					return {action: false, mess: message + 'waiting on Classic'};
 				}
 				if (!neverTokens) {
-					if (message == 'Not entered') {
+					if (message.hasIndexOf('Not entered')) {
 						if (stats.stamina.num >= gf.stamina) {
-						caap.ajaxLink(gb.path(fR, '&action=enter_battle'));
+						page.ajax(gb.path(fR, '&action=enter_battle'));
 							return {mlog: 'Entering battle'};
 						}
-						message += 'waiting on stamina';
-						break;
+						return {action: false, mess: message + 'waiting on stamina'};
 					}
 					teams.some(function(which) {
 						towers.some(function(tower) {
 							var tR = $j.extend(new gb.towerRecord().data, fR[which].towers[tower]),
-								filter = which != 'your' || tower != fR.me.tower;
+								filter = which != 'enemy' || tower != '1';
 								
 							fR[which].towers[tower] = tR;
 								
@@ -1189,7 +1184,7 @@ schedule,state,general,session,battle:true */
 									result = {mlog: fR.tokens + '/10, setting idle general'};
 									return true;
 								}
-								caap.ajaxLink(gb.path(fR, '', which, tower));
+								page.ajax(gb.path(fR, '', which, tower));
 								result = {mlog: fR.tokens + '/10 ' + fR.me.status + ', reviewing towers'};
 								return true;
 							}
@@ -1207,14 +1202,14 @@ schedule,state,general,session,battle:true */
 
 			if (fR.state != 'Active') {
 				if (schedule.since(fR.nextTopReview, 5 * 60)) {
-					caap.ajaxLink('index');
+					page.ajax('index');
 					return {mlog: 'Checking index page battle status'};
 				}
 				return {action: false, mess: message + 'next check: ' + $u.makeTime(fR.nextTopReview + 5 * 60 * 1000, caap.timeStr(true))};
 			}
 
 			if (stats.priorityGeneral != 'Use Current') {
-				return {mess: 'Waiting on priority general: ' + stats.priorityGeneral, action:false};
+				return {action: false, mess: 'Waiting on priority general: ' + stats.priorityGeneral};
 			}
 			
 			if (neverTokens) {
@@ -1237,7 +1232,7 @@ schedule,state,general,session,battle:true */
 				
 				fR.t = t;
 				if (!t.score) {
-					return {mess: message + 'no valid target'};
+					return {action: false, mess: message + 'no valid target'};
 				}
 				
 				if (!general.hasRecord(t.general.replace('@',''))) {
@@ -1247,7 +1242,7 @@ schedule,state,general,session,battle:true */
 				result = caap.navigate2(t.general + ',ajax:' + gb.path(fR, '', t.which, t.tower) + ',clickjq:.action_panel_' 
 					+ t.id + ' input[src*="' + t.attack + '.jpg"]');
 				if (result == 'fail') {
-					caap.ajaxLink('player_loadouts.php?loadout=' + general.getRecordVal(general.loadout, 'value') + '&selection=4');
+					page.ajax('player_loadouts.php?loadout=' + general.getRecordVal(general.loadout, 'value') + '&selection=4');
 					return {mlog: message + t.attack + ' failed on ' + t.which + ' T' + t.tower + ' ' + t.name
 						+ ' Checking ' + general.loadout + ' has ' + t.attack};
 				} 
@@ -1378,8 +1373,7 @@ schedule,state,general,session,battle:true */
 			});
 			if (match) {
 				stats.priorityGeneral = config.getItem('Classic_ClassGeneral','Use Current') == 'Use Current' ? 'Use Current' : config.getItem('Classic_ClassGeneral','Use Current');
-				return caap.navigate3('guildv2_battle.php', 'guildv2_battle.php?action=auto_attack&guild_page=1&guild_battle=true', 
-					stats.priorityGeneral);
+				return caap.navigate3('guildv2_battle.php', 'guildv2_battle.php?action=auto_attack&guild_page=1&guild_battle=true', stats.priorityGeneral);
 			}
 
         } catch (err) {
