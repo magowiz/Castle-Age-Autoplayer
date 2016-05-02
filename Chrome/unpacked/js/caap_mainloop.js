@@ -222,12 +222,12 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			
 			actor = !$u.isDefined(actor) ? session.getItem('ThisAction', 'None') : actor;
 			
-			var fName = actor + (!actor.hasIndexOf('.') ? '.worker' : ''),
-				mName = actor.replace(/\..*/, ''),
+			var mName = actor.replace(/\..*/, ''),
 				mPrefix = mName.ucWords() + ': ',
 				fObj = worker.actionsList.getObjByField('fName', actor),
 				description,
 				lastAction = state.getItem('LastAction', 'caap.idle'),
+				fName,
 				message,
 				logText,
 				warnText,
@@ -235,11 +235,15 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 								
 			fObj = !$u.isObject(fObj) ? worker.actionsList.getObjByField('fName', session.getItem('ThisAction', 'None')) : fObj;
 			description = $u.isObject(fObj) ? fObj.description : 'Unknown';
+			fName = $u.isObject(fObj) ? fObj.fName : 'Unknown';
 			
             if (resultTf && lastAction != fName) {
                 con.log(1, 'Changed from doing ' + lastAction + ' to ' + fName);
                 state.setItem('LastAction', fName);
 				caap.setDivContent('activity_mess', 'Activity: ' + description);
+				if (!$u.isObject(result)) {
+					caap.setDivContent('last_mess', '');
+				}
             }
 
 			if ($u.isObject(result)) {
@@ -266,8 +270,6 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				if (warnText !== false) {
 					con.warn(mPrefix + warnText);
 				}
-			} else if (resultTf) {
-				caap.setDivContent('last_mess', '');
 			}
 			return resultTf;
         } catch (err) {
