@@ -22,7 +22,8 @@ schedule,state,general,session,battle:true */
 		enterButton: '',
 		infoDiv: '',
 		waitHours: 24,
-		collectHours: 0,
+		collectHours: 0, 
+		idTag : 'div[id^="special_defense_1_"]',
 		minHealth: 0,
 		top : { enemy: 'guild_conquest_castle_battlelist',
 				your : 'index'},
@@ -46,7 +47,7 @@ schedule,state,general,session,battle:true */
 				if ($u.hasContent($j('a[href*="guildv2_conquest_expansion.php?guild_id=' + stats.guild.id + '&slot=0'))) {
 					con.log(2, 'LoE: in defense mode');
 					fR = gb.getRecord('loe');
-					gb.setrPage(fR, gb.makePath(gb.loe, stats.guild.id));
+					loe.setrPage(fR, loe.makePath(gb.loe, stats.guild.id));
 				}
 				break;
 			case 'guild_conquest_castle_battlelist' :
@@ -60,7 +61,7 @@ schedule,state,general,session,battle:true */
 						return;
 					}
 					con.log(2, 'At war with guild id ' + guild_id, fR);
-					gb.setrPage(fR, gb.makePath(gb.loe, guild_id));
+					loe.setrPage(fR, loe.makePath(gb.loe, guild_id));
 				});
 				
 				// Delete any lands war is over with
@@ -69,7 +70,7 @@ schedule,state,general,session,battle:true */
 					if (!$u.hasContent($j('a[href*="?guild_id=' + guild_id + '&"').find('img[src*="conq2_btn_attack.jpg"]'))) {
 						con.log(1, 'LoE: War is over, so deleting battles with guild id ' + guild_id + ' tower ' + tower.regex(/:(\d)/));
 						delete fR.enemy.towers[tower];
-						gb.deleterPage(fR, gb.makePath(gb.loe, guild_id));
+						loe.deleterPage(fR, loe.makePath(gb.loe, guild_id));
 					}
 				});
 				gb.setRecord(fR);
@@ -86,6 +87,11 @@ schedule,state,general,session,battle:true */
 				which = guild_id == stats.guild.id ? 'your' : 'enemy';
 				fR = gb.getRecord('loe');
 				session.setItem('gbWhich', fR.label);
+				if (resultsText.regex(/Your guild is too (\w+) level to engage in this battle/)) {
+					fR.state = 'No battle';
+					gb.setRecord(fR);
+					return;
+				}
 				battle.readWinLoss(resultsText, gb.winLoss);
 				
 				towerDivs = which == 'enemy' ? $j('#hover_tab_1_1').closest('.tower_tab').find('div[onmouseover*="hover_tab_1_"]') :
@@ -124,9 +130,9 @@ schedule,state,general,session,battle:true */
 					}
 				});
 				if (haveBattle) {
-					gb.setrPage(fR, gb.makePath(gb.loe, guild_id), 'review', Date.now());
+					loe.setrPage(fR, loe.makePath(gb.loe, guild_id), 'review', Date.now());
 				} else {
-					gb.deleterPage(fR, gb.makePath(gb.loe, guild_id));
+					loe.deleterPage(fR, loe.makePath(gb.loe, guild_id));
 				}
 				break;
 				
@@ -174,12 +180,12 @@ schedule,state,general,session,battle:true */
 				stun = 'unstunned',
 				mess = 'conquest_mess',
 				stateMsg = '',
-				path,
 				t = {score : 0},
 				result = false,
 				seal = fR[which].seal ? 'seal' : 'normal',
-				doLand = which == 'your' && stats.conquest.Guardian >= whenGuard ? false : isloe ?
-					whenLoE != 'Never' && (whenLoE != 'Blue Crystals' || loe.blueDay()) : fR.state == 'Active';
+				// Need to fix for LoE Not active and not a wrong level for this case.   || (which == 'enemy' && isloe)
+				doLand = fR.state == 'Active' && (which != 'your' || stats.conquest.Guardian < whenGuard)
+					&& (!isloe || (whenLoE != 'Never' && (whenLoE != 'Blue Crystals' || loe.blueDay())));
 				
 			if (!stats.guildTokens.num || !doLand) {
 				return false;
@@ -192,7 +198,7 @@ schedule,state,general,session,battle:true */
 							return true;
 						}
 						con.warn(land.ucWords() + ' link not available on page');
-						gb.deleterPage(fR, 'path', pgO.path);
+						loe.deleterPage(fR, 'path', pgO.path);
 					}
 				});
 			}
@@ -222,17 +228,17 @@ schedule,state,general,session,battle:true */
 			
 			caap.setDivContent(mess, stateMsg + t.attack + ' on ' + t.team + ' T' + t.tower + ' ' + t.name);
 			con.log(2,  stateMsg + t.attack + ' on ' + t.team + ' T' + t.tower + ' ' + t.name, t);
-			//n = t.tower.toString().replace(/.*:/,'');
-			//path = ',clickjq:div[onclick^="towerTabClick(' + "'" + n + "'" + ')"]:visible,jq:#tower_' +
-			//	n + ':visible,clickjq:.action_panel_' + t.id + ' input[src*="' + t.attack + '.jpg"]';
-			path = isloe ? ',clickjq:.action_panel_' + t.id + ' input[src*="' + t.attack + '.jpg"]' :
-				',clickjq:#special_defense_1_' + t.id + ' input[src*="' + t.attack + '.gif"]';
-			result = caap.navigate2(t.general + ',' + gb.makePath(gf, t.team, t.tower) + path);
+
+			//path = isloe ? ',clickjq:.action_panel_' + t.id + ' input[src*="' + t.attack + '.jpg"]' :
+			//	',clickjq:#special_defense_1_' + t.id + ' input[src*="' + t.attack + '.gif"]';
+			
+			result = caap.navigate2(t.general + ',' + loe.makePath(gf, t.team, t.tower) + ',clickjq:.action_panel_' + t.id
+				+ ' input[src*="' + t.attack + '.jpg"]');
 			if (result == 'fail') {
 				con.warn(stateMsg + t.attack + ' failed on ' + t.team + ' T' + t.tower + ' ' + t.name + ' Check ' + general.current + ' has ' + t.attack + ', reloading page', general.current, general.loadout);
 				caap.setDivContent(mess, stateMsg + t.attack + ' failed on ' + t.team + ' T' + t.tower + ' ' + t.name + ' Check ' + general.current + ' has ' + t.attack);
 				gb.setRecord(fR);
-				return caap.navigate2('ajax:guild_conquest_castle_battlelist.php');
+				return caap.navigate2('ajax:' + (isloe ? 'guild_conquest_castle_battlelist' : ' guildv2_conquest_command') + '.php');
 			} 
 			if (result == 'done') {
 				battle.setRecordVal(t.id, 'level', t.level);
@@ -270,4 +276,90 @@ schedule,state,general,session,battle:true */
         }
     };
 
+	// Add a review page with path, and set 'entry' key to value, if wanted
+	loe.setrPage = function(fR, path, entry, value) {
+        try {
+			var rPage = {
+					path: path,
+					review: 0},
+				it = 0;
+				
+
+            if (!$u.hasContent(path) || !$u.isString(path)) {
+                con.warn("path", fR, path, entry, value);
+                throw "Invalid identifying path!";
+            }
+			
+			fR.paths = !$u.isArray(fR.paths) ? [] : fR.paths;				
+
+            for (it = 0; it < fR.paths.length; it++) {
+                if (fR.paths[it].path === path) {
+					if ($u.hasContent(entry)) {
+						fR.paths[it][entry] = value;
+					}
+					return true;
+                }
+            }
+			if ($u.hasContent(entry)) {
+				rPage[entry] = value;
+			}
+
+			fR.paths.unshift(rPage);
+			gb.setRecord(fR);
+			
+			return false;
+        } catch (err) {
+            con.error("ERROR in loe.setrPage: " + err.stack);
+            return false;
+        }
+    };
+
+	// Delete all review pages where 'entry' = value
+	loe.deleterPage = function(fR, entry, value) {
+        try {
+			var i = 0,
+				deleted = 0;
+				
+            if (!$u.hasContent(entry) || !$u.isString(entry)) {
+                con.warn("Delete entry invalid", entry, value);
+                throw "Invalid identifying entry!";
+            }
+
+            for (i = fR.paths.length - 1; i >= 0; i += -1) {
+                if (fR.paths[i][entry] === value) {
+					deleted += 1;
+					//con.log(2,'GB review pages before',fR.paths, entry, i);
+					fR.paths.splice(i,1);
+					//con.log(2,'GB review pages after',fR.paths, entry, i, deleted);
+                }
+            }
+			return deleted;
+
+        } catch (err) {
+            con.error("ERROR in loe.deleterPage: " + err.stack);
+            return false;
+        }
+    };
+
+	loe.makePath = function(gf, which, tower) {
+        try {
+			if (!$u.isObject(gf) || (!gf.label.hasIndexOf('lo') && (!$u.isString(which) || !($u.isNumber(tower) || $u.isString(tower))))) {
+				con.warn('Invalid loe.makePath input', gf, which, tower);
+				return false;
+			}
+			if (gf.label == 'loe') {
+				return gf.basePath + $u.setContent($u.setContent(tower,'').regex(/(\w+):\d/), which) + '&slot=0';
+			}
+			if (gf.label == 'lom') {
+				return 'ajax:guildv2_conquest_expansion.php?guild_id=' + stats.guild.id + '&slot=' + (tower.numberOnly() + 1);
+			}
+			var fR = gb.getRecord(gf.label);
+			return gb.bp(fR) + fR.battle_id + ',clickimg:' + which + '_guild_off.gif,jq:#' + which + '_guild_tab,clickjq:#' + which + '_new_guild_tab_' + tower + ',jq:#' + which + '_guild_member_list_' + tower;
+        } catch (err) {
+            con.error("ERROR in loe.makePath: " + err.stack);
+            return false;
+        }
+    };
+	
+	
 }());

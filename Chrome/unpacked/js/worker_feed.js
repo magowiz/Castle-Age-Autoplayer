@@ -151,10 +151,6 @@ chores,town,general,session,monster:true */
 			var matched = false,
 				conditions;
 			
-			if (cM.damage > 0) {
-				return false;
-			}
-			
 			config.getItem('feedFilter', 'all').split('\n').some( function(item) {
 				item = item.trim();
 				if (item.length && 
@@ -170,7 +166,7 @@ chores,town,general,session,monster:true */
 					return true;
 				}
 			});
-			return matched;
+			return cM.damage > 0 ? false : matched;
 		} catch (err) {
 			con.error("ERROR in feed.addConditions: " + err.stack);
 			return false;
@@ -277,6 +273,9 @@ chores,town,general,session,monster:true */
 					} else {
 						link += ",clickimg:battle_enter_battle.gif";
 					}
+				} else {
+					link += tR.targetPart > 0 ? (",clickjq:#app_body #monster_target_" +
+				tR.targetPart + " img[src*='multi_selectbtn.jpg'],jq:#app_body #expanded_monster_target_" + tR.targetPart + ":visible") : '';
 				}
 				
 				if (general.Select('MonsterGeneral')) {
@@ -447,7 +446,7 @@ chores,town,general,session,monster:true */
 				undermax = monster.records.filter( function(obj) {
 					return obj.state == 'Attack' && obj.over != 'max';
 				}).length,
-				mainOnly = life == 100 || cM.mainOnly,
+				mainonly = life == 100 || cM.mainOnly,
 				targetpart = cM.targetPart,
 				parts = cM.partsHealth,
 				time = cM.time,
@@ -507,9 +506,8 @@ chores,town,general,session,monster:true */
 				}, 0),
 				mainleft = 5 > main + same;
 
-			ignoreJSLintError(filterok, userid, life, t2k, dp, sameundermax, undermax, targetpart, parts, time, monstername, damagemod, rogue,
-				warlock, cleric, warrior, mage, ranger, levelup, energy, atmaxenergy, atmaxstamina, exp, needpic, needrecipe, userdamage, keep,
-				guild, achleft);
+			ignoreJSLintError(filterok, userid, life, t2k, dp, sameundermax, undermax, targetpart, parts, time, monstername, damagemod,
+				rogue, warlock, cleric, warrior, mage, ranger, levelup, energy, atmaxenergy, atmaxstamina, exp, needpic, needrecipe, userdamage, keep, mainonly, mainleft, guild, achleft);
 				
 			killed = killed ? achrecords[killed] : Object.keys(achrecords).reduce(function(previous, current) {
 				return previous || (current.hasIndexOf(cM.monster) && !current.match(/'s/) ? achrecords[current] : 0);

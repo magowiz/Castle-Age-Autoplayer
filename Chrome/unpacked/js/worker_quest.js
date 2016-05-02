@@ -8,7 +8,7 @@ battle,feed,festival,spreadsheet,town,FB,conquest,
 image64:true,offline:true,profiles:true,
 session:true,state:true,css:true,gm:true,ss:true,db:true,sort:true,schedule:true,
 general:true,monster:true,guild_monster:true,gifting:true,army:true,caap:true,con:true,
-schedule,gifting,state,army, general,session,monster,quest,worker,questLand,
+schedule,gifting,state,army, general,session,monster,quest,worker,questLand,page,
 stats,statsFunc,throwError,configOld,configDefault,hyper,stateOld,ignoreJSLintError,
 gb,essence,gift,chores */
 /*jslint maxlen: 256 */
@@ -49,6 +49,9 @@ gb,essence,gift,chores */
         try {
 			var lR = {};
 			
+			// in results text The excavation quest timer has expired. Collect your reward now!
+			//quests.php?excavation=10010&do_collect=10010&bqh=414986b7dd2bd6e69a24adc401aa2023&ajax=1
+			
 			switch (page) {
 			case 'symbolquests' :
 				lR = questLand.getRecord('symbolquests');
@@ -57,6 +60,7 @@ gb,essence,gift,chores */
 					$u.hasContent($j('tr:contains("INFLUENCE:")').not(':contains("INFLUENCE: 100%")')) ? 'Opened' : 'Complete';
 				lR.review = Date.now();
 				questLand.setRecord(lR);
+				questLand.current = 'symbolquests';
 				break;
 			case 'quests' :
 			case 'monster_quests' :
@@ -64,9 +68,11 @@ gb,essence,gift,chores */
 					var link = $j(this).attr('href').replace(/.*\//, ''),
 						num = link.regex(/(\d+)/),
 						name = questLand[page].length > num ? questLand[page][num] : questLand[page][0] + num;
+					
 					questLand.setRecordVal(link, 'name', name);
 					worker.addPageCheck({page : link, type : 'quest'});					
 				});
+				questLand.current = $j('div.title_tab_selected a[href*="' + page + '.php?land="]').attr('href').replace(/.*\//, '');
 				break;
 			}
 		} catch (err) {
@@ -372,9 +378,13 @@ gb,essence,gift,chores */
 				result = caap.navigate3(qO.land, qO.buyLink + '&bqh=' + caap.bqh, 'BuyGeneral');
 				return result ? {mlog : 'Buying quest requirements'} : {mess : 'Unable to buy quest requirements'};
 			}
-				
-			result = caap.navigate3(qO.land, qO.link + '&ajax=1&bqh=' + caap.bqh, 'QuestGeneral');
-			return result ? {mlog : 'Doing quest ' + qO.name} : {mess : 'Unable to complete quest ' + qO.name};
+			
+			if (qO.land == questLand.current) {
+				page.ajax(qO.link, 'QuestGeneral', 'bqh');
+			} else {
+				page.ajax(qO.land);
+			}
+			return {mlog : 'Doing quest ' + qO.name};
 
 		} catch (err) {
             con.error("ERROR in quest.worker: " + err.stack);

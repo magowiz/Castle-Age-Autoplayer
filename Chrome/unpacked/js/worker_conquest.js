@@ -47,6 +47,7 @@ schedule,state,general,session,monster */
 			case 'guild_conquest_castle_battlelist' : // Land of Earth enemies
 			case 'guildv2_conquest_expansion' : // Land of Mist or Earth tower
 				var text = $j("#app_body div[style*='conq4_top.jpg']").text().trim().innerTrim();
+				stats.conquest.checkPoints = false;
 					
 				//7944 5363 GUILD LEVEL: 12 Points to Next Rank: 250 CONQUEST LV: 39 Points to Next Level: 91 13/14 MORE: (9:58) Conqueror 670 Hunter 0 Guardian 150 Engineer 0 Click here to view Conquest Report! Bel Thrall City LAND OF EARTH NONE
 				
@@ -62,7 +63,9 @@ schedule,state,general,session,monster */
 					con.warn('Conquest: unable to conquest tokens', text);
 				}
 				
-				if (stats.rank.conquestLevel < 100 && !caap.bulkRegex(text, /Points to Next Level: (\d+)/, stats, ['conquest.dif'])) {
+				if (stats.rank.conquestLevel == 100) {
+					stats.conquest.dif = 100; // Any number larger than the largest possible number of tokens
+				} else if (!caap.bulkRegex(text, /CONQUEST LV: \d+ Points to Next \w+: (\d+)/, stats, ['conquest.dif'])) {
 					con.warn('Conquest: unable to conquest tokens to level', text);
 				}
 				
@@ -115,25 +118,25 @@ schedule,state,general,session,monster */
 			\-------------------------------------------------------------------------------------*/
 
 			result = loe.worker('your', 'loe');
-			if (result && (!$u.isObject(result) || $u.setContent(result.action, true))) {
+			if (caap.passThrough(result)) {
 				return result;
 			}
 			if (config.getItem('lomPriority', 'Guardian') == 'Guardian') {
 				result = loe.worker('your', 'lom');
-				if (result && (!$u.isObject(result) || $u.setContent(result.action, true))) {
+				if (caap.passThrough(result)) {
 					return result;
 				}
 				result = loe.worker('enemy', 'loe');
-				if (result && (!$u.isObject(result) || $u.setContent(result.action, true))) {
+				if (caap.passThrough(result)) {
 					return result;
 				}
 			} else {
 				result = loe.worker('enemy', 'loe');
-				if (result && (!$u.isObject(result) || $u.setContent(result.action, true))) {
+				if (caap.passThrough(result)) {
 					return result;
 				}
 				result = loe.worker('your', 'lom');
-				if (result && (!$u.isObject(result) || $u.setContent(result.action, true))) {
+				if (caap.passThrough(result)) {
 					return result;
 				}
 			}
@@ -184,10 +187,6 @@ schedule,state,general,session,monster */
 	
     conquest.collect = function() {
         try {
-			if (!stats.conquest.collectOk) {
-				return false;
-			}
-			
             var result = conquest.hunterCombos('link'),
 				collectTime = false,
 				message = [], 
@@ -195,20 +194,30 @@ schedule,state,general,session,monster */
 				when,
 				vals = [0, 1000, 3000];
 		
+			if (stats.conquest.checkPoints) {
+				caap.navigate2("ajax:guildv2_conquest_command.php?tier=3");
+				return {mlog: 'Checking Hunter points'};
+			}
+				
 			// Check if have enough points to collect for conquest monsters
 			if (result) {
 				caap.navigate2("ajax:" + result + '&action=collectReward');
+				stats.conquest.checkPoints = true;
 				stats.conquest.Hunter += monster.getRecordVal(result, 'spentStamina');
 				return {mlog: 'Collecting conquest monsters'};
 			}
 			
+			if (!stats.conquest.collectOk) {
+				return false;
+			}
+			
 			// Check for other collects
-			collectTime = ['Conqueror','Guardian','Engineer'].every( function(category) {
+			collectTime = ['Conqueror','Guardian','Engineer', 'Hunter'].every( function(category) {
 				when = config.getItem('When' + category, 'Never');
-				if (when == 'Never') {
+				pts = stats.conquest[category];
+				if (when == 'Never' || pts <= 200) {
 					return true;
 				}
-				pts = stats.conquest[category];
 				if (when == 'Round Up') {
 					if (pts - caap.minMaxArray(vals, 'max', -1, pts + 1) < 200 || pts > 4500) {
 						if (pts >= 1000) {
@@ -223,15 +232,8 @@ schedule,state,general,session,monster */
 					return true;
 				}
 			});
-			
-			// Check for hunter collect 
-			when = config.getItem('WhenHunter', 'Never');
-			if (when != 'Never' && stats.conquest.Hunter >= when) {
-				message.push('Hunter points at ' + stats.conquest.Hunter + ' over ' + when);
-				collectTime = (stats.conquest.Conqueror <= 150 && stats.conquest.Guardian <= 150 && stats.conquest.Engineer == 0) || collectTime;
-			}
 				
-			// If all CGE conditions are met or Hunter collect ready and no other points, collect
+			// If some CGE conditions are met and no other points are low, collect
 			if (message.length && collectTime) {
 				result = caap.navigate3('guildv2_conquest_command.php?tier=3','conquest_path_shop.php?action=report_collect&ajax=1');
 				if (result) {
@@ -254,12 +256,14 @@ schedule,state,general,session,monster */
 	// If query = 'maxed', gives the links of the monsters that can be combined to go over the hunter points target
 	conquest.hunterCombos = function(query) {
         try {
+			// Test cases: one monster > whenhunt * 1.2 and link.  Does it collect the link?
+			// maxed and multiple monsters over half -- 4400, 4300, etc.
+			// Already collected part of the group
+			// Does it check for how many points it actually collected after each collect
             var whenHunt = config.getItem('WhenHunter', 'Never'),
 				currentPoints = stats.conquest.Hunter,
-				mobs = monster.records.filter( function(m) {
-					return monster.isConq(m) &&
-						(['Dead or fled', 'Collect'].hasIndexOf(m.state) || (query == 'maxed' && m.state == 'Attack'));
-				}),
+				mobs = [],
+				liveMobs = [],
 				combinationF = function(arr, k) {
 					if (!$u.hasContent(arr)) {
 						return [];
@@ -268,7 +272,7 @@ schedule,state,general,session,monster */
 					
 					k = $u.setContent(k, arr.length);
 					arr.forEach( function(e, i) {
-						if(k === 1){
+						if(k == 1){
 							ret.push( [ e ] );
 						} else {
 							combinationF(arr.slice(i+1, arr.length), k - 1).forEach( function(next) {
@@ -277,66 +281,101 @@ schedule,state,general,session,monster */
 							});
 						}
 					});
-					return k === 1 ? ret : ret.concat(combinationF(arr, k - 1));
+					return k == 1 ? ret : ret.concat(combinationF(arr, k - 1));
 				},
-				staminas = mobs.flatten('spentStamina'),
+				staminas,
 				result,
-				bestF = function() {  // return array of stamina values that is just over whenHunt and not over 20% over
-					var combos = combinationF(staminas),
-						sums = combos.map( function(a) {
-							return a.sum();
-						}),
-						sum = caap.minMaxArray(sums, 'min', whenHunt - currentPoints, whenHunt * 1.2 - currentPoints);
+				comboList,
+				i,
+				index,
+				bestF = function(m) {  // return array of stamina values that is just over whenHunt and not over 20% over
+					var combos = combinationF($u.hasContent(m) ? staminas.concat(m.spentStamina) : staminas),
+						sums = combos.sumsList(),
+						sum = caap.minMaxArray(sums, 'min', whenHunt - currentPoints - 1, whenHunt * 1.2 - currentPoints);
 						
 					return !$u.hasContent(sum) ? [] : combos[sums.indexOf(sum)];
 				},
-				best,
+				best, // only applies to maxed case
 				maxed = [],
 				remove = function(b) {
 					staminas.removeFromList(b);
-					var mob = mobs[mobs.flatten('spentStamina').indexOf(b)];
-					maxed.addToList(mob.link);
-					mobs.removeFromList(mob);
+					mobs.removeFromList(mobs[mobs.flatten('spentStamina').indexOf(b)]);
 				};
-				
-			best = whenHunt <= currentPoints ? [] : bestF();
-		
-			if (query == 'link') {
-				// If we already have more points than the target, return
-				if (whenHunt <= currentPoints) {
+			
+			// Sort the monsters into mobs for dead, liveMobs, and maxed live ones
+			monster.records.filter(monster.isConq).some( function(m) {
+				if (m.state == 'Attack') {
+					if (m.spentStamina >= whenHunt) {
+						maxed.push(m.link);
+					} else {
+						liveMobs.push(m);
+					}
+				} else if (['Dead or fled', 'Collect'].hasIndexOf(m.state)) {
+					// If we don't have many hunter points, and there is a monster with > target points, just collect it
+					// These monsters do not qualify for bestF if > whenHunt * 1.2
+					if (currentPoints < 100 && m.spentStamina >= whenHunt && query == "link") {
+						result = m.link;
+						return true;
+					}
+					mobs.addToList(m);
+				}
+			});
+			if (result) {
+				return result;
+			}
+			staminas = mobs.flatten('spentStamina');
+
+			// If we already have more points than the target and only looking for the link, return
+			if (whenHunt <= currentPoints) {
+				if (query == 'link') {
 					return false;
 				}
-				// If we don't have many hunter points, and there is a monster with > target points, just collect it
-				// These monsters do not qualify for bestF if > whenHunt * 1.2
-				if (stats.conquest.Hunter < 100) { // 100 to account for one-hit siege joins
-					mobs.some( function(m) {
-						result = m.spentStamina >= whenHunt ? m.link : false;
-						return result;
-					});
-					if (result) {
-						return result;
-					}
-				}
-				// Otherwise, return the link of the biggest stamina spent that can be combined to make a group with more points than target
+				currentPoints = 0;
+			}
+			best = bestF();
+
+			// Otherwise, return the link of the biggest stamina spent that can be combined to make a group with more points than target
+			// Return the link of the mob with the most damage done in the combo that is over and closest to the hunter points target
+			if (query == 'link') {
 				if ($u.hasContent(best)) {
-					// Return the link of the mob with the highest stamina spent in the combo that is over and closest to the hunter points target
-					return mobs[mobs.flatten('spentStamina').indexOf(best.sort().pop())].link;
+					mobs = mobs.filter( function(m) {
+						return best.hasIndexOf(m.spentStamina);
+					});
+					return  mobs[mobs.flatten('damage').indexOf(mobs.flatten('damage').sort().pop())].link;
 				}
 				return false;
 			}
 			
-			// query == 'maxed'
-			
-			// Record all combos of living or dead conq monsters that total over target hunter points
+			// Remove the complete sets
 			do {
-				best.forEach(remove);
-				currentPoints = 0; // One combo done, so we can clear out the current Hunter points
+				if ($u.hasContent(best)) {
+					best.forEach(remove);
+					currentPoints = 0;
+				}
 				best = bestF();
-			} 
-			while ($u.hasContent(best));
-
+				result = [];
+				if (!$u.hasContent(best)) {
+					// Make a list of best options for each living monster
+					comboList = liveMobs.map(bestF);
+					
+					// Make an index
+					index = comboList.sumsList();
+					
+					// Pick best list
+					result = caap.minMaxArray(comboList, 'min', whenHunt - currentPoints - 1, whenHunt * 1.2 - currentPoints);
+					
+					if ($u.hasContent(result)) {
+						i = index.indexOf(result);
+						best = comboList[i];
+						currentPoints = 0;
+						best.removeFromList(liveMobs[i].spentStamina);
+						maxed.addToList(liveMobs[i].link);
+						liveMobs.splice(i, 1);
+					}
+				}
+			} while ($u.hasContent(best) || $u.hasContent(result));
+			
 			session.setItem('hunterMaxed', maxed);
-			return;
 			
         } catch (err) {
             con.error("ERROR in conquest.hunterCombos: " + err.stack);

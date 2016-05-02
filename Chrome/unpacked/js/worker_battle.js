@@ -288,7 +288,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			Math.max(myRank + pointList.indexOf(p) - pointList.indexOf(10), hisRank));
 	};
 	
-	// Calculate an a score based on level, army size, and previous experience for a battle record to pick the best target
+	// Filter targets based on min/max rank, min/max level
 	battle.filterF = function(arr, which) {
 		var	w = battle[which],
 				 // Play loose if reconning for demis
@@ -339,7 +339,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			battle.RaidDuel = $j.extend({}, battle.Duel, battle.RaidDuel);
 
 			battle.records = battle.records.filter( function(r) {
-				foughtRecently = !schedule.since(r.wonTime, 4 * 7 * 24 * 3600) || !schedule.since(r.lostTime,  4 * 7 * 24 * 3600);
+				foughtRecently = !schedule.since(r.wonTime, 2 * 7 * 24 * 3600) || !schedule.since(r.lostTime,  3 * 7 * 24 * 3600);
 				newbie = !schedule.since(r.deadTime, 24 * 3600);
 				if (foughtRecently || newbie) {
 					return true;
@@ -459,7 +459,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 	            staminaReq = 0,
                 whenMonster = config.getItem('WhenMonster', 'Never'),
 				whenBattle = config.getItem(w.when, 'Never'),
-	            targetMonster = state.getItem('targetFrombattle_monster', ''),
+	            targetMonster = state.getItem('targetFromMonster', ''),
                 monsterObject = $u.hasContent(targetMonster) ? monster.getRecord(targetMonster) : {},
 				demisLeft = battle.demisPointsToDo('left'),
 				battleOrOverride = 'Battle';
@@ -496,7 +496,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				if (!caap.inLevelUpMode() && (demisLeft || general.ZinMisaCheck(w.general))) {
 					battleOrOverride = 'battleOverride';
 					caap.setDivContent('battle_mess', 'Battle: Doing ' + (demisLeft ? 'Demi Points' : 'Zin-like general'));
-					if (which == 'War') {
+					if (which == 'War' || (which == 'Festival' && demisLeft)) {
 						which = config.getItem('zinDemiType', 'Invade');
 						w = battle[which];
 					} 
@@ -725,7 +725,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			} while (!$u.hasContent(r));
 			
 			
-			bR.name = $u.setContent(bR.name, r.name);
+			bR.name = $u.setContent(r.name, bR.name);
 			bR.army = $u.setContent(r.army, bR.army);
 			w.recon = $u.setContent(w.recon, 'recon');
 
@@ -736,7 +736,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 				}
 				bR.hiding = $u.setContent(bR.hiding, 0) + 1;
 				if (bR[w.chainCount] > 0) {
-					bR[w.chained] =  Date.now() + Math.random() * 7 * 24 * 3600 * 1000;
+					bR[w.chained] =  Math.floor(Date.now() + (Math.random() * 5 + 2) * 24 * 3600 * 1000);
 					con.log(2, 'Chained ' + bR.name + ' ' + bR[w.chainCount] + " times and didn't see a battle result, so giving a break until " + $u.makeTime(bR[w.chained], caap.timeStr(true)));
 					bR[w.chainCount] = 0;
 				} else {
@@ -775,7 +775,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			}
 			
 			if (bR[w.chainCount] >= maxChain) {
-				bR[w.chained] =  Date.now() + Math.random() * 7 * 24 * 3600 * 1000;
+				bR[w.chained] =  Math.floor(Date.now() + (Math.random() * 5 + 2) * 24 * 3600 * 1000);
 				con.log(2, 'Chained ' + bR.name + ' the full ' + bR[w.chainCount] + " times, so giving a break until " + $u.makeTime(bR[w.chained], caap.timeStr(true)));
 				bR[w.chainCount] = 0;
 			} else {
@@ -808,7 +808,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 			lowEst = $u.setContent(bR.minDef, 0) * 0.95 * defMod,
 			// high estimate of targets effective defense. Based on BSI 10
 			highEst = Math.min(Math.max($u.setContent(bR.level, 0) * 10, lowEst * 1.5), $u.setContent(bR.maxDef, 1000000) * 1.05) * defMod;
-			// Math.max lowEst * 1.5 in highEst is used to prevent model breakage when opponents BSI > 10 causes you to think you have a 100% chance to beat someone even though you've never won at an effective Att of 10 * his level.
+			// Math.max lowEst * 1.5 in highEst is used to prevent model breakage when opponents BSI > 10 causes CAAP to give a 100% chance to beat someone even though you've never won at an effective Att of 10 * his level.
 		if (att > highEst) {
 			return 100;
 		} 
