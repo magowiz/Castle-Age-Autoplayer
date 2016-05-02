@@ -241,7 +241,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 con.log(1, 'Changed from doing ' + lastAction + ' to ' + fName);
                 state.setItem('LastAction', fName);
 				caap.setDivContent('activity_mess', 'Activity: ' + description);
-				if (!$u.isObject(result)) {
+				if (!$u.isObject(result) && session.getItem('ThisAction', 'None') != 'caap.idle') {
 					caap.setDivContent('last_mess', '');
 				}
             }
