@@ -91,8 +91,57 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
 							label = $u.setContent(c.label, '').trim();
 							oldVal = $u.hasContent(label) ? config.getItem(label, 'defaultx') : null;
 							oldVal = oldVal == 'defaultx' ? null : oldVal;
-							newVal = !$u.hasContent(values[i]) || !$u.hasContent(values[i].v) ? null : values[i].v == 'blank' ? ''
-								: values[i].v == 'false' ? false : values[i].v == 'true' ? true : values[i].v;
+							if (!$u.hasContent(values[i]) || !$u.hasContent(values[i].v)) {
+								newVal = null;
+							} else {
+								if (values[i].v == 'blank'){
+									newVal = '';										
+								} else {
+									switch(typeof oldVal){
+										case 'boolean':
+											switch(typeof values[i].v){
+												case 'boolean': 
+													newVal = values[i].v;
+													break;
+												case 'string':
+													newVal = values[i].v.toLowerCase()=='false'? false:values[i].v.toLowerCase()=='true'? true:false;
+													break;
+												case 'number':
+													newVal = (values[i].v>0);
+													break;
+												default:
+													newVal=null;
+											}
+											break;
+										case 'string':											
+											switch(typeof values[i].v){
+												case 'boolean': 
+													newVal = values[i].v.toString();
+													break;
+												case 'number':
+													newVal = values[i].v.toString();
+													break;
+												case 'string':
+													newVal = values[i].v.toLowerCase()=='false'? false:values[i].v.toLowerCase()=='true'? true:values[i].v;
+													if (typeof newVal == 'boolean') oldVal= (!newVal);
+													break;
+												default:
+													newVal=values[i].v;
+											}
+											break;
+										case 'number':
+											try {
+												newVal = eval(values[i].v);
+											} catch (e) {
+												newVal = values[i].v;
+												con.error('Gsheet: Config error on ' + label + ' : '+e);
+											}
+											break;
+										default:
+											newVal = values[i].v;
+									}
+								}
+							}
 							if (oldVal !== null && newVal !== null && oldVal != newVal) {
 								newVal = $u.isString(oldVal) ? newVal.toString() : newVal;
 								con.log(1, 'Gsheet: Updating config value of ' + label + ' from ' + oldVal
