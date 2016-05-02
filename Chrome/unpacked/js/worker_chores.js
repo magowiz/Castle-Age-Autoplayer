@@ -2,7 +2,7 @@
 nomen: true, bitwise: true, plusplus: true,
 regexp: true, eqeq: true, newcap: true, forin: false */
 /*global window,escape,worker,$j,chores,stats,
-$u,chrome,spreadsheet,self,caap,config,con,
+$u,chrome,spreadsheet,self,caap,config,con,page,
 schedule,gifting,state,army, general,session,monster,guild_monster */
 /*jslint maxlen: 256 */
 
@@ -109,9 +109,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 conquesthealth = (config.getItem('WhenConquest', 'Never') !== 'Never' && config.getItem('ConquestWaitSafeHealth', false) ? 13 : 10);
                 highest = battleHealth >= conquesthealth ? battleHealth : conquesthealth;
                 if ((caap.inLevelUpMode() || stats.stamina.num >= stats.stamina.max) && stats.health.num < highest) {
-                    con.log(1, 'Heal');
 					monster.lastClick = '';
-					return caap.navigate3(caap.page, caap.page + '.php?action=heal_avatar');
+					page.ajax(caap.page + '.php?action=heal_avatar', '', 'bqh');
+					return {mlog: 'Healing'};
                 }
             }
 
@@ -124,9 +124,9 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
                 return false;
             }
 
-            con.log(1, 'Heal');
 			monster.lastClick = '';
-			return caap.navigate3(caap.page, caap.page + '.php?action=heal_avatar');
+			page.ajax(caap.page + '.php?action=heal_avatar', '', 'bqh');
+			return {mlog: 'Healing'};
         } catch (err) {
             con.error("ERROR in chores.heal: " + err.stack);
             return false;
@@ -338,6 +338,7 @@ schedule,gifting,state,army, general,session,monster,guild_monster */
         }
     };
 
+	// This is hardcoded in the mainloop to always have the highest priority
 	worker.addAction({fName: 'chores.income', priority : 2000, description : 'Awaiting Income'});
 
 	chores.income = function () {

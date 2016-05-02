@@ -41,7 +41,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 			fullC: '',
 			jFullC: '',
 			join: false,
-            charClass: '',
+            charClass: '', // init value, false if class not found, otherwise class name with first letter in caps
 			listStamina: '10',
 			listEnergy: '',
 			multiNode: false,
@@ -80,38 +80,35 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 			switch (page) {
 			case 'raid':
 				if (caap.clickUrl.hasIndexOf('casuser=')) {
-					return monster.checkResults_monster(page, resultsText, ajax, slice, lastClick);
+					monster.checkResults_monster(page, resultsText, ajax, slice, lastClick);
+					break;
 				}
-				return monster.checkResults_list(page, resultsText, ajax, slice);
-				
+				monster.checkResults_list(page, resultsText, ajax, slice);									
+				break;
 			case 'player_monster_list':
 			case 'public_monster_list':
-			case 'guild_priority_mlist':
-				return monster.checkResults_list(page, resultsText, ajax, slice);
-				
+			case 'guild_priority_mlist':	monster.checkResults_list(page, resultsText, ajax, slice, lastClick);					break;
 			case 'battle_monster': 
 			case 'guildv2_battle_monster': 
 			case 'battle_expansion_monster': 
-				return monster.checkResults_monster(page, resultsText, ajax, slice, lastClick);
-			case 'festival_battle_monster': 
-				return monster.checkResults_monster(page, resultsText, ajax, slice, lastClick);
-				
-			default : 
-				break;
+			case 'festival_battle_monster': monster.checkResults_monster(page, resultsText, ajax, slice, lastClick);	break;
+			default :  break;
 			}
-        } catch (err) {
+			monster.spent = null;
+			monster.amount = null;
+
+		} catch (err) {
             con.error("ERROR in checkResults_onMonster: " + err.stack);
         }
     };
 	
 	/*jslint unparam: false */
-    monster.checkResults_list = function (page, resultsText, ajax, slice) {
+    monster.checkResults_list = function (page, resultsText, ajax, slice, lastClick) {
 	/*jslint unparam: true */
         try {
 			ignoreJSLintError(resultsText, ajax);
-			
-			var lastClick = $u.setContent(monster.lastClick, session.getItem('clickUrl','')),
-				pageURL = session.getItem('clickUrl', ''),
+				
+			var pageURL = session.getItem('clickUrl', ''),
 				mR = {},
 				it = 0,
 				now = Date.now(),
@@ -186,25 +183,24 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				mR.listReviewed = now;
 				
 				switch ($u.setContent($j(which.button, this).attr("src"), '').regex(/_btn_(\w*)/)) {
-				case 2:				mR.state = 'Collect';									 		break;
+				case 2:				feed.checkDeath(mR);		mR.state = 'Collect';		 		break;
 				case 3:				mR.state = 'Attack';											break;
-				case 4:				feed.checkDeath(mR);			mR.state = 'Dead';				break;
-				case 'view':		mR.state = 'Dead';												break;
 				case 'atk':			mR.state = mR.state == 'Join' ? 'Join' : 'Attack';				break;
 				case 'join':	
 				case 'joinmonster':	mR.state = $u.setContent(mR.state, 'Join');						break;
+				case 4:
+				case 'view':
 				case 'collect':		feed.checkDeath(mR);
 									mR.state = mR.state == 'Attack' ? 'Dead or fled' : $u.setContent(mR.state, 'Dead or fled');
 									break;
 				default:			con.warn("Unknown engageButtonName state for " + mR.name);		break;
 				}
 				
-				if (mR.state == 'Attack' && mR.etf > 0 && Date.now() > mR.etf) {
-					mR.staminaSpent = 0;
-					mR.energySpent = 0;
+				if (['Done', 'Collect', 'Dead or fled'].hasIndexOf(mR.state)) {
+					mR.color = 'grey';
 				}
-				
-				mR.color = ['Dead', 'Collect', 'Dead or fled'].hasIndexOf(mR.state) ? 'grey' : mR.state == 'Attack' && mR.color == 'grey' ? 'black' : mR.color;
+				monster.checkReset(mR);
+
 				if (publicList && !feed.joinable(mR)) {
 					return true;
 				}
@@ -269,7 +265,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				con.log(2, 'Monster: already have a priority monster, setting one hour wait to try again');
 				schedule.setItem('monsterPriorityWait', 3600);
 			}
-
+			
 			monsterDiv = $j(monster.onMonsterHeader, slice);
 
 			if (visiblePageChangetf) {
@@ -317,6 +313,9 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 			link = monster.cleanLink(link, id, mpool);
 			cM = monster.getRecord(link); // current monster record
 			cM.rix = isRaid ? '&rix=' + $u.setContent(cM.link.regex(/rix=(\d+)/), 2) : '';
+			if (resultsText.match(/\d/) && $u.hasContent(monster.spent)) {
+				cM[monster.spent] += monster.amount;
+			}
 
 			// Get the user name
 			if (id == stats.FBID) {
@@ -522,13 +521,11 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 			
 			// Is it alive?
 			if ($u.hasContent(time)) {
-				cM.time = (time[0] + time[1] / 60).dp(2);
-				if (cM.etf != 0 && Date.now() > cM.etf) {
-					cM.spentStamina = 0;
-					cM.spentEnergy = 0;
+				if ((time[0] + (time[1] + 1) / 60).dp(2) > cM.time) {
+					monster.checkReset(cM, 'force');
 				}
-				cM.etf = Date.now() + cM.time * 3600 * 1000;
-				
+				cM.time = (time[0] + (time[1] + 1) / 60).dp(2);
+
 				// new siege style
 				tempDiv = $j("#objective_list_section div[style*='mobjective_container']", slice);
 				if ($u.hasContent(tempDiv)) {
@@ -652,8 +649,10 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 					if (cM.state == 'Join') {
 						con.log(1, 'Joined a feed monster with ' + cM.damage, cM);
 					}
+
 					cM.state = 'Attack';
-					cM.color = cM.color == 'grey' ? '' : cM.color;
+					monster.checkReset(cM);
+					cM.etf = Date.now() + cM.time * 3600 * 1000;
 					
 					if (style == 'class') {
 						// Character type stuff
@@ -771,6 +770,9 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 							con.log(2, "Ignoring " + cM.name + " as per Finder settings", cM);
 							deleteMon = true;
 						}
+					} else if (cM.spentStamina > 0 && cM.etf > 0 && Date.now() < cM.etf) {
+						con.error('Unable to find monster damage, and yet I spent stamina on this monster.'
+							+ ' Leaving update for next visit to see if damage appears');
 					} else { // I haven't hit it, but I can't join it, so delete
 						con.log(2, "Deleting unjoinable monster " + cM.name + " off Feed", cM);
 						deleteMon = true;
@@ -779,10 +781,10 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 			// It's dead
 			} else {
 				// And I haven't hit it and it's not conquest
-				if (!monster.damaged(cM) && !monster.isConq(cM)) {
+				if (!monster.damaged(cM) && !monster.isConq(cM) && !cM.link.hasIndexOf('=' + stats.FBID)) {
 					//and it's dead and not a conquest monster, so delete
 					if (monster.hasRecord(cM.link)) {
-						monster.deleteRecord(lastClick);
+						monster.deleteRecord(cM.link);
 						con.log(2, "Deleting dead monster " + cM.name + " off Feed", cM);
 						deleteMon = true;
 					}
@@ -823,6 +825,15 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 
 	monster.isConq = function(cM) {
 		return cM.link.hasIndexOf("guildv2_battle_monster.php");
+	};
+	
+	monster.checkReset = function(mR, force) {
+		if (force || (mR.state == 'Attack' && (mR.color == 'grey' || (mR.etf > 0 && Date.now() > mR.etf)))) {
+			mR.color = mR.color == 'grey' ? 'black' : mR.color;
+			mR.staminaSpent = 0;
+			mR.energySpent = 0;
+			mR.charClass = '';
+		}
 	};
 	
     caap.inLevelUpMode = function () {
@@ -1096,6 +1107,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 					conquestCollect = !monster.isConq(cM) || hunterPts == 'Never' || stats.conquest.Hunter < hunterPts;
 					if (conquestCollect && (/:collect\b/.test(cM.conditions) ||
 						(/:collectsmall\b/.test(cM.conditions) && cM.damage < 400000) ||
+						(/:collectold\b/.test(cM.conditions) && cM.lMissing > 3) ||
 						(!/:!collect\b/.test(cM.conditions) && config.getItem('monsterCollectReward', false)))) {
 						message = 'Collecting ';
 						if (general.Select('CollectGeneral')) {
@@ -1281,21 +1293,21 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 							// If just about to do big hit, do any quests to use energy first.
 							if (stats.energy.num > cQ.energy && cQ.experience < stats.exp.dif) {
 								result = quest.worker();
-								if (caap.passThrough(result)) { 
+								if (caap.passThrough(result, 'quest')) { 
 									return result;
 								}
 							}
 							// Next see if we can use any of the remaining stamina in battle
 							if (stats.exp.dif > 5 && stats.stamina.num - statRequireBig > 0) {
 								result = battle.worker(stats.stamina.num - statRequireBig);
-								if (caap.passThrough(result)) { 
+								if (caap.passThrough(result, 'battle')) { 
 									return result;
 								}
 							}
 							// Last do a big quest if that's the biggest we've got
 							if (stats.energy.num > cQ.energy && cQ.experience > statRequireBig * 2.2) {
 								result = quest.worker();
-								if (caap.passThrough(result)) { // If just about to do big hit, do any quests to use energy first.
+								if (caap.passThrough(result, 'quest')) { // If just about to do big hit, do any quests to use energy first.
 									return result;
 								}
 							}
@@ -1427,14 +1439,14 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
                     }
 
                     caap.click(attackButton);
-					cM['spent' + (fightMode === 'Fortify' ? 'Energy' : 'Stamina')] += statRequire;
+					monster.spent = 'spent' + (fightMode === 'Fortify' ? 'Energy' : 'Stamina');
+					monster.amount = statRequire;
 					
 					// Record healing debt or repayments
 					if (cM.fortify >= 0 && healPercStam > 0 && (!cM.charClass || ['Mage','Rogue'].indexOf(cM.charClass) == -1)) {
 						cM.debtStamina = Math.max(0, cM.debtStamina + (fightMode === 'Fortify' ? -statRequire / healPercStam : statRequire));
 						cM.debtStart = cM.debtStart == -1 && fightMode === 'Monster' ? Math.min(cM.fortify, 97) 
 							: cM.debtStamina ? cM.debtStart : -1;
-						session.setItem('ReleaseControl', false);
 					}
                     // dashboard autorefresh fix
                     localStorage.AFrecentAction = true;
@@ -2257,7 +2269,9 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
                         // If this monster does not match, skip to next one
                         if ((monString !== 'all' && !monster.getRecord(thisMon).name.toLowerCase().hasIndexOf(monString)) ||
 							(conditions.regex(/(:conq)\b/) && !cM.link.hasIndexOf("guildv2_battle_monster.php")) ||
-							(conditions.regex(/(:!conq)\b/) && cM.link.hasIndexOf("guildv2_battle_monster.php"))) {
+							(conditions.regex(/(:!conq)\b/) && cM.link.hasIndexOf("guildv2_battle_monster.php")) ||
+							(conditions.regex(/(:old)\b/) && cM.time > 144) ||
+							(conditions.regex(/(:!old)\b/) && cM.time < 144)) {
                             return;
                         }
 
