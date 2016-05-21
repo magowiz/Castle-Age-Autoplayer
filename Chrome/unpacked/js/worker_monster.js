@@ -84,14 +84,22 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 					break;
 				}
 				monster.checkResults_list(page, resultsText, ajax, slice);									
+
 				break;
 			case 'player_monster_list':
 			case 'public_monster_list':
 			case 'guild_priority_mlist':	monster.checkResults_list(page, resultsText, ajax, slice, lastClick);					break;
+
+
 			case 'battle_monster': 
 			case 'guildv2_battle_monster': 
 			case 'battle_expansion_monster': 
+
 			case 'festival_battle_monster': monster.checkResults_monster(page, resultsText, ajax, slice, lastClick);	break;
+
+
+
+
 			default :  break;
 			}
 			monster.spent = null;
@@ -108,6 +116,8 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
         try {
 			ignoreJSLintError(resultsText, ajax);
 				
+
+
 			var pageURL = session.getItem('clickUrl', ''),
 				mR = {},
 				it = 0,
@@ -185,6 +195,8 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				switch ($u.setContent($j(which.button, this).attr("src"), '').regex(/_btn_(\w*)/)) {
 				case 2:				feed.checkDeath(mR);		mR.state = 'Collect';		 		break;
 				case 3:				mR.state = 'Attack';											break;
+
+
 				case 'atk':			mR.state = mR.state == 'Join' ? 'Join' : 'Attack';				break;
 				case 'join':	
 				case 'joinmonster':	mR.state = $u.setContent(mR.state, 'Join');						break;
@@ -196,10 +208,14 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				default:			con.warn("Unknown engageButtonName state for " + mR.name);		break;
 				}
 				
+
+
+
 				if (['Done', 'Collect', 'Dead or fled'].hasIndexOf(mR.state)) {
 					mR.color = 'grey';
 				}
 				monster.checkReset(mR);
+
 
 				if (publicList && !feed.joinable(mR)) {
 					return true;
@@ -239,6 +255,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				damageDiv = $j(),
 				partsDiv = $j(),
 				partsElem = $j(),
+				partsMinion = $j(),
 				armsList = [],
 				tStr = '',
 				partsHealth = [],
@@ -522,8 +539,12 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 			// Is it alive?
 			if ($u.hasContent(time)) {
 				if ((time[0] + (time[1] + 1) / 60).dp(2) > cM.time) {
+
+
+
 					monster.checkReset(cM, 'force');
 				}
+
 				cM.time = (time[0] + (time[1] + 1) / 60).dp(2);
 
 				// new siege style
@@ -569,53 +590,58 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				// if the monster has parts, hit the weakest minion first, and then hit the part with the least health next
 				partsDiv = $j("#app_body div[id^='monster_target_']");
 				if ($u.hasContent(partsDiv)) {
-					cM.mainOnly = true;
-					partsHealth = [];
-					//con.log(2, "The monster has " + partsDiv.length + " parts");
+                    cM.mainOnly = true;
+                    partsHealth = [];
+                    //con.log(2, "The monster has " + partsDiv.length + " parts");
 
-					// Click first order parts which have health
-					partsDiv.each( function(index) {
-						partsElem = $j(this).find('div[style*="multi_smallhealth.jpg"]');
-						if ($u.hasContent(partsElem)) {
-							//partsElem2 = partsElem.children[1].children[0];
-							tNum = $u.setContent($j(partsElem).getPercent("width"), 0);
-							tempDiv =  $j("#app_body span[id^='target_monster_info_" + (index + 1) + "']");
-							//con.log(2, 'desciptor text: ' + tempDiv.text());
-							if ($u.hasContent(tempDiv)) {
-								partsHealth.push(tNum);
-								if (tempDiv.text().regex(/reduce/)) {
-									if (tNum < 75) {
-										cM.mainOnly = false;
-									}
-									arms.push(tNum);
-									armsList.push((index + 1).toString());
-								} else if (tempDiv.text().regex(/hinder/)) {
-									minions.push(tNum);
-								} else {
-									mains.push(tNum);
-								}
-							} else {
-								con.warn('No info for body part ' + (index + 1) + ", assuming it's a minion", $j(this));
-								minions.push(tNum);
-							}
-						} else {
-							con.warn('No children of body part for health width');
-						}
-					});
-					//con.log(2, 'parts list', minions, arms, mains);
-					
-					// Vargulis or Samael three main, no arm type
-					if (mains.length == 3 && arms.length == 0) {
-						// if current target is within 5% health of healthiest part, keep attacking, otherwise 
-						// switch to healthiest part    80 60 77
-						cM.targetPart = cM.targetPart == 0 ? 1 : cM.targetPart;
-						cM.targetPart = (mains[cM.targetPart - 1] >= caap.minMaxArray(mains, 'max', 0, 101) - 5 
-							&& mains[cM.targetPart - 1] > 0) ? cM.targetPart 
-							: mains.lastIndexOf(caap.minMaxArray(mains, 'max', 0, 101)) + 1;
-					} else {
-						cM.targetPart = partsHealth.lastIndexOf(minions.length ? caap.minMaxArray(minions, 'min', 0)
-							: Math.min((arms.length ? caap.minMaxArray(arms, 'min', 0) : 100), caap.minMaxArray(mains, 'min', 0))) + 1;
-					}
+                    // Click first order parts which have health
+                    partsDiv.each(function (index) {
+                        partsElem = $j(this).find('div[style*="multi_smallhealth.jpg"]');
+                        if ($u.hasContent(partsElem)) {
+                            //partsElem2 = partsElem.children[1].children[0];
+                            tNum = $u.setContent($j(partsElem).getPercent("width"), 0);
+                            tempDiv = $j("#app_body span[id^='target_monster_info_']:nth-child(" + parseInt(index + 1) + ")");
+                            //con.log(2, 'desciptor text: ' + tempDiv.text());
+                            if ($u.hasContent(tempDiv)) {
+                                partsHealth.push(tNum);
+                                partsMinion = $j(this).find('img[src*="submonster_frame_"]');
+                                if ($u.hasContent(partsMinion)) {
+
+                                    minions.push(tNum);/*
+                                } else if (tempDiv.text().regex(/hinder/)) {
+                                    minions.push(tNum);*/
+                                } else if (tempDiv.text().regex(/reduce/)) {
+                                    if (tNum < 75) {
+                                        cM.mainOnly = false;
+                                    }
+                                    arms.push(tNum);
+                                    armsList.push((index + 1).toString());
+                                } else {
+                                    mains.push(tNum);
+                                }
+                            } else {
+                                con.warn('No info for body part ' + (index + 1) + ", assuming it's a minion", $j(this));
+                                minions.push(tNum);
+                            }
+                        } else {
+                            con.warn('No children of body part for health width');
+                        }
+                    });
+                    //con.log(2, 'parts list', minions, arms, mains);
+
+                    // Vargulis or Samael three main, no arm type
+                    if (mains.length == 3 && arms.length == 0) {
+                        // if current target is within 5% health of healthiest part, keep attacking, otherwise
+                        // switch to healthiest part    80 60 77
+                        cM.targetPart = cM.targetPart == 0 ? 1 : cM.targetPart;
+                        cM.targetPart = (mains[cM.targetPart - 1] >= caap.minMaxArray(mains, 'max', 0, 101) - 5
+                             && mains[cM.targetPart - 1] > 0) ? cM.targetPart
+                         : mains.lastIndexOf(caap.minMaxArray(mains, 'max', 0, 101)) + 1;
+                    } else {
+                        cM.targetPart = partsHealth.lastIndexOf(minions.length > 0 ? caap.minMaxArray(minions, 'min', 0)
+                             : Math.min((arms.length && caap.minMaxArray(arms, 'min', 0) !== undefined ? caap.minMaxArray(arms, 'min', 0) : 100), caap.minMaxArray(mains, 'min', 0))) + 1;
+                    }
+					con.log(2, 'cM.targetPart', cM.targetPart);
 						
 					cM.mainOnly = armsList.hasIndexOf(cM.targetPart) ? false : cM.mainOnly;
 					// Define if use user or default order parts
@@ -651,6 +677,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 					}
 
 					cM.state = 'Attack';
+
 					monster.checkReset(cM);
 					cM.etf = Date.now() + cM.time * 3600 * 1000;
 					
@@ -737,16 +764,20 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 							cM.multiNode = true;
 							tempDiv.each( function() {
 								tNum = $j(this).attr('src').regex(/button_cost_stamina_(\d+)/);
-								if (cM.listStamina.indexOf(tNum) == -1) {
-									cM.listStamina.push(tNum);
+								if (tNum<=config.getItem('XPowerAttackMaxStamina', 200)) {
+									if (cM.listStamina.indexOf(tNum) == -1) {
+										cM.listStamina.push(tNum);
+									}
 								}
 							});
 							tempDiv = $j("img[src*='button_cost_energy_']", slice);
 							if ($u.hasContent(tempDiv)) {
 								tempDiv.each( function() {
 									tNum = $j(this).attr('src').regex(/button_cost_energy_(\d+)/);
-									if (cM.listEnergy.indexOf(tNum) == -1) {
-										cM.listEnergy.push(tNum);
+									if (tNum<=config.getItem('XPowerAttackMaxEnergy', 200)) {
+										if (cM.listEnergy.indexOf(tNum) == -1) {
+											cM.listEnergy.push(tNum);
+										}
 									}
 								});
 							}
@@ -1343,8 +1374,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 			}
 
             // Set general and go to monster page
-			result = caap.navigate2('@' + menuGeneral + ',ajax:' + cM.link + (cM.targetPart > 0 ? (",clickjq:#app_body #monster_target_" +
-				cM.targetPart + " img[src*='multi_selectbtn.jpg'],jq:#app_body #expanded_monster_target_" + cM.targetPart + ":visible") : ''));
+            result = caap.navigate2('@' + menuGeneral + ',ajax:' + cM.link + (cM.targetPart > 0 ? (",clickjq:#app_body div[id^='monster_target_']:nth-child(" + cM.targetPart + ") img[src*='multi_selectbtn.jpg'],jq:#app_body div[id^='monster_target_']:nth-child(" + cM.targetPart + ")>div[id^='collapsed_monster_target_']:hidden") : ''));
 			
 			monster.lastClick = cM.link;
             if (result !== false) {
@@ -1447,6 +1477,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 						cM.debtStamina = Math.max(0, cM.debtStamina + (fightMode === 'Fortify' ? -statRequire / healPercStam : statRequire));
 						cM.debtStart = cM.debtStart == -1 && fightMode === 'Monster' ? Math.min(cM.fortify, 97) 
 							: cM.debtStamina ? cM.debtStart : -1;
+
 					}
                     // dashboard autorefresh fix
                     localStorage.AFrecentAction = true;
@@ -2391,6 +2422,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
                 monsterachieveInstructions = "Check if monsters have reached achievement damage level first. Switch when achievement met.",
                 powerattackInstructions = "Use power attacks. Only do normal attacks if power attack not possible",
                 powerattackMaxInstructions = "Use maximum power attacks globally on Skaar, Genesis, Ragnarok, and Bahamut types. Only do normal power attacks if maximum power attack not possible",
+                XpowerattackMaxInstructions = "Maximum stamina used per power attack",
                 useTacticsInstructions = "Use the Tactics attack method, on monsters that support it, instead of the normal attack. You must be level 50 or above.",
                 useTacticsThresholdInstructions = "If monster health falls below this percentage then use the regular attack buttons instead of tactics.",
                 collectRewardInstructions = "Automatically collect monster rewards.",
@@ -2450,6 +2482,8 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
             htmlCode += caap.makeCheckTR("Power Attack Only", 'PowerAttack', true, powerattackInstructions);
             htmlCode += caap.display.start('PowerAttack', 'is', true);
             htmlCode += caap.makeCheckTR("Power Attack Max", 'PowerAttackMax', false, powerattackMaxInstructions, true);
+            htmlCode += caap.makeNumberFormTR("Max stamina", 'XPowerAttackMaxStamina', XpowerattackMaxInstructions, 200, '', '', true, false);
+            htmlCode += caap.makeNumberFormTR("Max energy", 'XPowerAttackMaxEnergy', XpowerattackMaxInstructions.replace('stamina','energy'), 200, '', '', true, false);
             htmlCode += caap.display.end('PowerAttack', 'is', true);
             htmlCode += caap.makeDropDownTR("Siege up to", 'siegeUpTo', siegeList, siegeInst, '', 'Never', false, false, 62);
             htmlCode += caap.makeCheckTR("Collect Monster Rewards", 'monsterCollectReward', false, collectRewardInstructions);
