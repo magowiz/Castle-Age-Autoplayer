@@ -33,6 +33,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
             phase: -1,
             miss: 0,
             rix: -1,
+			campaignCreditAchieved: false,
             over: '',
             color: '',
             review: -1,
@@ -84,11 +85,11 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 					break;
 				}
 				monster.checkResults_list(page, resultsText, ajax, slice);									
-
 				break;
 			case 'player_monster_list':
 			case 'public_monster_list':
 			case 'guild_priority_mlist':	monster.checkResults_list(page, resultsText, ajax, slice, lastClick);					break;
+
 
 
 			case 'battle_monster': 
@@ -481,6 +482,9 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				}
 			}
 
+			// Is Campaign Credit Achieved
+			cM.campaignCreditAchieved = $u.hasContent($j("img[src*='campaign_icon.png']", slice));
+			
 			// Get damage done to monster
 			damageDiv = $j("#action_logs td[class='dragonContainer']:first tr", slice);
 			if ($u.hasContent(damageDiv)) {
@@ -825,6 +829,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 					cM.color = 'grey';
 				}
 			}
+			
 			
 			// Set staminaSpent to a minimum value to make Hunter collect algorithms work
 			cM.spentStamina = cM.spentStamina > 0 || !monster.damaged(cM) ? cM.spentStamina : cM.listStamina.split(',').shift() * 
@@ -1987,6 +1992,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				main = monster.parseCondition('main', cM.conditions),
 				maxToFortify = monster.parseCondition('f%', cM.conditions),
 				maxSta = monster.parseCondition('sta', cM.conditions),
+				maxCamp = config.getItem('stopAtCampaignAchieve', false) && cM.campaignCreditAchieved,
 				maxHunt = cM.conditions.regex(/:hunt\b/) && monster.isConq(cM) ? session.getItem('hunterMaxed', []).hasIndexOf(cM.link) : false;
 
 			cM.color = '';
@@ -2082,7 +2088,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 
 			//con.log(2, 'MAX DAMAGE', maxDamage, cM.damage);
 			if ((((maxDamage && cM.damage >= maxDamage) || (maxSta && cM.spentStamina >= maxSta)) && (!cM.mainOnly || !main)) ||
-					(cM.mainOnly && main && cM.damage >= main) || maxHunt) {
+					(cM.mainOnly && main && cM.damage >= main) || maxHunt || maxCamp) {
 
 				cM.color = 'red';
 				cM.over = 'max';
@@ -2420,6 +2426,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
                 questFortifyInstructions = "Do quests if ship health is above this % and quest mode is set to Not Fortify (leave blank to disable)",
                 stopAttackInstructions = "Do not attack if ship health is below this % (leave blank to disable)",
                 monsterachieveInstructions = "Check if monsters have reached achievement damage level first. Switch when achievement met.",
+				stopAtCampaignAchieveInstructions = "Do not attack if Campaign Credit Achieved!",
                 powerattackInstructions = "Use power attacks. Only do normal attacks if power attack not possible",
                 powerattackMaxInstructions = "Use maximum power attacks globally on Skaar, Genesis, Ragnarok, and Bahamut types. Only do normal power attacks if maximum power attack not possible",
                 XpowerattackMaxInstructions = "Maximum stamina used per power attack",
@@ -2490,6 +2497,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
             htmlCode += caap.makeCheckTR("Clear Complete Monsters", 'clearCompleteMonsters', false, '');
             //htmlCode += caap.makeCheckTR("Battle Conquest Monsters", 'conquestMonsters', false, '');
             htmlCode += caap.makeCheckTR("Achievement Mode", 'AchievementMode', true, monsterachieveInstructions);
+            htmlCode += caap.makeCheckTR("Stop At Campaign Achievement", 'stopAtCampaignAchieve', false, stopAtCampaignAchieveInstructions);
             htmlCode += caap.makeNumberFormTR("Heal My Damage Up to % of Stamina Used", 'HealPercStam', healPercStamInst, 20, '', '');
             htmlCode += caap.makeDropDownTR("Fortify for Others When", 'WhenFortify', fortifyList, fortifyInst, '', 'Never', false, false, 62);
             htmlCode += caap.display.start('WhenFortify', 'isnot', 'Never');
