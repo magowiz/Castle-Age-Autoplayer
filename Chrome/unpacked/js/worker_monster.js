@@ -1992,7 +1992,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
 				main = monster.parseCondition('main', cM.conditions),
 				maxToFortify = monster.parseCondition('f%', cM.conditions),
 				maxSta = monster.parseCondition('sta', cM.conditions),
-				maxCamp = config.getItem('stopAtCampaignAchieve', false) && cM.campaignCreditAchieved,
+				maxCamp = config.getItem('stopAtCampaignAchieve', false) && cM.campaignCreditAchieved && cM.conditions === "",
 				maxHunt = cM.conditions.regex(/:hunt\b/) && monster.isConq(cM) ? session.getItem('hunterMaxed', []).hasIndexOf(cM.link) : false;
 
 			cM.color = '';
@@ -2426,7 +2426,7 @@ config,con,gm,schedule,state,general,session,conquest,monster:true */
                 questFortifyInstructions = "Do quests if ship health is above this % and quest mode is set to Not Fortify (leave blank to disable)",
                 stopAttackInstructions = "Do not attack if ship health is below this % (leave blank to disable)",
                 monsterachieveInstructions = "Check if monsters have reached achievement damage level first. Switch when achievement met.",
-				stopAtCampaignAchieveInstructions = "Do not attack if Campaign Credit Achieved!",
+				stopAtCampaignAchieveInstructions = "Do not attack if Campaign Credit Achieved! (unless you already set condition)",
                 powerattackInstructions = "Use power attacks. Only do normal attacks if power attack not possible",
                 powerattackMaxInstructions = "Use maximum power attacks globally on Skaar, Genesis, Ragnarok, and Bahamut types. Only do normal power attacks if maximum power attack not possible",
                 XpowerattackMaxInstructions = "Maximum stamina used per power attack",
