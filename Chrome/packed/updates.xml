@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gupdate xmlns="http://www.google.com/update2/response" protocol="2.0">
         <app appid="jmimcbpnlgigobbdaomplcfbmpbkalog">
-                <updatecheck codebase="https://github.com/magowiz/Castle-Age-Autoplayer/blob/master/Chrome/packed/Chrome.crx?raw=true" version="141.0.0.290" />
+                <updatecheck codebase="https://github.com/magowiz/Castle-Age-Autoplayer/blob/master/Chrome/packed/Chrome.crx?raw=true" version="141.0.0.291" />
         </app>
 </gupdate>
